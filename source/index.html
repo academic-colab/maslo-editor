@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>MASLO</title>
+  <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.13.custom.css" rel="stylesheet" />	
+</head>
+<body>
+  <div id="tabs" class="ui-tabs">
+    <ul>
+      <li><a href="#edit"><span>Edit</span></a></li>
+      <li><a href="#preview"><span>Preview</span></a></li>
+    </ul>
+    <div id="edit" class="ui-tabs-hide">
+      <h1>Project Name MAT 117 Week 1</h1>
+      <div class="action">
+        <a href="">+ Add more content</a>
+        <button type="button">Save</button>
+        <button type="button">Publish</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>List</th><th>Type</th><th>Page</th><th>TOC</th><th>Status</th><th>Remove</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" size="3" value="1" /></td>
+            <td><img src="icons/doc.jpg" alt="Text Pages" /></td>
+            <td>Week 1 podcast - Core Concepts from the first lecture</td>
+            <td><input type="checkbox" checked="checked" /></td>
+            <td>Published</td>
+            <td><img src="icons/remove.png" alt="Remove Item" /></td>
+          </tr>
+
+          <tr>
+            <td><input type="text" size="3" value="2" /></td>
+            <td><img src="icons/doc.jpg" alt="Text Pages" /></td>
+            <td>Histograms - Histrograms and other data visualizations</td>
+            <td><input type="checkbox" /></td>
+            <td>Published</td>
+            <td><img src="icons/remove.png" alt="Remove Item" /></td>
+          </tr>
+
+
+          <tr>
+            <td><input type="text" size="3" value="3" /></td>
+            <td><img src="icons/doc.jpg" alt="Text Pages" /></td>
+            <td>Poplulations and Samples - A movie about core stats terms</td>
+            <td><input type="checkbox" checked="checked" /></td>
+            <td></td>
+            <td><img src="icons/remove.png" alt="Remove Item" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="action">
+        <a href="">+ Add more content</a>
+        <button type="button">Save</button>
+        <button type="button">Publish</button>
+      </div>
+    </div>
+    <div id="preview" class="ui-tabs-hide">
+      <img src="img/iphone.png" src="Emulator" />
+    </div>
+  </div>
+</body>
+<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="jquery-ui-1.8.13.custom.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#tabs').tabs();
+  });
+</script>
+</html>
