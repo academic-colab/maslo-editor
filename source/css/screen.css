@@ -1,0 +1,57 @@
+body {
+  background: #eeeeee;
+}
+h1 {
+  margin: 10px;
+}
+a {
+  color: #600;
+}
+div.action {
+  background: #999;
+  padding: 5px;
+}
+div.action button {
+  float: right;
+}
+div.action a {
+  font-weight: bold;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  display: block;
+  float: left;
+}
+div.action div.alt {
+  display: none;
+  float: left;
+}
+div.action div.alt button {
+  float: none;
+}
+.clear {
+  clear: both;
+}
+
+table {
+  width: 100%;
+}
+thead {
+  color: white;
+  background: #666;
+}
+tbody {
+  background: white;
+}
+
+tbody td {
+  border-top: 1px solid #AAA;
+}
+
+td.icon {
+  text-align: center;
+}
+
+tbody tr:nth-child(2n+1) {
+  background-color: #DADADA;
+}
+
