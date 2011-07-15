@@ -8,21 +8,21 @@
   <h1><a href="index.html">Lessons</a> > MAT 117 Week 1</h1>
   <table>
     <thead>
-      <tr><th>Page</th><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
+      <tr><th>Item</th><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
     </thead>
     <tbody>
       <tr>
         <td><input type="text" size="3" value="1" /></td>
-        <td class="icon"><img src="icons/audio.png" alt="Text Pages" /></td>
-        <td>Week 1 podcast - Core Concepts from the first lecture</td>
+        <td class="icon"><img src="icons/audio.png" alt="Audio Item" /></td>
+        <td><a href="" class="edit">Week 1 podcast - Core Concepts from the first lecture</a></td>
         <td>Published</td>
         <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
       </tr>
 
       <tr>
         <td><input type="text" size="3" value="2" /></td>
-        <td class="icon"><img src="icons/image.png" alt="Text Pages" /></td>
-        <td>Histograms - Histrograms and other data visualizations</td>
+        <td class="icon"><img src="icons/image.png" alt="Image Item" /></td>
+        <td><a href="" class="edit">Histograms - Histrograms and other data visualizations</a></td>
         <td>Published</td>
         <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
       </tr>
@@ -30,8 +30,8 @@
 
       <tr>
         <td><input type="text" size="3" value="3" /></td>
-        <td class="icon"><img src="icons/video.png" alt="Text Pages" /></td>
-        <td>Poplulations and Samples - A movie about core stats terms</td>
+        <td class="icon"><img src="icons/video.png" alt="Video Item" /></td>
+        <td><a href="" class="edit">Poplulations and Samples - A movie about core stats terms</a></td>
         <td></td>
         <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
       </tr>
@@ -77,6 +77,7 @@
       </tbody>
     </table>
   </div>
+  <div id="edit" style="display: none" title="Edit Content"></div>
 
 </body>
 
@@ -102,6 +103,32 @@ $(document).ready(function() {
     file = new window.runtime.flash.filesystem.File();
     file.addEventListener(air.Event.SELECT, function(f) {air.trace(file.url)});
     file.browseForOpen("Please select a file...");
+  });
+  $('a.edit').click(function() {
+    request = new air.URLRequest('edit-image.html?a=b');
+    loader = new air.URLLoader();
+    loader.addEventListener(air.Event.COMPLETE, function(e) {
+      document.getElementById('edit').innerHTML = e.target.data;
+      $('#edit').dialog({
+        autoOpen: true,
+        modal: true,
+        width: 380,
+        buttons: {
+          "Replace Image": function() { 
+            $(this).dialog("close"); 
+          },
+          "Save": function() { 
+            $(this).dialog("close"); 
+          } 
+        }
+      });
+    });
+    try {  
+      loader.load(request);  
+    } catch (error) {  
+      trace("Error loading edit dialog.");  
+    }
+    return false;
   });
 });
 </script>

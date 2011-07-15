@@ -55,3 +55,10 @@ tbody tr:nth-child(2n+1) {
   background-color: #DADADA;
 }
 
+#content {
+  display: block;
+  border: 1px solid #AAA;
+  margin-left: 2px;
+  max-width: 350px;
+  max-height: 350px;
+}
