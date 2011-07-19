@@ -2,10 +2,11 @@
 <head>
   <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" /> 
   <link type="text/css" href="css/screen.css" rel="stylesheet" />
+  <link type="text/css" href="css/jquery.wysiwyg.css" rel="stylesheet" />
   <title>MASLO - MAT 117 Week 1</title>
 </head>
 <body>
-  <h1><a href="index.html">Lessons</a> > MAT 117 Week 1</h1>
+  <h1><a href="index.html">My Content Packs</a> > MAT 117 Week 1</h1>
   <table>
     <thead>
       <tr><th>Item</th><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
@@ -22,7 +23,7 @@
       <tr>
         <td><input type="text" size="3" value="2" /></td>
         <td class="icon"><img src="icons/image.png" alt="Image Item" /></td>
-        <td><a href="" class="edit">Histograms - Histrograms and other data visualizations</a></td>
+        <td><a href="" class="edit image">Histograms - Histrograms and other data visualizations</a></td>
         <td>Published</td>
         <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
       </tr>
@@ -32,6 +33,14 @@
         <td><input type="text" size="3" value="3" /></td>
         <td class="icon"><img src="icons/video.png" alt="Video Item" /></td>
         <td><a href="" class="edit">Poplulations and Samples - A movie about core stats terms</a></td>
+        <td></td>
+        <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
+      </tr>
+
+      <tr>
+        <td><input type="text" size="4" value="3" /></td>
+        <td class="icon"><img src="icons/text.png" alt="Text Item" /></td>
+        <td><a href="" class="edit text">Long dry boring textual document</a></td>
         <td></td>
         <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
       </tr>
@@ -83,6 +92,7 @@
 
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -104,7 +114,7 @@ $(document).ready(function() {
     file.addEventListener(air.Event.SELECT, function(f) {air.trace(file.url)});
     file.browseForOpen("Please select a file...");
   });
-  $('a.edit').click(function() {
+  $('a.edit.image').click(function() {
     request = new air.URLRequest('edit-image.html?a=b');
     loader = new air.URLLoader();
     loader.addEventListener(air.Event.COMPLETE, function(e) {
@@ -115,6 +125,47 @@ $(document).ready(function() {
         width: 380,
         buttons: {
           "Replace Image": function() { 
+            $(this).dialog("close"); 
+          },
+          "Save": function() { 
+            $(this).dialog("close"); 
+          } 
+        }
+      });
+    });
+    try {  
+      loader.load(request);  
+    } catch (error) {  
+      trace("Error loading edit dialog.");  
+    }
+    return false;
+  });
+
+  $('a.edit.text').click(function() {
+    request = new air.URLRequest('edit-text.html?a=b');
+    loader = new air.URLLoader();
+    loader.addEventListener(air.Event.COMPLETE, function(e) {
+      document.getElementById('edit').innerHTML = e.target.data;
+      $('#content').wysiwyg({controls: {
+        subscript : { visible : false },
+        strikeThrough : { visible : false },
+        superscript : { visible : false },
+        subscript : { visible : false },
+        createLink : { visible : false },
+        insertImage : { visible : false },
+        insertTable : { visible : false },
+        insertHorizontalRule : { visible : false },
+        removeFormat : { visible : false },
+        html : { visible : false },
+        code : { visible : false },
+        superscript : { visible : false }
+        }});
+      $('#edit').dialog({
+        autoOpen: true,
+        modal: true,
+        width: 500,
+        buttons: {
+          "Replace Text": function() { 
             $(this).dialog("close"); 
           },
           "Save": function() { 
