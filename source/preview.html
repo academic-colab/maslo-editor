@@ -1,0 +1,44 @@
+<html>
+<head>
+  <link type="text/css" href="css/screen.css" rel="stylesheet" />
+  <link type="text/css" href="css/jquery.selectBox.css" rel="stylesheet" />
+  <title>MASLO - MAT 117 Week 1 - Preview</title>
+</head>
+<body>
+    <h1><a href="index.html">My Content Packs</a> > <a href="proj.html">MAT 117 Week 1</a> > Preview</h1>
+
+  <div class="action">
+    <button type="button">Publish</button>
+    <button id="back" type="button">Back</button>
+    <div class="clear"></div>
+  </div>
+
+  <div id="focus">
+    <div class="nav">
+        <h2>Table of Contents / Page <span class="pg">1</span></h2>
+        <select size="10" class="toc">
+            <option>Week 1 podcast - Core Concepts from the first lecture</option>
+            <option>Histograms - Histrograms and other data visualizations</option>
+            <option>Poplulations and Samples - A movie about core stats terms</option>
+            <option>Long dry boring textual document</option>
+        </select>
+    </div>
+
+    <div class="phone">
+        <img src="icons/phone.png" alt="Phone" />
+        <div id="canvas">preview text</div>
+    </div>
+  </div>
+<script type="text/javascript" src="AIRAliases.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#back').click(function() {
+            window.location = 'proj.html';
+        });
+        $("select").selectBox().change( function() { $('span.pg').html(this.selectedIndex + 1); } );
+    });
+</script>
+</body>
+</html>

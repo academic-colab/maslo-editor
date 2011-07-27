@@ -54,8 +54,8 @@
       <button type="button">OK</button>
       <button type="button" class="cancel">Cancel</button>
     </div>
-    <button type="button">Preview</button>
     <button type="button">Publish</button>
+    <button type="button" id="preview">Preview</button>
     <div class="clear"></div>
   </div>
 
@@ -96,6 +96,9 @@
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+  $('#preview').click(function() {
+      window.location = 'preview.html';
+  });
   $('.action a.alt').click(function() {
     $('#dialog').dialog({
       autoOpen: true,

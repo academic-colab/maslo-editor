@@ -5,8 +5,8 @@
   <initialWindow>
     <content>index.html </content>
     <visible>true </visible>
-    <width>600</width>
-    <height>600</height>
+    <width>650</width>
+    <height>750</height>
   </initialWindow>
   <icon>
     <image16x16>icons/appname-16.png</image16x16>
