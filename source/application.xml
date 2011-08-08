@@ -7,6 +7,7 @@
     <visible>true </visible>
     <width>650</width>
     <height>750</height>
+    <minSize>650 750</minSize>
   </initialWindow>
   <icon>
     <image16x16>icons/appname-16.png</image16x16>

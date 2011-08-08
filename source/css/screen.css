@@ -78,6 +78,11 @@ div.phone img {
     z-index: -1;
 }
 
+div.phone div.canvas {
+    height:400px;
+    overflow: auto;
+}
+
 div.nav {
     margin-top: 170px;
     margin-right: 20px;
