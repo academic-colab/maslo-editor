@@ -12,13 +12,6 @@
         <tr><th>Title</th><th>Size</th><th>Last Modified</th><th>Status</th><th>Remove</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td><a href="proj.html">Trafficking in Persons</a></td>
-          <td>39 Kb</td>
-          <td>6/3/1972</td>
-          <td>Unpublished</td>
-          <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
-        </tr>
       </tbody>
     </table>
 
@@ -26,7 +19,7 @@
       <a class="alt" href="">+ Add New Project</a>
       <div class="alt">
         <input type="text" length="10" />
-        <button type="button">OK</button>
+        <button type="button" class="ok">OK</button>
         <button type="button" class="cancel">Cancel</button>
       </div>
       <div class="clear"></div>
@@ -35,12 +28,79 @@
 </body>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
+<script type="text/javascript" src="js/jquery.cuteTime.min.js"></script>
+<script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
+	// Yuck, this code grosses me out, and I'm responsible
+	function recursiveSize(folder) {
+            var currentFolder = new air.File(folder);
+            var files = currentFolder.getDirectoryListing();
+	    var s = 0;
+            for (var f in files) {
+                if (files[f].isDirectory) {
+                    if (files[f].name !="." && files[f].name !="..") {
+                        s += recursiveSize(files[f].nativePath);
+                    }
+                } else {
+                    s += files[f].size;
+                }
+            }
+            return s;
+        }
+	
+	function recursiveModified(folder) {
+            var currentFolder = new air.File(folder);
+            var files = currentFolder.getDirectoryListing();
+	    var mod = currentFolder.modificationDate.time;
+            for (var f in files) {
+                if (files[f].isDirectory) {
+                    if (files[f].name !="." && files[f].name !="..") {
+			mod = Math.max(mod, recursiveModified(files[f].nativePath));
+		    }
+		} else {
+                    mod = Math.max(mod, files[f].modificationDate.time);
+                }
+            }
+            return mod;
+        }
+	
+	// But this code is nice
+	function bytes2human(n) {
+		if (n < 1024) return n + 'B';
+		var exp = Math.floor(Math.log(n) / Math.log(1024));
+		var pre = 'KMGTPE'.charAt(exp-1);
+		return Math.round((n / Math.pow(1024, exp))*10)/10 + pre;
+	}
+
   $(document).ready(function() {
-    $('.action input').watermark('Name of Project');
-    $('.action a.alt, .action .cancel').click(function() {
-      $('.action .alt').toggle();
-      return false;
+	var directory = air.File.applicationStorageDirectory; 
+	var files = directory.getDirectoryListing();  
+	for (var f in files) {
+            if (files[f].isDirectory) {
+		var tr = $('<tr />');
+		tr.append($('<td><a href="proj.html?name=' + escape(files[f].name)
+		             + '">' + files[f].name + '</a></td>'));
+		tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath))
+		                   + '</td>'));
+		var d = new Date();
+		d.setTime(recursiveModified(files[f].nativePath));
+		tr.append($('<td>' +
+			$.cuteTime({}, d.toUTCString()) + '</td>'));
+          	tr.append($('<td>Unpublished</td>'));
+          	tr.append($('<td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>'));
+		$('tbody').append(tr);
+	    }
+	}
+	$('.action input').watermark('Name of Project');
+	$('.action a.alt, .action .cancel').click(function() {
+	$('.action .alt').toggle();
+	return false;
+    });
+    $('.action input').keypress(function(e) {
+      alert(e);
+    });
+    $('.action .ok').click(function() {
+
     });
   });
 </script>

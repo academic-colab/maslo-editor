@@ -3,39 +3,15 @@
   <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" /> 
   <link type="text/css" href="css/screen.css" rel="stylesheet" />
   <link type="text/css" href="css/jquery.cleditor.css" rel="stylesheet" />
-  <title>MASLO - Trafficking in Persons</title>
+  <title>MASLO - Edit Project</title>
 </head>
 <body>
-  <h1><a href="index.html">My Content Packs</a> > Trafficking in Persons</h1>
+  <h1><a href="index.html">My Content Packs</a> > <span id="proj"></span></h1>
   <table>
     <thead>
-      <tr><th>Item</th><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
+      <tr><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td><input type="text" size="3" value="1" /></td>
-        <td class="icon"><img src="icons/text.png" alt="Text Item" /></td>
-        <td><a href="" class="edit text">Course Agenda</a></td>
-        <td>Published</td>
-        <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
-      </tr>
-
-      <tr>
-        <td><input type="text" size="3" value="2" /></td>
-        <td class="icon"><img src="icons/video.png" alt="Video Item" /></td>
-        <td><a href="" class="edit video">Stop Human Trafficking</a></td>
-        <td></td>
-        <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
-      </tr>
-
-      <tr>
-        <td><input type="text" size="3" value="3" /></td>
-        <td class="icon"><img src="icons/image.png" alt="Image Item" /></td>
-        <td><a href="" class="edit image">International Scope</a></td>
-        <td>Published</td>
-        <td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>
-      </tr>
-
     </tbody>
   </table>
 
@@ -80,14 +56,96 @@
       </tbody>
     </table>
   </div>
-  <div id="edit" style="display: none" title="Edit Content"></div>
+  <div id="edit-image" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<img id="content" />
+	<div>Description</div>
+	<textarea rows="5" cols="55" id="description"></textarea>
+  </div>
 
+  <div id="edit-text" style="display: none" title="Edit Content">
+	<input type="text" size="60" class="title" />
+	<textarea rows="5" cols="50">
+	hello world
+	</textarea>
+  </div>
 </body>
 
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.cleditor.js"></script>
+<script type="text/javascript" src="js/param.js"></script>
+<script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+  air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
+  var q = queryParameters(document.location.search);
+  $('#proj').text(q.name.toString());
+  var f = new air.File(
+	[air.File.applicationStorageDirectory.nativePath, q.name]
+	.join(air.File.separator)
+  );
+  var files = f.getDirectoryListing();
+  var types = {'png': 'image', 'txt':'text', 'jpg': 'image'}
+  var icons = {'image': "icons/image.png", 'text': "icons/text.png"};
+
+  for(var f in files) {
+	var tr = $('<tr />');
+	var temp, base, ext;
+	temp = files[f].name.match(/(.*)\.(\w+?)$/);
+	base = temp[1];
+	ext  = temp[2];
+	if(!icons[types[ext]]) {
+		continue;
+	}
+	tr.append($('<td class="icon"><img src="' + icons[types[ext]] + '"/></td>'));
+	tr.append($('<td><a rel="' + types[ext] + '" href="' + files[f].nativePath + '">'
+		+ base + '</a></td>'));
+	tr.append($('<td>Unpublished</td>'));
+	tr.append($('<td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>'));
+	$('tbody').append(tr);
+  }
+  $('a[rel]').click(function(e) {
+	/*
+	request = new air.URLRequest(
+		'edit-' + e.target.rel + '.html?name=foo');
+	loader = new air.URLLoader();
+	loader.addEventListener(air.Event.COMPLETE, function(e) {
+	*/
+		//document.getElementById('edit').innerHTML = e.target.data;
+	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
+	if(e.target.rel == 'image') {
+		$('#edit-' + e.target.rel + ' img')
+			.attr('src', 'file://' + $(e.target).attr('href'));
+	}
+	$('#edit-' + e.target.rel).dialog({
+		autoOpen: true,
+		modal: true,
+		width: 540,
+		position: 'top',
+		buttons: {
+		  "Replace": function() { 
+		    $(this).dialog("close"); 
+		  },
+		  "Save": function() { 
+		    $(this).dialog("close"); 
+		  } 
+		}
+	});
+	if(e.target.rel == 'text') {
+		var f = new air.File($(e.target).attr('href'));
+		var fs = new air.FileStream();
+		fs.open(f, air.FileMode.READ);
+		$('#edit-text textarea').val(
+			fs.readMultiByte(fs.bytesAvailable, "utf-8"));
+		$('#edit-text textarea').cleditor({
+		controls: "bold italic underline bullets numbering alignleft " +
+		          " center alignright justify undo redo cut copy paste"
+		});
+	}
+
+	return false;
+  });
   $('#preview').click(function() {
       window.location = 'preview.html';
   });
@@ -112,45 +170,7 @@ $(document).ready(function() {
     file.browseForOpen("Please select a file...");
   });
 */
-  $('a.edit.image').click(function() {
-	$('#edit').load('edit-image.html');
-	$('#edit').dialog({
-		autoOpen: true,
-		modal: true,
-		width: 380,
-		position: 'top',
-		buttons: {
-		  "Replace Image": function() { 
-		    $(this).dialog("close"); 
-		  },
-		  "Save": function() { 
-		    $(this).dialog("close"); 
-		  } 
-		}
-    	});
-	return false;
-  });
-  $('a.edit.video').click(function() {
-	$('#edit').load('edit-video.html');
-	$('#edit').dialog({
-		autoOpen: true,
-		modal: true,
-		width: 380,
-		position: 'top',
-		buttons: {
-		  "Replace Image": function() { 
-		    $(this).dialog("close"); 
-		  },
-		  "Save": function() { 
-		    $(this).dialog("close"); 
-		  } 
-		}
-    	});
-	return false;
-  });
 
-  $('a.edit.text').click(function() {
-    $('#edit').load('edit-text.html');
 /*
       $('textarea').wysiwyg(
       {controls: {
@@ -168,22 +188,6 @@ $(document).ready(function() {
       superscript : { visible : false }
       }});
 */
-      $('#edit').dialog({
-        autoOpen: true,
-        modal: true,
-        width: 540,
-        position: 'top',
-        buttons: {
-          "Replace Text": function() { 
-            $(this).dialog("close"); 
-          },
-          "Save": function() { 
-            $(this).dialog("close"); 
-          } 
-        }
-      });
-    return false;
-  });
 });
 </script>
 </html>
