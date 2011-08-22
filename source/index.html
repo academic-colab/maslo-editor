@@ -54,7 +54,7 @@
 	    var mod = currentFolder.modificationDate.time;
             for (var f in files) {
                 if (files[f].isDirectory) {
-                    if (files[f].name !="." && files[f].name !="..") {
+                    if (!$.inArray(files[f].name, ['.', '..'])) {
 			mod = Math.max(mod, recursiveModified(files[f].nativePath));
 		    }
 		} else {
@@ -96,11 +96,14 @@
 	$('.action .alt').toggle();
 	return false;
     });
-    $('.action input').keypress(function(e) {
-      alert(e);
+    $('.action input').keyup(function(e) {
+	$('button.ok').attr('disabled', $(this).val() == '');
     });
     $('.action .ok').click(function() {
-
+	var newdir = air.File.applicationStorageDirectory.resolvePath(
+		$('.action input').val());
+	newdir.createDirectory();
+	window.location = 'proj.html?name=' + escape($('.action input').val());
     });
   });
 </script>

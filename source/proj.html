@@ -86,7 +86,7 @@ $(document).ready(function() {
 	.join(air.File.separator)
   );
   var files = f.getDirectoryListing();
-  var types = {'png': 'image', 'txt':'text', 'jpg': 'image'}
+  var types = {'png': 'image', 'txt':'text', 'jpg': 'image'};
   var icons = {'image': "icons/image.png", 'text': "icons/text.png"};
 
   for(var f in files) {
@@ -128,6 +128,13 @@ $(document).ready(function() {
 		    $(this).dialog("close"); 
 		  },
 		  "Save": function() { 
+		    var title = $('#edit-' + e.target.rel + ' input.title').val();
+		    if($(e.target).text() != title) {
+			var oldpath = $(e.target).attr('href');
+			var newpath = oldpath.replace($(e.target).text, title);
+			var f = new air.File(oldpath);
+			f.moveTo(newpath);
+		    }
 		    $(this).dialog("close"); 
 		  } 
 		}
