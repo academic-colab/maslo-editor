@@ -11,7 +11,7 @@
     <thead>
       <tr><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
     </thead>
-    <tbody>
+    <tbody class="proj">
     </tbody>
   </table>
 
@@ -86,7 +86,7 @@ $(document).ready(function() {
 	.join(air.File.separator)
   );
   var files = f.getDirectoryListing();
-  var types = {'png': 'image', 'txt':'text', 'jpg': 'image'};
+  var types = {'png': 'image', 'gif':'image', 'txt':'text', 'html':'text', 'jpg': 'image'};
   var icons = {'image': "icons/image.png", 'text': "icons/text.png"};
 
   for(var f in files) {
@@ -103,7 +103,7 @@ $(document).ready(function() {
 		+ base + '</a></td>'));
 	tr.append($('<td>Unpublished</td>'));
 	tr.append($('<td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>'));
-	$('tbody').append(tr);
+	$('tbody.proj').append(tr);
   }
   $('a[rel]').click(function(e) {
 	/*
@@ -170,13 +170,21 @@ $(document).ready(function() {
     });
     return false;
   });
-/*
+
   $('#upload').click(function() {
     file = new window.runtime.flash.filesystem.File();
-    file.addEventListener(air.Event.SELECT, function(f) {air.trace(file.url)});
-    file.browseForOpen("Please select a file...");
+    file.addEventListener(air.Event.SELECT, function(f) {
+	var end = file.url.slice(1 + file.url.lastIndexOf(air.File.separator));
+	var dst = new air.File(
+		[air.File.applicationStorageDirectory.nativePath,
+                 q.name, end].join(air.File.separator));
+	file.copyTo(dst, true);
+    });
+    fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
+    fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
+    file.browseForOpen("Please select a file...", [fltr_img, fltr_doc]);
   });
-*/
+
 
 /*
       $('textarea').wysiwyg(
