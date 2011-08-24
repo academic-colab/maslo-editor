@@ -105,14 +105,8 @@ $(document).ready(function() {
 	tr.append($('<td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>'));
 	$('tbody.proj').append(tr);
   }
+
   $('a[rel]').click(function(e) {
-	/*
-	request = new air.URLRequest(
-		'edit-' + e.target.rel + '.html?name=foo');
-	loader = new air.URLLoader();
-	loader.addEventListener(air.Event.COMPLETE, function(e) {
-	*/
-		//document.getElementById('edit').innerHTML = e.target.data;
 	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
 	if(e.target.rel == 'image') {
 		$('#edit-' + e.target.rel + ' img')
@@ -129,13 +123,19 @@ $(document).ready(function() {
 		  },
 		  "Save": function() { 
 		    var title = $('#edit-' + e.target.rel + ' input.title').val();
+		    var modified = false;
 		    if($(e.target).text() != title) {
 			var oldpath = $(e.target).attr('href');
-			var newpath = oldpath.replace($(e.target).text, title);
+			var newfile = new air.File(
+				oldpath.replace($(e.target).text(), title));
 			var f = new air.File(oldpath);
-			f.moveTo(newpath);
+			f.moveTo(newfile);
+			modified = true;
 		    }
 		    $(this).dialog("close"); 
+		    if(modified) {
+		    	window.htmlLoader.reload();
+		    }
 		  } 
 		}
 	});
@@ -185,24 +185,6 @@ $(document).ready(function() {
     file.browseForOpen("Please select a file...", [fltr_img, fltr_doc]);
   });
 
-
-/*
-      $('textarea').wysiwyg(
-      {controls: {
-      subscript : { visible : false },
-      strikeThrough : { visible : false },
-      superscript : { visible : false },
-      subscript : { visible : false },
-      createLink : { visible : false },
-      insertImage : { visible : false },
-      insertTable : { visible : false },
-      insertHorizontalRule : { visible : false },
-      removeFormat : { visible : false },
-      html : { visible : false },
-      code : { visible : false },
-      superscript : { visible : false }
-      }});
-*/
 });
 </script>
 </html>
