@@ -65,7 +65,7 @@
 
   <div id="edit-text" style="display: none" title="Edit Content">
 	<input type="text" size="60" class="title" />
-	<textarea rows="5" cols="50">
+	<textarea id="content" rows="5" cols="50">
 	hello world
 	</textarea>
   </div>
@@ -119,9 +119,24 @@ $(document).ready(function() {
 		position: 'top',
 		buttons: {
 		  "Replace": function() { 
-		    $(this).dialog("close"); 
+		    var orig = new air.File($(e.target).attr('href'));
+		    chooseFile(function(f) {
+			f.target.copyTo(orig, true);
+			d = new Date();
+			// reload image with cache-busting querystring
+			$('#edit-' + e.target.rel + ' img')
+				.attr('src', 'file://' + $(e.target).attr('href') +
+				      '?' + d.getTime());
+		    });
 		  },
 		  "Save": function() { 
+		    if(e.target.rel == 'text') {
+			var f = new air.File($(e.target).attr('href'));
+			var fs = new air.FileStream();
+			fs.open(f, air.FileMode.WRITE);
+			fs.writeMultiByte($('#edit-text textarea').val(), "utf-8");
+		    }
+
 		    var title = $('#edit-' + e.target.rel + ' input.title').val();
 		    var modified = false;
 		    if($(e.target).text() != title) {
@@ -172,18 +187,23 @@ $(document).ready(function() {
   });
 
   $('#upload').click(function() {
-    file = new window.runtime.flash.filesystem.File();
-    file.addEventListener(air.Event.SELECT, function(f) {
-	var end = file.url.slice(1 + file.url.lastIndexOf(air.File.separator));
+    chooseFile(function(e) {
+	var end = e.target.url.slice(
+		1 + e.target.url.lastIndexOf(air.File.separator));
 	var dst = new air.File(
 		[air.File.applicationStorageDirectory.nativePath,
                  q.name, end].join(air.File.separator));
-	file.copyTo(dst, true);
+	e.target.copyTo(dst, true);
     });
+  });
+
+  function chooseFile(action) {
+    file = new window.runtime.flash.filesystem.File();
+    file.addEventListener(air.Event.SELECT, action);
     fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
     fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
     file.browseForOpen("Please select a file...", [fltr_img, fltr_doc]);
-  });
+  }
 
 });
 </script>
