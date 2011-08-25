@@ -58,14 +58,14 @@
   </div>
   <div id="edit-image" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
-	<img id="content" />
+	<img class="content" />
 	<div>Description</div>
 	<textarea rows="5" cols="55" id="description"></textarea>
   </div>
 
   <div id="edit-text" style="display: none" title="Edit Content">
 	<input type="text" size="60" class="title" />
-	<textarea id="content" rows="5" cols="50">
+	<textarea class="content" rows="5" cols="50">
 	hello world
 	</textarea>
   </div>
@@ -158,12 +158,12 @@ $(document).ready(function() {
 		var f = new air.File($(e.target).attr('href'));
 		var fs = new air.FileStream();
 		fs.open(f, air.FileMode.READ);
-		$('#edit-text textarea').val(
+		$('#edit-text textarea.content').val(
 			fs.readMultiByte(fs.bytesAvailable, "utf-8"));
-		$('#edit-text textarea').cleditor({
+		$('#edit-text textarea.content').cleditor({
 		controls: "bold italic underline bullets numbering alignleft " +
 		          " center alignright justify undo redo cut copy paste"
-		});
+		})[0].refresh();
 	}
 
 	return false;
