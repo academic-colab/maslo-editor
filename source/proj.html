@@ -102,9 +102,16 @@ $(document).ready(function() {
 	tr.append($('<td><a rel="' + types[ext] + '" href="' + files[f].nativePath + '">'
 		+ base + '</a></td>'));
 	tr.append($('<td>Unpublished</td>'));
-	tr.append($('<td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>'));
+	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	$('tbody.proj').append(tr);
   }
+  $('img.remove').click(function(e) {
+  	var condemned = new air.File(
+		$(this).parent().parent().find('a').attr('href')
+	);
+	condemned.deleteFile();
+	window.htmlLoader.reload();
+  });
 
   $('a[rel]').click(function(e) {
 	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
