@@ -103,6 +103,12 @@
 	var newdir = air.File.applicationStorageDirectory.resolvePath(
 		$('.action input').val());
 	newdir.createDirectory();
+	var f = new air.File(
+		[air.File.applicationStorageDirectory.nativePath,
+                 $('.action input').val(), 'manifest'].join(air.File.separator));
+	var fs = new air.FileStream();
+	fs.open(f, air.FileMode.WRITE);
+	fs.writeMultiByte('', "utf-8");
 	window.location = 'proj.html?name=' + escape($('.action input').val());
     });
   });

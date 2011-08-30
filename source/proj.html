@@ -74,9 +74,11 @@
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
+var manifest = [];
 $(document).ready(function() {
   air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
   var q = queryParameters(document.location.search);
@@ -93,6 +95,9 @@ $(document).ready(function() {
 	var tr = $('<tr />');
 	var temp, base, ext;
 	temp = files[f].name.match(/(.*)\.(\w+?)$/);
+	if(!temp) {
+		continue;
+	}
 	base = temp[1];
 	ext  = temp[2];
 	if(!icons[types[ext]]) {
