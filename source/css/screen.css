@@ -8,6 +8,9 @@ h1 {
 a {
   color: #600;
 }
+img.remove {
+  cursor: pointer;
+}
 div.action {
   background: #999;
   padding: 5px;
