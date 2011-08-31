@@ -142,6 +142,7 @@ $(document).ready(function() {
 			var fs = new air.FileStream();
 			fs.open(f, air.FileMode.WRITE);
 			fs.writeMultiByte($('#edit-text textarea').val(), "utf-8");
+			fs.close();
 		    }
 
 		    var title = $('#edit-' + e.target.rel + ' input.title').val();
@@ -167,6 +168,7 @@ $(document).ready(function() {
 		fs.open(f, air.FileMode.READ);
 		$('#edit-text textarea.content').val(
 			fs.readMultiByte(fs.bytesAvailable, "utf-8"));
+		fs.close();
 		$('#edit-text textarea.content').cleditor({
 		controls: "bold italic underline bullets numbering alignleft " +
 		          " center alignright justify undo redo cut copy paste"
