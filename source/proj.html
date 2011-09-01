@@ -78,34 +78,38 @@
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
-var manifest = [];
+var gManifest = [];
 $(document).ready(function() {
   air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
   var q = queryParameters(document.location.search);
   $('#proj').text(q.name.toString());
   var f = new air.File(
-	[air.File.applicationStorageDirectory.nativePath, q.name]
+	[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
 	.join(air.File.separator)
   );
-  var files = f.getDirectoryListing();
+  var fs = new air.FileStream();
+  fs.open(f, air.FileMode.READ);
+  gManifest = JSON.parse(fs.readMultiByte(fs.bytesAvailable, "utf-8"));
+  fs.close();
+
   var types = {'png': 'image', 'gif':'image', 'txt':'text', 'html':'text', 'jpg': 'image'};
   var icons = {'image': "icons/image.png", 'text': "icons/text.png"};
 
-  for(var f in files) {
+  for(var m in gManifest) {
+	m = gManifest[m];
 	var tr = $('<tr />');
 	var temp, base, ext;
-	temp = files[f].name.match(/(.*)\.(\w+?)$/);
+	temp = m.path.match(/\.(\w+?)$/);
 	if(!temp) {
 		continue;
 	}
-	base = temp[1];
-	ext  = temp[2];
+	ext = temp[1];
 	if(!icons[types[ext]]) {
 		continue;
 	}
 	tr.append($('<td class="icon"><img src="' + icons[types[ext]] + '"/></td>'));
-	tr.append($('<td><a rel="' + types[ext] + '" href="' + files[f].nativePath + '">'
-		+ base + '</a></td>'));
+	tr.append($('<td><a rel="' + types[ext] + '" href="' + m.path + '">'
+		+ m.title + '</a></td>'));
 	tr.append($('<td>Unpublished</td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	$('tbody.proj').append(tr);
@@ -207,10 +211,20 @@ $(document).ready(function() {
 	var end = e.target.url.slice(
 		1 + e.target.url.lastIndexOf('/'));
 	// but when specifying a destination we use the native separator
-	var dst = new air.File(
-		[air.File.applicationStorageDirectory.nativePath,
-                 q.name, end].join(air.File.separator));
+	var path = [air.File.applicationStorageDirectory.nativePath,
+                 q.name, end].join(air.File.separator);
+	var dst = new air.File(path);
 	e.target.copyTo(dst, true);
+	gManifest.push({"title": end, "path": path});
+	var f = new air.File(
+		[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
+		.join(air.File.separator)
+	);
+	var fs = new air.FileStream();
+	fs.open(f, air.FileMode.WRITE);
+	fs.writeMultiByte(JSON.stringify(gManifest), "utf-8");
+	fs.close();
+	
 	window.htmlLoader.reload();
     });
   });
