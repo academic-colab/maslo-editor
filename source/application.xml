@@ -1,18 +1,18 @@
-<application xmlns="http://ns.adobe.com/air/application/1.0">
-  <id>org.academiccolab.maslo </id>
-  <version>1.0 </version>
+<application xmlns="http://ns.adobe.com/air/application/2.0">
+  <id>org.academiccolab.maslo</id>
+  <version>0.1</version>
   <filename>MASLO</filename>
   <initialWindow>
-    <content>index.html </content>
-    <visible>true </visible>
+    <content>index.html</content>
+    <visible>true</visible>
     <width>650</width>
     <height>750</height>
     <minSize>650 750</minSize>
   </initialWindow>
   <icon>
-    <image16x16>icons/appname-16.png</image16x16>
-    <image32x32>icons/appname-32.png</image32x32>
-    <image48x48>icons/appname-48.png</image48x48>
-    <image128x128>icons/appname-128.png</image128x128>
+    <image16x16>icons/logo16.png</image16x16>
+    <image32x32>icons/logo32.png</image32x32>
+    <image48x48>icons/logo48.png</image48x48>
+    <image128x128>icons/logo128.png</image128x128>
   </icon>
 </application>
