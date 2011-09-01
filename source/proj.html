@@ -64,7 +64,7 @@
   </div>
 
   <div id="edit-text" style="display: none" title="Edit Content">
-	<input type="text" size="60" class="title" />
+	<input type="text" size="55" class="title" />
 	<textarea class="content" rows="5" cols="50">
 	hello world
 	</textarea>
@@ -206,6 +206,7 @@ $(document).ready(function() {
 		[air.File.applicationStorageDirectory.nativePath,
                  q.name, end].join(air.File.separator));
 	e.target.copyTo(dst, true);
+	window.htmlLoader.reload();
     });
   });
 
