@@ -9,7 +9,7 @@
   <h1><a href="index.html">My Content Packs</a> > <span id="proj"></span></h1>
   <table>
     <thead>
-      <tr><th>Type</th><th>Title</th><th>Status</th><th>Remove</th></tr>
+      <tr><th>Type</th><th class="big">Title</th><th class="big">Status</th><th>Remove</th></tr>
     </thead>
     <tbody class="proj">
     </tbody>
@@ -100,10 +100,9 @@ $(document).ready(function() {
 	var tr = $('<tr />');
 	var temp, base, ext;
 	temp = m.path.match(/\.(\w+?)$/);
-	if(!temp) {
+	if(!temp || !(ext = temp[1])) {
 		continue;
 	}
-	ext = temp[1];
 	if(!icons[types[ext]]) {
 		continue;
 	}
@@ -114,11 +113,18 @@ $(document).ready(function() {
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	$('tbody.proj').append(tr);
   }
+
+  $("tbody.proj").sortable({ items: 'tr', axis: 'y' });
+ // $("tbody.proj").disableSelection();
+
   $('img.remove').click(function(e) {
-  	var condemned = new air.File(
+	air.trace($(this).parent().parent().index());
+	gManifest.splice($(this).parent().parent().index(), 1);
+	var condemned = new air.File(
 		$(this).parent().parent().find('a').attr('href')
 	);
 	condemned.deleteFile();
+	saveManifest();
 	window.htmlLoader.reload();
   });
 
@@ -157,11 +163,9 @@ $(document).ready(function() {
 		    var title = $('#edit-' + e.target.rel + ' input.title').val();
 		    var modified = false;
 		    if($(e.target).text() != title) {
-			var oldpath = $(e.target).attr('href');
-			var newfile = new air.File(
-				oldpath.replace($(e.target).text(), title));
-			var f = new air.File(oldpath);
-			f.moveTo(newfile);
+			var pos = $(e.target).parent().parent().index();
+			gManifest[pos].title = title;
+			saveManifest();
 			modified = true;
 		    }
 		    $(this).dialog("close"); 
@@ -216,6 +220,13 @@ $(document).ready(function() {
 	var dst = new air.File(path);
 	e.target.copyTo(dst, true);
 	gManifest.push({"title": end, "path": path});
+	saveManifest();
+	
+	window.htmlLoader.reload();
+    });
+  });
+
+  function saveManifest() {
 	var f = new air.File(
 		[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
 		.join(air.File.separator)
@@ -224,10 +235,7 @@ $(document).ready(function() {
 	fs.open(f, air.FileMode.WRITE);
 	fs.writeMultiByte(JSON.stringify(gManifest), "utf-8");
 	fs.close();
-	
-	window.htmlLoader.reload();
-    });
-  });
+  }
 
   function chooseFile(action) {
     file = new window.runtime.flash.filesystem.File();

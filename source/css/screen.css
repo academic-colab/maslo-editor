@@ -38,13 +38,21 @@ div.action div.alt button {
 
 table {
   width: 100%;
+  border-spacing: 0;
 }
 thead {
   color: white;
   background: #666;
 }
+thead th.big {
+  text-align: left;
+}
 tbody {
   background: white;
+}
+
+tbody.proj {
+  cursor: move;
 }
 
 tbody td {
@@ -57,6 +65,9 @@ td.icon {
 
 tbody tr:nth-child(2n+1) {
   background-color: #DADADA;
+}
+tbody tr:nth-child(2n) {
+  background-color: white;
 }
 
 .content {
