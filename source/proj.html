@@ -149,10 +149,12 @@ $(document).ready(function() {
   });
 
   $('a[rel]').click(function(e) {
+        var pos = $(e.target).parent().parent().index();
 	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
 	if(e.target.rel == 'image') {
 		$('#edit-' + e.target.rel + ' img')
 			.attr('src', 'file://' + $(e.target).attr('href'));
+		$('#edit-image textarea').val(gManifest[pos].description);
 	}
 	$('#edit-' + e.target.rel).dialog({
 		autoOpen: true,
@@ -181,15 +183,17 @@ $(document).ready(function() {
 		    }
 
 		    var title = $('#edit-' + e.target.rel + ' input.title').val();
+		    var desc = $('#edit-' + e.target.rel + ' textarea').val();
 		    var modified = false;
-		    if($(e.target).text() != title) {
-			var pos = $(e.target).parent().parent().index();
+		    if(gManifest[pos].title != title ||
+		       gManifest[pos].description != desc) {
 			gManifest[pos].title = title;
-			saveManifest();
+			gManifest[pos].description = desc;
 			modified = true;
 		    }
 		    $(this).dialog("close"); 
 		    if(modified) {
+			saveManifest();
 		    	window.htmlLoader.reload();
 		    }
 		  } 
