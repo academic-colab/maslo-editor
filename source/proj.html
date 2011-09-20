@@ -63,6 +63,13 @@
 	<textarea rows="5" cols="55" id="description"></textarea>
   </div>
 
+  <div id="edit-video" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<div class="content"></div>
+	<div>Description</div>
+	<textarea rows="5" cols="55" id="description"></textarea>
+  </div>
+
   <div id="edit-text" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
 	<textarea class="content" rows="5" cols="50">
@@ -92,8 +99,9 @@ $(document).ready(function() {
   gManifest = JSON.parse(fs.readMultiByte(fs.bytesAvailable, "utf-8"));
   fs.close();
 
-  var types = {'png': 'image', 'gif':'image', 'txt':'text', 'html':'text', 'jpg': 'image'};
-  var icons = {'image': "icons/image.png", 'text': "icons/text.png"};
+  var types = {'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
+               'jpg':'image', 'swf':'video', 'mpeg':'video', 'avi':'video', 'flv':'video'};
+  var icons = {'image': "icons/image.png", 'text': "icons/text.png", 'video': 'icons/video.png'};
 
   for(var m in gManifest) {
 	m = gManifest[m];
@@ -152,9 +160,20 @@ $(document).ready(function() {
         var pos = $(e.target).parent().parent().index();
 	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
 	if(e.target.rel == 'image') {
-		$('#edit-' + e.target.rel + ' img')
-			.attr('src', 'file://' + $(e.target).attr('href'));
+		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
 		$('#edit-image textarea').val(gManifest[pos].description);
+	} else if(e.target.rel == 'video') {
+		var nc = new air.NetConnection()
+		nc.connect(null);
+		var ns = new air.NetStream(nc);
+		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, function(){});
+	    	air.trace($(e.target).attr('href'));
+		ns.play("file://" + $(e.target).attr('href'));
+		var vid = new air.Video();
+		vid.attachNetStream(ns);
+		alert(vid);
+		//$('#edit-video div.content').append(vid);
+		window.htmlLoader.stage.addChild(vid);
 	}
 	$('#edit-' + e.target.rel).dialog({
 		autoOpen: true,
@@ -265,8 +284,9 @@ $(document).ready(function() {
     file = new window.runtime.flash.filesystem.File();
     file.addEventListener(air.Event.SELECT, action);
     fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
+    fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.avi;*.flv");
     fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
-    file.browseForOpen("Please select a file...", [fltr_img, fltr_doc]);
+    file.browseForOpen("Please select a file...", [fltr_img, fltr_vid, fltr_doc]);
   }
 
 });
