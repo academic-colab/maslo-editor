@@ -85,7 +85,7 @@ div.phone {
     padding: 100px 40px;
 }
 
-div.phone img {
+div.phone > img {
     position: absolute;
     top: 0;
     left: 0;
@@ -95,6 +95,10 @@ div.phone img {
 div.phone div.canvas {
     height:400px;
     overflow: auto;
+}
+
+div.phone div.canvas img {
+    max-width: 246px;
 }
 
 div.nav {

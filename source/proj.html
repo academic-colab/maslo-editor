@@ -76,6 +76,9 @@
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
+<script type="text/javascript" src="js/load.js"></script>
+<script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 var gManifest = [];
@@ -83,32 +86,17 @@ $(document).ready(function() {
   air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
   var q = queryParameters(document.location.search);
   $('#proj').text(q.name.toString());
-  var f = new air.File(
-	[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
-	.join(air.File.separator)
-  );
-  var fs = new air.FileStream();
-  fs.open(f, air.FileMode.READ);
-  gManifest = JSON.parse(fs.readMultiByte(fs.bytesAvailable, "utf-8"));
-  fs.close();
-
-  var types = {'png': 'image', 'gif':'image', 'txt':'text', 'html':'text', 'jpg': 'image'};
-  var icons = {'image': "icons/image.png", 'text': "icons/text.png"};
+  gManifest = manifest(q.name);
 
   for(var m in gManifest) {
 	m = gManifest[m];
 	var tr = $('<tr />');
-	var temp, base, ext;
-	temp = m.path.match(/\.(\w+?)$/);
-	if(!temp || !(ext = temp[1])) {
+	var type = typeOfFile(m.path);
+	if(type == 'unknown' || !iconForType(type)) {
 		continue;
 	}
-	if(!icons[types[ext]]) {
-		continue;
-	}
-	tr.append($('<td class="icon"><img src="' + icons[types[ext]] + '"/></td>'));
-	tr.append($('<td><a rel="' + types[ext] + '" href="' + m.path + '">'
-		+ m.title + '</a></td>'));
+	tr.append($('<td class="icon"><img src="' + iconForType(type) + '"/></td>'));
+	tr.append($('<td><a rel="' + type + '" href="' + m.path + '">' + m.title + '</a></td>'));
 	tr.append($('<td>Unpublished</td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	$('tbody.proj').append(tr);
@@ -200,12 +188,7 @@ $(document).ready(function() {
 		}
 	});
 	if(e.target.rel == 'text') {
-		var f = new air.File($(e.target).attr('href'));
-		var fs = new air.FileStream();
-		fs.open(f, air.FileMode.READ);
-		$('#edit-text textarea.content').val(
-			fs.readMultiByte(fs.bytesAvailable, "utf-8"));
-		fs.close();
+		$('#edit-text textarea.content').val(loadTextfile($(e.target).attr('href')));
 		$('#edit-text textarea.content').cleditor({
 		controls: "bold italic underline bullets numbering alignleft " +
 		          " center alignright justify undo redo cut copy paste"
@@ -215,7 +198,7 @@ $(document).ready(function() {
 	return false;
   });
   $('#preview').click(function() {
-      window.location = 'preview.html';
+      window.location = 'preview.html?name=' + q.name;
   });
   $('.action a.alt').click(function() {
     $('#dialog').dialog({

@@ -2,10 +2,10 @@
 <head>
   <link type="text/css" href="css/screen.css" rel="stylesheet" />
   <link type="text/css" href="css/jquery.selectBox.css" rel="stylesheet" />
-  <title>MASLO - Trafficking in Persons - Preview</title>
+  <title>MASLO - Preview</title>
 </head>
 <body>
-    <h1><a href="index.html">My Content Packs</a> > <a href="proj.html">Trafficking in Persons</a> > Preview</h1>
+    <h1><a href="index.html">My Content Packs</a> > <a class="back" href="">hello</a> > Preview</h1>
 
   <div class="action">
     <button type="button">Publish</button>
@@ -17,9 +17,6 @@
     <div class="nav">
         <h2>Table of Contents / Page <span class="pg">1</span></h2>
         <select size="10" class="toc">
-            <option>Course Agenda</option>
-            <option>Stop Human Trafficking</option>
-            <option>International Scope</option>
         </select>
     </div>
 
@@ -29,56 +26,44 @@
     </div>
   </div>
 
-  <ul class="data" style="display: none">
-    <li>
-	<p>
-<strong>Module 1</strong> What is Trafficking in Persons
-	</p>
-	<p>
-<strong>Module 2</strong> Who is Involved in Trafficking in Persons?
-	</p>
-	<p>
-<strong>Module 3</strong> Why Does Trafficking in Persons Occur?
-	</p>
-	<p>
-<strong>Module 4</strong> How Do People Become Victims of Trafficking in Persons
-	</p>
-	<p>
-<strong>Module 5</strong> Combating Trafficking in Persons
-	</p>
-	<p>
-<strong>Module 6</strong> Legal &amp; Policy
-	</p>
-	</li>
-    <li>
-		<video width="246" style="margin-top: 100px" controls="controls">
-		  <source src='stop.ogv' type='video/ogg; codecs="theora, vorbis"'>
-		  Your browser does not support the video tag.
-		</video>
-    </li>
-    <li>
-		<img class="figure" src="obama.png" />
-		<p>
-"Yet even today, the darkness and inhumanity of enslavement exists.
-Millions of people worldwide are held in compelled service, as well
-as thousands within the United States. We acknowledge that forms
-of slavery still exist in the modern era, and we recommit ourselves
-to stopping the human traffickers who ply this horrific trade."
-		</p>
-		<p>
-&mdash; President Barack Obama, 2009
-		</p>
-	</li>
-  </ul>
+  <ul class="data" style="display: none"></ul>
+
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
+<script type="text/javascript" src="js/param.js"></script>
+<script type="text/javascript" src="js/load.js"></script>
+<script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+  	var q = queryParameters(document.location.search);
+	$('a.back').attr('href', 'proj.html?name=' + q.name);
+	$('a.back').text(q.name.toString());
         $('#back').click(function() {
-            window.location = 'proj.html';
+            window.location = 'proj.html?name=' + q.name;
         });
-		$('div.canvas').html($('ul.data li:eq(0)').html());
+
+	var gManifest = manifest(q.name);
+	var s = $('select');
+	var d = $('ul.data');
+	for(var m in gManifest) {
+		m = gManifest[m];
+		s.append("<option>" + m.title + "</option>");
+		var type = typeOfFile(m.path);
+		if(type == 'text') {
+			var li = $('<li></li>');
+			li.append(loadTextfile(m.path));
+			d.append(li);
+		} else if(type == 'image') {
+			var li = $('<li></li>');
+			li.append(['<img src=', 'file://' + m.path, '/>'].join('"'));
+			li.append('<p>' + m.description + '</p>');
+			d.append(li);
+		}
+	}
+
+	$('div.canvas').html($('ul.data li:eq(0)').html());
         $("select option:first").attr('selected','selected');
         $("select").selectBox().change( function() {
             $('span.pg').html(this.selectedIndex + 1);
