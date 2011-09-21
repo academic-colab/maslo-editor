@@ -42,7 +42,7 @@
             Video:&nbsp;mp4,&nbsp;avi,&nbsp;mov
           </td>
         </tr>
-        <tr><td><button type="button">Create Text</button></td>
+        <tr><td><button id="btnCreate" type="button">Create Text</button></td>
           <td>
             <img src="icons/text.png" height="16" width="16"/>
             Write new, or copy and paste</td>
@@ -231,6 +231,20 @@ $(document).ready(function() {
 	
 	window.htmlLoader.reload();
     });
+  });
+
+  $('#btnCreate').click(function() {
+	var path = [air.File.applicationStorageDirectory.nativePath,
+                 q.name, 'file-' + Math.floor(Math.random()*4000000000) + '.txt'].join(air.File.separator);
+	var f = new air.File(path);
+	var fs = new air.FileStream();
+	fs.open(f, air.FileMode.WRITE);
+	fs.writeMultiByte('', "utf-8");
+	fs.close();
+
+	gManifest.push({"title": 'untitled', "path": path});
+	saveManifest();
+	window.htmlLoader.reload();
   });
 
   function saveManifest() {
