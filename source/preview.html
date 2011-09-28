@@ -67,7 +67,7 @@
         $("select option:first").attr('selected','selected');
         $("select").selectBox().change( function() {
             $('span.pg').html(this.selectedIndex + 1);
-            $('div.canvas').html($('ul.data li:eq(' + this.selectedIndex + ')').html());
+            $('div.canvas').html($('ul.data > li:eq(' + this.selectedIndex + ')').html());
         });
     });
 </script>
