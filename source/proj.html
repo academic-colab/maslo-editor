@@ -65,8 +65,7 @@
 
   <div id="edit-video" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
-	<div class="content"></div>
-	<div>Description</div>
+	<iframe class="content" src=""></iframe>
 	<textarea rows="5" cols="55" id="description"></textarea>
   </div>
 
@@ -75,6 +74,11 @@
 	<textarea class="content" rows="5" cols="50">
 	hello world
 	</textarea>
+  </div>
+
+  <div id="dialog-confirm" style="display: none" title="Delete Content">
+    <p>This content will be permanently deleted and cannot be
+    recovered. Are you sure?</p>
   </div>
 </body>
 
@@ -133,14 +137,25 @@ $(document).ready(function() {
 
 
   $('img.remove').click(function(e) {
-	air.trace($(this).parent().parent().index());
-	gManifest.splice($(this).parent().parent().index(), 1);
-	var condemned = new air.File(
-		$(this).parent().parent().find('a').attr('href')
-	);
-	condemned.deleteFile();
-	saveManifest();
-	window.htmlLoader.reload();
+	var elt = $(this).parent().parent();
+	$( "#dialog-confirm" ).dialog({
+		height:240,
+		modal: true,
+		buttons: {
+			"Delete Content": function() {
+				gManifest.splice(elt.index(), 1);
+				var condemned = new air.File(
+					elt.find('a').attr('href')
+				);
+				condemned.deleteFile();
+				saveManifest();
+				window.htmlLoader.reload();
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
   });
 
   $('a[rel]').click(function(e) {
@@ -149,7 +164,7 @@ $(document).ready(function() {
 	if(e.target.rel == 'image') {
 		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
 		$('#edit-image textarea').val(gManifest[pos].description);
-	} else if(e.target.rel == 'video') {
+	} else if(e.target.rel == 'video' || e.target.rel == 'audio') {
 		var nc = new air.NetConnection()
 		nc.connect(null);
 		var ns = new air.NetStream(nc);
@@ -158,9 +173,13 @@ $(document).ready(function() {
 		ns.play("file://" + $(e.target).attr('href'));
 		var vid = new air.Video();
 		vid.attachNetStream(ns);
-		alert(vid);
+
+		$('iframe.content').contents().find('html').html('<p>loading</p>');
+		$('iframe.content').contents().find('window').htmlLoader.stage.addChild(vid);
+
 		//$('#edit-video div.content').append(vid);
-		window.htmlLoader.stage.addChild(vid);
+		//window.htmlLoader.stage.addChild(vid);
+		//$('iframe.content').window.htmlLoader.stage.addChild(vid);
 	}
 	$('#edit-' + e.target.rel).dialog({
 		autoOpen: true,
@@ -280,9 +299,10 @@ $(document).ready(function() {
     file = new window.runtime.flash.filesystem.File();
     file.addEventListener(air.Event.SELECT, action);
     fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
+    fltr_aud = new air.FileFilter("audio", "*.mp3;*.wav;*.aiff");
     fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.avi;*.flv");
     fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
-    file.browseForOpen("Please select a file...", [fltr_img, fltr_vid, fltr_doc]);
+    file.browseForOpen("Please select a file...", [fltr_img, fltr_aud, fltr_vid, fltr_doc]);
   }
 
 });
