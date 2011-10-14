@@ -58,7 +58,9 @@
 		} else if(type == 'image') {
 			var li = $('<li></li>');
 			li.append(['<img src=', 'file://' + m.path, '/>'].join('"'));
-			li.append('<p>' + m.description + '</p>');
+			if(m.description) {
+				li.append('<p>' + m.description + '</p>');
+			}
 			d.append(li);
 		}
 	}
