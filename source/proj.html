@@ -65,7 +65,7 @@
 
   <div id="edit-video" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
-	<iframe class="content" src=""></iframe>
+	<a class="media" href="#"></a>
 	<textarea rows="5" cols="55" id="description"></textarea>
   </div>
 
@@ -85,6 +85,7 @@
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
+<script type="text/javascript" src="js/jquery.media.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/load.js"></script>
@@ -165,21 +166,7 @@ $(document).ready(function() {
 		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
 		$('#edit-image textarea').val(gManifest[pos].description);
 	} else if(e.target.rel == 'video' || e.target.rel == 'audio') {
-		var nc = new air.NetConnection()
-		nc.connect(null);
-		var ns = new air.NetStream(nc);
-		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, function(){});
-	    	air.trace($(e.target).attr('href'));
-		ns.play("file://" + $(e.target).attr('href'));
-		var vid = new air.Video();
-		vid.attachNetStream(ns);
-
-		$('iframe.content').contents().find('html').html('<p>loading</p>');
-		$('iframe.content').contents().find('window').htmlLoader.stage.addChild(vid);
-
-		//$('#edit-video div.content').append(vid);
-		//window.htmlLoader.stage.addChild(vid);
-		//$('iframe.content').window.htmlLoader.stage.addChild(vid);
+		$('.media').text('').attr('href', 'file://' + $(e.target).attr('href')).media();
 	}
 	$('#edit-' + e.target.rel).dialog({
 		autoOpen: true,
@@ -301,7 +288,7 @@ $(document).ready(function() {
     file.addEventListener(air.Event.SELECT, action);
     fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
     fltr_aud = new air.FileFilter("audio", "*.mp3;*.wav;*.aiff");
-    fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.avi;*.flv");
+    fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.mpg;*.avi;*.flv");
     fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
     file.browseForOpen("Please select a file...", [fltr_img, fltr_aud, fltr_vid, fltr_doc]);
   }
