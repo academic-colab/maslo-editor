@@ -92,9 +92,11 @@ div.phone > img {
     z-index: -1;
 }
 
-div.phone div.canvas {
+div.phone div.viewport {
     height:400px;
     overflow: auto;
+    padding-right: 65px;
+    width: 250px;
 }
 
 div.phone div.canvas img {
