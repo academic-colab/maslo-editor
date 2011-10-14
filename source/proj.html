@@ -261,9 +261,10 @@ $(document).ready(function() {
 	// but when specifying a destination we use the native separator
 	var path = [air.File.applicationStorageDirectory.nativePath,
                  q.name, end].join(air.File.separator);
+	var title = end.slice(0, end.lastIndexOf('.'));
 	var dst = new air.File(path);
 	e.target.copyTo(dst, true);
-	gManifest.push({"title": end, "path": path});
+	gManifest.push({"title": title, "path": path});
 	saveManifest();
 	
 	window.htmlLoader.reload();
