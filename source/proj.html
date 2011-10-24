@@ -65,7 +65,7 @@
 
   <div id="edit-video" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
-	<a class="media" href="#"></a>
+	<div class="movie"></div>
 	<textarea rows="5" cols="55" id="description"></textarea>
   </div>
 
@@ -85,7 +85,6 @@
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
-<script type="text/javascript" src="js/jquery.media.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/load.js"></script>
@@ -166,7 +165,23 @@ $(document).ready(function() {
 		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
 		$('#edit-image textarea').val(gManifest[pos].description);
 	} else if(e.target.rel == 'video' || e.target.rel == 'audio') {
-		$('.media').text('').attr('href', 'file://' + $(e.target).attr('href')).media();
+		var options = new air.NativeWindowInitOptions(); 
+		options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
+		options.transparent = false; 
+		var newWindow = new air.NativeWindow(options);
+		newWindow.activate();
+
+		var nc = new air.NetConnection()
+		nc.connect(null);
+		var ns = new air.NetStream(nc);
+		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, asyncError);
+		function asyncError() { }
+		air.trace($(e.target).attr('href'));
+		ns.play('file://' + $(e.target).attr('href'));
+		var vid = new air.Video();
+		vid.attachNetStream(ns);
+		newWindow.stage.addChild(vid);
+
 	}
 	$('#edit-' + e.target.rel).dialog({
 		autoOpen: true,
