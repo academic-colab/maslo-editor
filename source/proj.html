@@ -170,7 +170,7 @@ $(document).ready(function() {
 	});
   });
 
-  $('a[rel!="quiz"]').click(function(e) {
+  $('tbody a[rel!="quiz"]').click(function(e) {
         var pos = $(e.target).parent().parent().index();
 	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
 	if(e.target.rel == 'image') {
