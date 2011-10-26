@@ -93,9 +93,9 @@
 	}
 	$('.action input').watermark('Name of Project');
 	$('.action a.alt, .action .cancel').click(function() {
-	$('.action .alt').toggle();
-	return false;
-    });
+		$('.action .alt').toggle();
+		return false;
+    	});
     $('.action input').keyup(function(e) {
 	$('button.ok').attr('disabled', $(this).val() == '');
     });

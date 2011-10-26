@@ -1,7 +1,7 @@
 function typeOfFile(path) {
 	var temp;
 	if(!(temp = path.match(/\.(\w+?)$/))) {
-		return 'unknown';
+		return 'quiz';
 	}
   	return {'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
                 'jpg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video', 'avi':'video',
@@ -10,5 +10,6 @@ function typeOfFile(path) {
 
 function iconForType(type) {
 	return {'image': "icons/image.png", 'text': "icons/text.png",
-	        'video': 'icons/video.png', 'audio': "icons/audio.png"}[type] || 'unknown';
+	        'video': 'icons/video.png', 'audio': "icons/audio.png",
+		'quiz':  'icons/quiz.png'}[type] || 'unknown';
 }

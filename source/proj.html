@@ -69,6 +69,12 @@
 	<textarea rows="5" cols="55" id="description"></textarea>
   </div>
 
+  <div id="edit-audio" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<div class="audio-preview">Preview: <input id="btnToggle" type='button' value="Play" onclick="toggleSound();" /></div>
+	<textarea rows="5" cols="55" id="description"></textarea>
+  </div>
+
   <div id="edit-text" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
 	<textarea class="content" rows="5" cols="50">
@@ -93,6 +99,9 @@
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 var gManifest = [];
+var toggleSound = function() {};
+var dlgCloseTrigger = function() { air.trace('closing'); };
+
 $(document).ready(function() {
   air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
   var q = queryParameters(document.location.search);
@@ -103,11 +112,15 @@ $(document).ready(function() {
 	m = gManifest[m];
 	var tr = $('<tr />');
 	var type = typeOfFile(m.path);
+	var path = m.path;
 	if(type == 'unknown' || !iconForType(type)) {
 		continue;
 	}
+	if(type == 'quiz') {
+		path = 'quiz.html?path=hi';
+	}
 	tr.append($('<td class="icon"><img src="' + iconForType(type) + '"/></td>'));
-	tr.append($('<td><a rel="' + type + '" href="' + m.path + '">' + m.title + '</a></td>'));
+	tr.append($('<td><a rel="' + type + '" href="' + path + '">' + m.title + '</a></td>'));
 	tr.append($('<td>Unpublished</td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	$('tbody.proj').append(tr);
@@ -129,7 +142,6 @@ $(document).ready(function() {
 	    if(end_pos >= gManifest.length) {
 		gManifest.push(undefined);
 	    }
-	    air.trace(start_pos + ' -> ' + end_pos);
 	    gManifest.splice(end_pos, 0, gManifest.splice(start_pos, 1)[0]);
 	    saveManifest();
         }
@@ -158,13 +170,32 @@ $(document).ready(function() {
 	});
   });
 
-  $('a[rel]').click(function(e) {
+  $('a[rel!="quiz"]').click(function(e) {
         var pos = $(e.target).parent().parent().index();
 	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
 	if(e.target.rel == 'image') {
 		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
 		$('#edit-image textarea').val(gManifest[pos].description);
-	} else if(e.target.rel == 'video' || e.target.rel == 'audio') {
+	} else if(e.target.rel == 'audio') {
+		var mp3File = new air.Sound(new air.URLRequest('file://' + $(e.target).attr('href')));
+		var channel = null;
+		toggleSound = function() {
+			if(channel) {
+				dlgCloseTrigger = function() {};
+				channel.stop();
+				channel = null;
+			} else {
+				channel = mp3File.play();
+				channel.addEventListener(air.Event.SOUND_COMPLETE,
+					function(e) { channel = null; $('#btnToggle').attr('value', 'Play'); }); 
+				dlgCloseTrigger = function() {
+					channel.stop();
+					$('#btnToggle').attr('value', 'Play');
+				};
+			}
+			$('#btnToggle').attr('value', channel ? 'Stop' : 'Play');
+		}
+	} else if(e.target.rel == 'video') {
 		var options = new air.NativeWindowInitOptions(); 
 		options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
 		options.transparent = false; 
@@ -176,18 +207,17 @@ $(document).ready(function() {
 		var ns = new air.NetStream(nc);
 		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, asyncError);
 		function asyncError() { }
-		air.trace($(e.target).attr('href'));
 		ns.play('file://' + $(e.target).attr('href'));
 		var vid = new air.Video();
 		vid.attachNetStream(ns);
 		newWindow.stage.addChild(vid);
-
 	}
 	$('#edit-' + e.target.rel).dialog({
 		autoOpen: true,
 		modal: true,
 		width: 540,
 		position: 'top',
+		beforeClose: function() { dlgCloseTrigger() /* inside to avoid being frozen in closure */ },
 		buttons: {
 		  "Replace": function() { 
 		    var orig = new air.File($(e.target).attr('href'));
