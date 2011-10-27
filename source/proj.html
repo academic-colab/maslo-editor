@@ -60,19 +60,19 @@
 	<input type="text" size="55" class="title" />
 	<img class="content" />
 	<div>Description</div>
-	<textarea rows="5" cols="55" id="description"></textarea>
+	<textarea rows="5" cols="55" class="description"></textarea>
   </div>
 
   <div id="edit-video" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
 	<div class="movie"></div>
-	<textarea rows="5" cols="55" id="description"></textarea>
+	<textarea rows="5" cols="55" class="description"></textarea>
   </div>
 
   <div id="edit-audio" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
 	<div class="audio-preview">Preview: <input id="btnToggle" type='button' value="Play" onclick="toggleSound();" /></div>
-	<textarea rows="5" cols="55" id="description"></textarea>
+	<textarea rows="5" cols="55" class="description"></textarea>
   </div>
 
   <div id="edit-text" style="display: none" title="Edit Content">
@@ -177,6 +177,7 @@ $(document).ready(function() {
 		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
 		$('#edit-image textarea').val(gManifest[pos].description);
 	} else if(e.target.rel == 'audio') {
+		$('#edit-audio textarea').val(gManifest[pos].description);
 		var mp3File = new air.Sound(new air.URLRequest('file://' + $(e.target).attr('href')));
 		var channel = null;
 		toggleSound = function() {
