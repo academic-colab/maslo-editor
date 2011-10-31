@@ -53,16 +53,19 @@
 		m = gManifest[m];
 		s.append("<option>" + m.title + "</option>");
 		var type = typeOfFile(m.path);
+		var li = $('<li></li>');
 		if(type == 'text') {
-			var li = $('<li></li>');
 			li.append(loadTextfile(m.path));
 			d.append(li);
 		} else if(type == 'image') {
-			var li = $('<li></li>');
 			li.append(['<img src=', 'file://' + m.path, '/>'].join('"'));
 			if(m.description) {
 				li.append('<p>' + m.description + '</p>');
 			}
+			d.append(li);
+		} else if(type == 'audio') {
+			li.append('<input type="button" value="Play" />');
+			li.append("hi, audio");
 			d.append(li);
 		}
 	}

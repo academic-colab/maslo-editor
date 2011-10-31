@@ -71,7 +71,7 @@
 
   <div id="edit-audio" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
-	<div class="audio-preview">Preview: <input id="btnToggle" type='button' value="Play" onclick="toggleSound();" /></div>
+	<div class="audio-preview"></div>
 	<textarea rows="5" cols="55" class="description"></textarea>
   </div>
 
@@ -91,6 +91,7 @@
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
+<script type="text/javascript" src="js/jquery.airaudio.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/load.js"></script>
@@ -178,24 +179,7 @@ $(document).ready(function() {
 		$('#edit-image textarea').val(gManifest[pos].description);
 	} else if(e.target.rel == 'audio') {
 		$('#edit-audio textarea').val(gManifest[pos].description);
-		var mp3File = new air.Sound(new air.URLRequest('file://' + $(e.target).attr('href')));
-		var channel = null;
-		toggleSound = function() {
-			if(channel) {
-				dlgCloseTrigger = function() {};
-				channel.stop();
-				channel = null;
-			} else {
-				channel = mp3File.play();
-				channel.addEventListener(air.Event.SOUND_COMPLETE,
-					function(e) { channel = null; $('#btnToggle').attr('value', 'Play'); }); 
-				dlgCloseTrigger = function() {
-					channel.stop();
-					$('#btnToggle').attr('value', 'Play');
-				};
-			}
-			$('#btnToggle').attr('value', channel ? 'Stop' : 'Play');
-		}
+                $('.audio-preview').AirAudio({file: 'file://' + $(e.target).attr('href')});
 	} else if(e.target.rel == 'video') {
 		var options = new air.NativeWindowInitOptions(); 
 		options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
