@@ -28,24 +28,20 @@
       mp3     = new air.Sound(new air.URLRequest(this.options['file']));
       channel = null;
       btn     = $('<input type="button" value="Play" />');
-      $(this.element).append(btn);
       toggleSound = function() {
+         air.trace('toggle sound')
          if(channel) {
-            dlgCloseTrigger = function() {};
             channel.stop();
             channel = null;
          } else {
             channel = mp3.play();
             channel.addEventListener(air.Event.SOUND_COMPLETE,
-            function(e) { channel = null; btn.attr('value', 'Play'); }); 
-            dlgCloseTrigger = function() {
-               channel.stop();
-               btn.attr('value', 'Play');
-            };
+               function(e) { channel = null; btn.attr('value', 'Play'); }); 
          }
          btn.attr('value', channel ? 'Stop' : 'Play');
       }
       btn.click(toggleSound)
+      $(this.element).append(btn);
     };
 
     // A really lightweight plugin wrapper around the constructor, 

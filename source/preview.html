@@ -33,6 +33,7 @@
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
+<script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/load.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
@@ -55,8 +56,8 @@
 		var type = typeOfFile(m.path);
 		var li = $('<li></li>');
 		if(type == 'text') {
-			li.append(loadTextfile(m.path));
-			d.append(li);
+                   li.append('<span>' + loadTextfile(m.path) + '</span>');
+	           d.append(li);
 		} else if(type == 'image') {
 			li.append(['<img src=', 'file://' + m.path, '/>'].join('"'));
 			if(m.description) {
@@ -64,17 +65,23 @@
 			}
 			d.append(li);
 		} else if(type == 'audio') {
-			li.append('<input type="button" value="Play" />');
-			li.append("hi, audio");
-			d.append(li);
+		   mpthrize(li, 'file://' + m.path)
+                  d.append(li);
+
+                  if(m.description) {
+                          li.append('<p>' + m.description + '</p>');
+                  }
 		}
 	}
 
-	$('div.canvas').html($('ul.data li:eq(0)').html());
+        $('div.canvas').html('').append($('ul.data li:eq(0)').clone(true).children());
         $("select option:first").attr('selected','selected');
         $("select").selectBox().change( function() {
+            $('div.canvas')
+               .empty()
+               .append($('ul.data > li:eq(' + this.selectedIndex + ')').clone(true).children());
             $('span.pg').html(this.selectedIndex + 1);
-            $('div.canvas').html($('ul.data > li:eq(' + this.selectedIndex + ')').html());
+            
         });
     });
 </script>
