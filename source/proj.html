@@ -99,6 +99,7 @@
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/load.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/urldecode.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
@@ -277,7 +278,7 @@ $(document).ready(function() {
     chooseFile(function(e) {
 	// we use a forward slash here rather than the native path separator
 	// because it occurs in the url form of the filename
-	var end = e.target.url.slice(
+	var end = urldecode(e.target.url).slice(
 		1 + e.target.url.lastIndexOf('/'));
 	// but when specifying a destination we use the native separator
 	var path = [air.File.applicationStorageDirectory.nativePath,
