@@ -25,92 +25,115 @@
       <div class="clear"></div>
     </div>
   </div>
+  <div id="dialog-confirm" style="display: none" title="Delete Content">
+     <p>The content pack "<span id="condemned"></span>" will be permanently deleted and cannot be
+    recovered. Are you sure?</p>
+  </div>
 </body>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cuteTime.min.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
-	// Yuck, this code grosses me out, and I'm responsible
-	function recursiveSize(folder) {
-            var currentFolder = new air.File(folder);
-            var files = currentFolder.getDirectoryListing();
-	    var s = 0;
-            for (var f in files) {
-                if (files[f].isDirectory) {
-                    if (files[f].name !="." && files[f].name !="..") {
-                        s += recursiveSize(files[f].nativePath);
-                    }
-                } else {
-                    s += files[f].size;
-                }
-            }
-            return s;
-        }
-	
-	function recursiveModified(folder) {
-            var currentFolder = new air.File(folder);
-            var files = currentFolder.getDirectoryListing();
-	    var mod = currentFolder.modificationDate.time;
-            for (var f in files) {
-                if (files[f].isDirectory) {
-                    if (!$.inArray(files[f].name, ['.', '..'])) {
-			mod = Math.max(mod, recursiveModified(files[f].nativePath));
-		    }
-		} else {
-                    mod = Math.max(mod, files[f].modificationDate.time);
-                }
-            }
-            return mod;
-        }
-	
-	// But this code is nice
-	function bytes2human(n) {
-		if (n < 1024) return n + 'B';
-		var exp = Math.floor(Math.log(n) / Math.log(1024));
-		var pre = 'KMGTPE'.charAt(exp-1);
-		return Math.round((n / Math.pow(1024, exp))*10)/10 + pre;
-	}
+  // Yuck, this code grosses me out, and I'm responsible
+  function recursiveSize(folder) {
+      var currentFolder = new air.File(folder);
+      var files = currentFolder.getDirectoryListing();
+      var s = 0;
+      for (var f in files) {
+          if (files[f].isDirectory) {
+              if (files[f].name !="." && files[f].name !="..") {
+                  s += recursiveSize(files[f].nativePath);
+              }
+          } else {
+              s += files[f].size;
+          }
+      }
+      return s;
+  }
+  
+  function recursiveModified(folder) {
+      var currentFolder = new air.File(folder);
+      var files = currentFolder.getDirectoryListing();
+      var mod = currentFolder.modificationDate.time;
+      for (var f in files) {
+          if (files[f].isDirectory) {
+              if (!$.inArray(files[f].name, ['.', '..'])) {
+                  mod = Math.max(mod, recursiveModified(files[f].nativePath));
+              }
+          } else {
+              mod = Math.max(mod, files[f].modificationDate.time);
+          }
+      }
+      return mod;
+  }
+  
+  // But this code is nice
+  function bytes2human(n) {
+          if (n < 1024) return n + 'B';
+          var exp = Math.floor(Math.log(n) / Math.log(1024));
+          var pre = 'KMGTPE'.charAt(exp-1);
+          return Math.round((n / Math.pow(1024, exp))*10)/10 + pre;
+  }
 
   $(document).ready(function() {
-	var directory = air.File.applicationStorageDirectory; 
-	var files = directory.getDirectoryListing();  
-	for (var f in files) {
-            if (files[f].isDirectory) {
-		var tr = $('<tr />');
-		tr.append($('<td><a href="proj.html?name=' + escape(files[f].name)
-		             + '">' + files[f].name + '</a></td>'));
-		tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath))
-		                   + '</td>'));
-		var d = new Date();
-		d.setTime(recursiveModified(files[f].nativePath));
-		tr.append($('<td>' +
-			$.cuteTime({}, d.toUTCString()) + '</td>'));
-          	tr.append($('<td>Unpublished</td>'));
-          	tr.append($('<td class="icon"><img src="icons/remove.png" alt="Remove Item" /></td>'));
-		$('tbody').append(tr);
-	    }
-	}
-	$('.action input').watermark('Name of Project');
-	$('.action a.alt, .action .cancel').click(function() {
-		$('.action .alt').toggle();
-		return false;
-    	});
-    $('.action input').keyup(function(e) {
-	$('button.ok').attr('disabled', $(this).val() == '');
-    });
-    $('.action .ok').click(function() {
-	var newdir = air.File.applicationStorageDirectory.resolvePath(
-		$('.action input').val());
-	newdir.createDirectory();
-	var f = new air.File(
-		[air.File.applicationStorageDirectory.nativePath,
-                 $('.action input').val(), 'manifest'].join(air.File.separator));
-	var fs = new air.FileStream();
-	fs.open(f, air.FileMode.WRITE);
-	fs.writeMultiByte('', "utf-8");
-	window.location = 'proj.html?name=' + escape($('.action input').val());
-    });
-  });
+     var directory = air.File.applicationStorageDirectory; 
+     var files = directory.getDirectoryListing();  
+     for (var f in files) {
+         if (files[f].isDirectory) {
+             var tr = $('<tr />');
+             tr.append($('<td><a href="proj.html?name=' + escape(files[f].name)
+                          + '" name="' + files[f].name + '"">' + files[f].name + '</a></td>'));
+             tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath))
+                                + '</td>'));
+             var d = new Date();
+             d.setTime(recursiveModified(files[f].nativePath));
+             tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) + '</td>'));
+             tr.append($('<td>Unpublished</td>'));
+             tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
+             $('tbody').append(tr);
+         }
+     }
+     $('.action input').watermark('Name of Project');
+     $('.action a.alt, .action .cancel').click(function() {
+         $('.action .alt').toggle();
+         return false;
+     });
+     $('.action input').keyup(function(e) {
+        $('button.ok').attr('disabled', $(this).val() == '');
+     });
+     $('.action .ok').click(function() {
+        var newdir = air.File.applicationStorageDirectory.resolvePath(
+                $('.action input').val());
+        newdir.createDirectory();
+        var f = new air.File(
+          [air.File.applicationStorageDirectory.nativePath,
+           $('.action input').val(), 'manifest'].join(air.File.separator));
+        var fs = new air.FileStream();
+        fs.open(f, air.FileMode.WRITE);
+        fs.writeMultiByte('', "utf-8");
+        window.location = 'proj.html?name=' + escape($('.action input').val());
+     });
+     $('img.remove').click(function(e) {
+           var elt = $(this).parent().parent();
+           $("#condemned").text(elt.find('a').attr('name'));
+           $( "#dialog-confirm" ).dialog({
+                height:240,
+                modal: true,
+                buttons: {
+                   "Delete Pack": function() {
+                        var condemned = air.File.applicationStorageDirectory.resolvePath(
+                           elt.find('a').attr('name'));
+                        condemned.deleteDirectory(true);
+                        window.htmlLoader.reload();
+                   },
+                   Cancel: function() {
+                        $( this ).dialog( "close" );
+                   }
+               }
+           });
+       });
+   });
 </script>
 </html>
