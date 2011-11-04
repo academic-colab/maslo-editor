@@ -5,7 +5,7 @@
   <initialWindow>
     <content>index.html</content>
     <visible>true</visible>
-    <width>650</width>
+    <width>1000</width>
     <height>750</height>
     <minSize>650 750</minSize>
   </initialWindow>
