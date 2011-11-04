@@ -4,6 +4,11 @@ body {
 h1 {
   margin: 10px;
   font-size: 16px;
+  float: left;
+}
+div.extra {
+   float:right;
+   margin: 10px;
 }
 a {
   color: #600;
@@ -39,6 +44,7 @@ div.action div.alt button {
 table {
   width: 100%;
   border-spacing: 0;
+  clear: both;
 }
 thead {
   color: white;
