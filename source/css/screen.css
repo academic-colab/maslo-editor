@@ -19,6 +19,7 @@ img.remove {
 div.action {
   background: #999;
   padding: 5px;
+  clear: both;
 }
 div.action button {
   float: right;
