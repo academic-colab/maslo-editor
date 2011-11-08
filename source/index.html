@@ -106,6 +106,9 @@ $(document).ready(function() {
 		return false;
 	});
 	$('.action input').keyup(function(e) {
+		if(e.which == 13) { // enter key
+			$('.action .ok').click();
+		}
 		$('button.ok').attr('disabled', $(this).val() == '');
 	});
 	$('.action .ok').click(function() {
