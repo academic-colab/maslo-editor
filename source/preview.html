@@ -1,34 +1,35 @@
 <html>
 <head>
-  <link type="text/css" href="css/screen.css" rel="stylesheet" />
-  <link type="text/css" href="css/jquery.selectBox.css" rel="stylesheet" />
-  <title>MASLO - Preview</title>
+	<link type="text/css" href="css/screen.css" rel="stylesheet" />
+	<link type="text/css" href="css/jquery.selectBox.css" rel="stylesheet" />
+	<title>MASLO - Preview</title>
 </head>
 <body>
-    <h1><a href="index.html">My Content Packs</a> > <a class="back" href="">hello</a> > Preview</h1>
+	<h1><a href="index.html">My Content Packs</a> >
+		<a class="back" href="">hello</a> > Preview</h1>
 
-  <div class="action">
-    <button type="button">Publish</button>
-    <button id="back" type="button">Back</button>
-    <div class="clear"></div>
-  </div>
-
-  <div id="focus">
-    <div class="nav">
-        <h2>Table of Contents / Page <span class="pg">1</span></h2>
-        <select size="10" class="toc">
-        </select>
-    </div>
-
-    <div class="phone">
-        <img class="background" src="icons/phone.png" alt="Phone" />
-	<div class="viewport">
-		<div class="canvas">preview text</div>
+	<div class="action">
+		<button type="button">Publish</button>
+		<button id="back" type="button">Back</button>
+		<div class="clear"></div>
 	</div>
-    </div>
-  </div>
 
-  <ul class="data" style="display: none"></ul>
+	<div id="focus">
+		<div class="nav">
+			<h2>Table of Contents / Page <span class="pg">1</span></h2>
+			<select size="10" class="toc">
+			</select>
+		</div>
+
+		<div class="phone">
+			<img class="background" src="icons/phone.png" alt="Phone" />
+			<div class="viewport">
+				<div class="canvas">preview text</div>
+			</div>
+		</div>
+	</div>
+
+	<ul class="data" style="display: none"></ul>
 
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
@@ -39,13 +40,13 @@
 <script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-  	var q = queryParameters(document.location.search);
+$(document).ready(function() {
+	var q = queryParameters(document.location.search);
 	$('a.back').attr('href', 'proj.html?name=' + q.name);
 	$('a.back').text(q.name.toString());
-        $('#back').click(function() {
-            window.location = 'proj.html?name=' + q.name;
-        });
+	$('#back').click(function() {
+		window.location = 'proj.html?name=' + q.name;
+	});
 
 	var gManifest = manifest(q.name);
 	var s = $('select');
@@ -53,37 +54,38 @@
 	for(var m in gManifest) {
 		m = gManifest[m];
 		s.append("<option>" + m.title + "</option>");
-		var type = typeOfFile(m.path);
+		var path = air.File.applicationStorageDirectory.nativePath
+			+ air.File.separator + m.path;
+		var type = typeOfFile(path);
 		var li = $('<li></li>');
 		if(type == 'text') {
-                   li.append('<span>' + loadTextfile(m.path) + '</span>');
-	           d.append(li);
+			li.append('<span>' + loadTextfile(path) + '</span>');
+			d.append(li);
 		} else if(type == 'image') {
-			li.append(['<img src=', 'file://' + m.path, '/>'].join('"'));
+			li.append(['<img src=', 'file://' + path, '/>'].join('"'));
 			if(m.description) {
 				li.append('<p>' + m.description + '</p>');
 			}
 			d.append(li);
 		} else if(type == 'audio') {
-		   mpthrize(li, 'file://' + m.path)
-                  d.append(li);
-
-                  if(m.description) {
-                          li.append('<p>' + m.description + '</p>');
-                  }
+			mpthrize(li, 'file://' + path)
+			d.append(li);
+			if(m.description) {
+				li.append('<p>' + m.description + '</p>');
+			}
 		}
 	}
 
-        $('div.canvas').html('').append($('ul.data li:eq(0)').clone(true).children());
-        $("select option:first").attr('selected','selected');
-        $("select").selectBox().change( function() {
-            $('div.canvas')
-               .empty()
-               .append($('ul.data > li:eq(' + this.selectedIndex + ')').clone(true).children());
-            $('span.pg').html(this.selectedIndex + 1);
-            
-        });
-    });
+	$('div.canvas').html('').append($('ul.data li:eq(0)').clone(true).children());
+	$("select option:first").attr('selected','selected');
+	$("select").selectBox().change( function() {
+		$('div.canvas')
+		   .empty()
+		   .append($('ul.data > li:eq(' + this.selectedIndex + ')')
+		   .clone(true).children());
+		$('span.pg').html(this.selectedIndex + 1);
+	});
+});
 </script>
 </body>
 </html>

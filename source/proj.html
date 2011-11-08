@@ -1,94 +1,98 @@
 <html>
 <head>
-  <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" /> 
-  <link type="text/css" href="css/screen.css" rel="stylesheet" />
-  <link type="text/css" href="css/jquery.cleditor.css" rel="stylesheet" />
-  <title>MASLO - Edit Project</title>
+	<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" /> 
+	<link type="text/css" href="css/screen.css" rel="stylesheet" />
+	<link type="text/css" href="css/jquery.cleditor.css" rel="stylesheet" />
+	<title>MASLO - Edit Project</title>
 </head>
 <body>
-  <h1><a href="index.html">My Content Packs</a> > <span id="proj"></span></h1>
-  <div class="extra">
-    <a href="#">Help</a>
-  </div>
-  <table>
-    <thead>
-      <tr><th>Type</th><th class="big">Title</th><th class="big">Status</th><th>Remove</th></tr>
-    </thead>
-    <tbody class="proj">
-    </tbody>
-  </table>
+	<h1><a href="index.html">My Content Packs</a> > <span id="proj"></span></h1>
+	<div class="extra"><a href="#">Help</a></div>
+	<table>
+	<thead>
+		<tr>
+			<th>Type</th>
+			<th class="big">Title</th>
+			<th class="big">Status</th>
+			<th>Remove</th>
+		</tr>
+	</thead>
+	<tbody class="proj">
+	</tbody>
+	</table>
 
-  <div class="action">
-    <a class="alt" href="">+ Add Content</a>
-    <div class="alt">
-      <input type="text" length="10" />
-      <button type="button">OK</button>
-      <button type="button" class="cancel">Cancel</button>
-    </div>
-    <button type="button">Publish</button>
-    <button type="button" id="preview">Preview</button>
-    <div class="clear"></div>
-  </div>
+	<div class="action">
+		<a class="alt" href="">+ Add Content</a>
+		<div class="alt">
+			<input type="text" length="10" />
+			<button type="button">OK</button>
+			<button type="button" class="cancel">Cancel</button>
+		</div>
+		<button type="button">Publish</button>
+		<button type="button" id="preview">Preview</button>
+		<div class="clear"></div>
+	</div>
 
-  <div id="dialog" style="display: none" title="Add Content">
-    <table>
-      <tbody>
-        <tr><td><input type="file" id="upload" style="display: none" />
-		<button onclick="$('#upload').click()">Upload</button>
-	  </td>
-          <td>
-            <img src="icons/image.png" height="16" width="16"/>
-            Image:&nbsp;png,&nbsp;jpg,&nbsp;gif,&nbsp;tiff<br />
-            <img src="icons/audio.png" height="16" width="16"/>
-            Audio:&nbsp;mp3,&nbsp;wav,&nbsp;aiff<br />
-            <img src="icons/video.png" height="16" width="16"/>
-            Video:&nbsp;mp4,&nbsp;avi,&nbsp;mov
-          </td>
-        </tr>
-        <tr><td><button id="btnCreate" type="button">Create Text</button></td>
-          <td>
-            <img src="icons/text.png" height="16" width="16"/>
-            Write new, or copy and paste</td>
-        </tr>
-        <tr><td><button type="button">Create Quiz</button></td>
-          <td>
-            <img src="icons/quiz.png" height="16" width="16"/>
-            Questions, answer, hints
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div id="edit-image" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<img class="content" />
-	<div>Description</div>
-	<textarea rows="5" cols="55" class="description"></textarea>
-  </div>
+	<div id="dialog" style="display: none" title="Add Content">
+		<table>
+		<tbody>
+			<tr>
+				<td><input type="file" id="upload" style="display: none" />
+					<button onclick="$('#upload').click()">Upload</button></td>
+				<td>
+					<img src="icons/image.png" height="16" width="16"/>
+					Image:&nbsp;png,&nbsp;jpg,&nbsp;gif,&nbsp;tiff<br />
+					<img src="icons/audio.png" height="16" width="16"/>
+					Audio:&nbsp;mp3,&nbsp;wav,&nbsp;aiff<br />
+					<img src="icons/video.png" height="16" width="16"/>
+					Video:&nbsp;mp4,&nbsp;avi,&nbsp;mov
+				</td>
+			</tr>
+			<tr>
+				<td><button id="btnCreate" type="button">Create Text</button></td>
+				<td>
+					<img src="icons/text.png" height="16" width="16"/>
+					Write new, or copy and paste
+				</td>
+			</tr>
+			<tr>
+				<td><button type="button">Create Quiz</button></td>
+				<td>
+					<img src="icons/quiz.png" height="16" width="16"/>
+					Questions, answer, hints
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+	<div id="edit-image" style="display: none" title="Edit Content">
+		<input type="text" size="55" class="title" />
+		<img class="content" />
+		<div>Description</div>
+		<textarea rows="5" cols="55" class="description"></textarea>
+	</div>
 
-  <div id="edit-video" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<div class="movie"></div>
-	<textarea rows="5" cols="55" class="description"></textarea>
-  </div>
+	<div id="edit-video" style="display: none" title="Edit Content">
+		<input type="text" size="55" class="title" />
+		<div class="movie"></div>
+		<textarea rows="5" cols="55" class="description"></textarea>
+	</div>
 
-  <div id="edit-audio" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<div class="audio-preview"></div>
-	<textarea rows="5" cols="55" class="description"></textarea>
-  </div>
+	<div id="edit-audio" style="display: none" title="Edit Content">
+		<input type="text" size="55" class="title" />
+		<div class="audio-preview"></div>
+		<textarea rows="5" cols="55" class="description"></textarea>
+	</div>
 
-  <div id="edit-text" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<textarea class="content" rows="5" cols="50">
-	hello world
-	</textarea>
-  </div>
+	<div id="edit-text" style="display: none" title="Edit Content">
+		<input type="text" size="55" class="title" />
+		<textarea class="content" rows="5" cols="50"></textarea>
+	</div>
 
-  <div id="dialog-confirm" style="display: none" title="Delete Content">
-    <p>This content will be permanently deleted and cannot be
-    recovered. Are you sure?</p>
-  </div>
+	<div id="dialog-confirm" style="display: none" title="Delete Content">
+		<p>This content will be permanently deleted and cannot be
+		recovered. Are you sure?</p>
+	</div>
 </body>
 
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
@@ -105,229 +109,243 @@
 <script type="text/javascript">
 var gManifest = [];
 var toggleSound = function() {};
-var dlgCloseTrigger = function() { air.trace('closing'); };
+var dlgCloseTrigger = function() {};
 
 $(document).ready(function() {
-  air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
-  var q = queryParameters(document.location.search);
-  $('#proj').text(q.name.toString());
-  gManifest = manifest(q.name);
+	air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
+	var q = queryParameters(document.location.search);
+	$('#proj').text(q.name.toString());
+	gManifest = manifest(q.name);
 
-  for(var m in gManifest) {
-	m = gManifest[m];
-	var tr = $('<tr />');
-	var type = typeOfFile(m.path);
-	var path = m.path;
-	if(type == 'unknown' || !iconForType(type)) {
-		continue;
+	for(var m in gManifest) {
+		m = gManifest[m];
+		var tr = $('<tr />');
+		var type = typeOfFile(m.path);
+		var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + m.path;
+		if(type == 'unknown' || !iconForType(type)) {
+			continue;
+		}
+		if(type == 'quiz') {
+			path = 'quiz.html?path=hi';
+		}
+		tr.append($('<td class="icon"><img src="' + iconForType(type) + '"/></td>'));
+		tr.append($('<td><a rel="' + type + '" href="' + path + '">' + m.title + '</a></td>'));
+		tr.append($('<td>Unpublished</td>'));
+		tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
+		$('tbody.proj').append(tr);
 	}
-	if(type == 'quiz') {
-		path = 'quiz.html?path=hi';
-	}
-	tr.append($('<td class="icon"><img src="' + iconForType(type) + '"/></td>'));
-	tr.append($('<td><a rel="' + type + '" href="' + path + '">' + m.title + '</a></td>'));
-	tr.append($('<td>Unpublished</td>'));
-	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
-	$('tbody.proj').append(tr);
-  }
 
-  $("tbody.proj").sortable({
-	items: 'tr',
-	axis: 'y',
-	start: function(event, ui) {
-            ui.item.data('start_pos', ui.item.index());
-        },
-        change: function(event, ui) {
-            ui.item.data('end_pos', ui.placeholder.index());
-        },
-        update: function(event, ui) {
-	    var start_pos = ui.item.data('start_pos');
-	    var end_pos   = ui.item.data('end_pos');
-	    if(end_pos > start_pos) { end_pos-- }
-	    if(end_pos >= gManifest.length) {
-		gManifest.push(undefined);
-	    }
-	    gManifest.splice(end_pos, 0, gManifest.splice(start_pos, 1)[0]);
-	    saveManifest();
-        }
-  });
-
-
-  $('img.remove').click(function(e) {
-	var elt = $(this).parent().parent();
-	$( "#dialog-confirm" ).dialog({
-		height:240,
-		modal: true,
-		buttons: {
-			"Delete Content": function() {
-				gManifest.splice(elt.index(), 1);
-				var condemned = new air.File(
-					elt.find('a').attr('href')
-				);
-				condemned.deleteFile();
-				saveManifest();
-				window.htmlLoader.reload();
-			},
-			Cancel: function() {
-				$( this ).dialog( "close" );
+	$("tbody.proj").sortable({
+		items: 'tr',
+		axis: 'y',
+		start: function(event, ui) {
+			ui.item.data('start_pos', ui.item.index());
+		},
+		change: function(event, ui) {
+			ui.item.data('end_pos', ui.placeholder.index());
+		},
+		update: function(event, ui) {
+			var start_pos = ui.item.data('start_pos');
+			var end_pos   = ui.item.data('end_pos');
+			if(end_pos > start_pos) {
+				end_pos--
 			}
-		}
-	});
-  });
-
-  $('tbody a[rel!="quiz"]').click(function(e) {
-        var pos = $(e.target).parent().parent().index();
-	$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
-	if(e.target.rel == 'image') {
-		$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
-		$('#edit-image textarea').val(gManifest[pos].description);
-	} else if(e.target.rel == 'audio') {
-		$('#edit-audio textarea').val(gManifest[pos].description);
-		$('.audio-preview').html('');
-		mpthrize($('.audio-preview'), 'file://' + $(e.target).attr('href'))
-	} else if(e.target.rel == 'video') {
-		var options = new air.NativeWindowInitOptions(); 
-		options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
-		options.transparent = false; 
-		var newWindow = new air.NativeWindow(options);
-		newWindow.activate();
-
-		var nc = new air.NetConnection()
-		nc.connect(null);
-		var ns = new air.NetStream(nc);
-		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, asyncError);
-		function asyncError() { }
-		ns.play('file://' + $(e.target).attr('href'));
-		var vid = new air.Video();
-		vid.attachNetStream(ns);
-		newWindow.stage.addChild(vid);
-	}
-	$('#edit-' + e.target.rel).dialog({
-		autoOpen: true,
-		modal: true,
-		width: 540,
-		position: 'top',
-		beforeClose: function() { dlgCloseTrigger() /* inside to avoid being frozen in closure */ },
-		buttons: {
-		  "Replace": function() { 
-		    var orig = new air.File($(e.target).attr('href'));
-		    chooseFile(function(f) {
-			f.target.copyTo(orig, true);
-			d = new Date();
-			// reload image with cache-busting querystring
-			$('#edit-' + e.target.rel + ' img')
-				.attr('src', 'file://' + $(e.target).attr('href') +
-				      '?' + d.getTime());
-		    });
-		  },
-		  "Save": function() { 
-		    if(e.target.rel == 'text') {
-			var f = new air.File($(e.target).attr('href'));
-			var fs = new air.FileStream();
-			fs.open(f, air.FileMode.WRITE);
-			fs.writeMultiByte($('#edit-text textarea').val(), "utf-8");
-			fs.close();
-		    }
-
-		    var title = $('#edit-' + e.target.rel + ' input.title').val();
-		    var desc = $('#edit-' + e.target.rel + ' textarea').val();
-		    var modified = false;
-		    if(gManifest[pos].title != title ||
-		       gManifest[pos].description != desc) {
-			gManifest[pos].title = title;
-			gManifest[pos].description = desc;
-			modified = true;
-		    }
-		    $(this).dialog("close"); 
-		    if(modified) {
+			if(end_pos >= gManifest.length) {
+				gManifest.push(undefined);
+			}
+			gManifest.splice(end_pos, 0, gManifest.splice(start_pos, 1)[0]);
 			saveManifest();
-		    	window.htmlLoader.reload();
-		    }
-		  } 
 		}
 	});
-	if(e.target.rel == 'text') {
-		$('#edit-text textarea.content').val(loadTextfile($(e.target).attr('href')));
-		$('#edit-text textarea.content').cleditor({
-		controls: "bold italic underline bullets numbering alignleft " +
-		          " center alignright justify undo redo cut copy paste"
-		})[0].refresh();
+
+
+	$('img.remove').click(function(e) {
+		var elt = $(this).parent().parent();
+		$( "#dialog-confirm" ).dialog({
+			height:240,
+			modal: true,
+			buttons: {
+				"Delete Content": function() {
+					gManifest.splice(elt.index(), 1);
+					var condemned = new air.File(
+						elt.find('a').attr('href')
+					);
+					condemned.deleteFile();
+					saveManifest();
+					window.htmlLoader.reload();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+	});
+
+	$('tbody a[rel!="quiz"]').click(function(e) {
+		var pos = $(e.target).parent().parent().index();
+		$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
+		if(e.target.rel == 'image') {
+			$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
+			$('#edit-image textarea').val(gManifest[pos].description);
+		} else if(e.target.rel == 'audio') {
+			$('#edit-audio textarea').val(gManifest[pos].description);
+			$('.audio-preview').html('');
+			mpthrize($('.audio-preview'), 'file://' + $(e.target).attr('href'))
+		} else if(e.target.rel == 'video') {
+			var options = new air.NativeWindowInitOptions(); 
+			options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
+			options.transparent = false; 
+			var newWindow = new air.NativeWindow(options);
+			newWindow.activate();
+
+			var nc = new air.NetConnection()
+			nc.connect(null);
+			var ns = new air.NetStream(nc);
+			ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, asyncError);
+			function asyncError() { }
+			ns.play('file://' + $(e.target).attr('href'));
+			var vid = new air.Video();
+			vid.attachNetStream(ns);
+			newWindow.stage.addChild(vid);
+		}
+		$('#edit-' + e.target.rel).dialog({
+			autoOpen: true,
+			modal: true,
+			width: 540,
+			position: 'top',
+			beforeClose: function() {
+				/* inside to avoid being frozen in closure */
+				dlgCloseTrigger();
+			},
+			buttons: {
+				"Replace": function() { 
+					var orig = new air.File($(e.target).attr('href'));
+					chooseFile(function(f) {
+					f.target.copyTo(orig, true);
+					d = new Date();
+					// reload image with cache-busting querystring
+					$('#edit-' + e.target.rel + ' img')
+						.attr('src', 'file://' + $(e.target).attr('href') +
+						      '?' + d.getTime());
+					});
+				},
+				"Save": function() { 
+					if(e.target.rel == 'text') {
+						var f = new air.File($(e.target).attr('href'));
+						var fs = new air.FileStream();
+						fs.open(f, air.FileMode.WRITE);
+						fs.writeMultiByte($('#edit-text textarea').val(), "utf-8");
+						fs.close();
+					}
+					var title = $('#edit-' + e.target.rel + ' input.title').val();
+					var desc = $('#edit-' + e.target.rel + ' textarea').val();
+					var modified = false;
+					if(gManifest[pos].title != title ||
+					   gManifest[pos].description != desc) {
+						gManifest[pos].title = title;
+						gManifest[pos].description = desc;
+						modified = true;
+					}
+					$(this).dialog("close"); 
+					if(modified) {
+						saveManifest();
+						window.htmlLoader.reload();
+					}
+				} 
+			}
+		});
+		if(e.target.rel == 'text') {
+			$('#edit-text textarea.content').val(loadTextfile($(e.target).attr('href')));
+			$('#edit-text textarea.content').cleditor({
+				controls: "bold italic underline bullets numbering alignleft " +
+				          " center alignright justify undo redo cut copy paste"
+			})[0].refresh();
+		}
+
+		return false;
+	});
+
+	$('#preview').click(function() {
+		window.location = 'preview.html?name=' + q.name;
+	});
+	$('.action a.alt').click(function() {
+		$('#dialog').dialog({
+			autoOpen: true,
+			modal: true,
+			width: 450,
+			position: 'top',
+			buttons: {
+				"Cancel": function() { 
+					$(this).dialog("close"); 
+				} 
+			}
+		});
+		return false;
+	});
+
+	$('#upload').click(function() {
+		chooseFile(function(e) {
+			// we use a forward slash here rather than the native path separator
+			// because it occurs in the url form of the filename
+			var end = urldecode(e.target.url).slice(
+				1 + e.target.url.lastIndexOf('/'));
+			// but when specifying a destination we use the native separator
+			var path = [air.File.applicationStorageDirectory.nativePath,
+						 q.name, end].join(air.File.separator);
+			var title = end.slice(0, end.lastIndexOf('.'));
+			var dst = new air.File(path);
+			e.target.copyTo(dst, true);
+			gManifest.push({"title": title, "path": relativize(path)});
+			saveManifest();
+
+			window.htmlLoader.reload();
+		});
+	});
+
+	$('#btnCreate').click(function() {
+		var path = [air.File.applicationStorageDirectory.nativePath,
+			q.name, 'file-' + Math.floor(Math.random()*4000000000) + '.txt'
+		].join(air.File.separator);
+		var f = new air.File(path);
+		var fs = new air.FileStream();
+		fs.open(f, air.FileMode.WRITE);
+		fs.writeMultiByte('', "utf-8");
+		fs.close();
+
+		gManifest.push({"title": 'untitled', "path": relativize(path)});
+		saveManifest();
+		window.htmlLoader.reload();
+	});
+
+	function saveManifest() {
+		var f = new air.File(
+			[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
+			.join(air.File.separator)
+		);
+		var fs = new air.FileStream();
+		fs.open(f, air.FileMode.WRITE);
+		fs.writeMultiByte(JSON.stringify(gManifest), "utf-8");
+		fs.close();
 	}
 
-	return false;
-  });
-  $('#preview').click(function() {
-      window.location = 'preview.html?name=' + q.name;
-  });
-  $('.action a.alt').click(function() {
-    $('#dialog').dialog({
-      autoOpen: true,
-      modal: true,
-      width: 450,
-      position: 'top',
-      buttons: {
-        "Cancel": function() { 
-          $(this).dialog("close"); 
-        } 
-      }
-    });
-    return false;
-  });
+	function relativize(path) {
+		// regex to match final /(project/file)
+		// using an absolute url would prevent exporting projects to another computer
+		var s = air.File.separator;
+		var ending = new RegExp('[^' + s + ']+' + s + '[^' + s + ']+$');
+		return ending.exec(path)[0];
+	}
 
-  $('#upload').click(function() {
-    chooseFile(function(e) {
-	// we use a forward slash here rather than the native path separator
-	// because it occurs in the url form of the filename
-	var end = urldecode(e.target.url).slice(
-		1 + e.target.url.lastIndexOf('/'));
-	// but when specifying a destination we use the native separator
-	var path = [air.File.applicationStorageDirectory.nativePath,
-                 q.name, end].join(air.File.separator);
-	var title = end.slice(0, end.lastIndexOf('.'));
-	var dst = new air.File(path);
-	e.target.copyTo(dst, true);
-	gManifest.push({"title": title, "path": path});
-	saveManifest();
-	
-	window.htmlLoader.reload();
-    });
-  });
-
-  $('#btnCreate').click(function() {
-	var path = [air.File.applicationStorageDirectory.nativePath,
-                 q.name, 'file-' + Math.floor(Math.random()*4000000000) + '.txt'].join(air.File.separator);
-	var f = new air.File(path);
-	var fs = new air.FileStream();
-	fs.open(f, air.FileMode.WRITE);
-	fs.writeMultiByte('', "utf-8");
-	fs.close();
-
-	gManifest.push({"title": 'untitled', "path": path});
-	saveManifest();
-	window.htmlLoader.reload();
-  });
-
-  function saveManifest() {
-	var f = new air.File(
-		[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
-		.join(air.File.separator)
-	);
-	var fs = new air.FileStream();
-	fs.open(f, air.FileMode.WRITE);
-	fs.writeMultiByte(JSON.stringify(gManifest), "utf-8");
-	fs.close();
-  }
-
-  function chooseFile(action) {
-    file = new window.runtime.flash.filesystem.File();
-    file.addEventListener(air.Event.SELECT, action);
-    fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
-    fltr_aud = new air.FileFilter("audio", "*.mp3;*.wav;*.aiff");
-    fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.mpg;*.avi;*.flv");
-    fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
-    file.browseForOpen("Please select a file...", [fltr_img, fltr_aud, fltr_vid, fltr_doc]);
-  }
-
+	function chooseFile(action) {
+		file = new window.runtime.flash.filesystem.File();
+		file.addEventListener(air.Event.SELECT, action);
+		fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
+		fltr_aud = new air.FileFilter("audio", "*.mp3;*.wav;*.aiff");
+		fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.mpg;*.avi;*.flv");
+		fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
+		file.browseForOpen("Please select a file...",
+		                   [fltr_img, fltr_aud, fltr_vid, fltr_doc]);
+	}
 });
 </script>
 </html>
