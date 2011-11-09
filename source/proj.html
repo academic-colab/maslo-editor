@@ -19,22 +19,22 @@
 	</thead>
 	<tbody class="proj">
 	</tbody>
-	</table>
+</table>
 
-	<div class="action">
-		<a class="alt" href="">+ Add Content</a>
-		<div class="alt">
-			<input type="text" length="10" />
-			<button type="button">OK</button>
-			<button type="button" class="cancel">Cancel</button>
-		</div>
-		<button type="button">Publish</button>
-		<button type="button" id="preview">Preview</button>
-		<div class="clear"></div>
+<div class="action">
+	<a class="alt" href="">+ Add Content</a>
+	<div class="alt">
+		<input type="text" length="10" />
+		<button type="button">OK</button>
+		<button type="button" class="cancel">Cancel</button>
 	</div>
+	<button type="button">Publish</button>
+	<button type="button" id="preview">Preview</button>
+	<div class="clear"></div>
+</div>
 
-	<div id="dialog" style="display: none" title="Add Content">
-		<table>
+<div id="dialog" style="display: none" title="Add Content">
+	<table>
 		<tbody>
 			<tr>
 				<td><input type="file" id="upload" style="display: none" />
@@ -56,47 +56,52 @@
 				</td>
 			</tr>
 			<tr>
-				<td><button type="button">Create Quiz</button></td>
+				<td><button id="btnQuiz" type="button">Create Quiz</button></td>
 				<td>
 					<img src="icons/quiz.png" height="16" width="16"/>
 					Questions, answer, hints
 				</td>
 			</tr>
 		</tbody>
-		</table>
-	</div>
-	<div id="edit-image" style="display: none" title="Edit Content">
-		<input type="text" size="55" class="title" />
-		<img class="content" />
-		<div>Description</div>
-		<textarea rows="5" cols="55" class="description"></textarea>
-	</div>
+	</table>
+	<form class="quiz" style="display:none">
+		<input type="text" name="title" />
+		<input type="submit" value="Create" />
+	</form>
+</div>
+<div id="edit-image" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<img class="content" />
+	<div>Description</div>
+	<textarea rows="5" cols="55" class="description"></textarea>
+</div>
 
-	<div id="edit-video" style="display: none" title="Edit Content">
-		<input type="text" size="55" class="title" />
-		<div class="movie"></div>
-		<textarea rows="5" cols="55" class="description"></textarea>
-	</div>
+<div id="edit-video" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<div class="movie"></div>
+	<textarea rows="5" cols="55" class="description"></textarea>
+</div>
 
-	<div id="edit-audio" style="display: none" title="Edit Content">
-		<input type="text" size="55" class="title" />
-		<div class="audio-preview"></div>
-		<textarea rows="5" cols="55" class="description"></textarea>
-	</div>
+<div id="edit-audio" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<div class="audio-preview"></div>
+	<textarea rows="5" cols="55" class="description"></textarea>
+</div>
 
-	<div id="edit-text" style="display: none" title="Edit Content">
-		<input type="text" size="55" class="title" />
-		<textarea class="content" rows="5" cols="50"></textarea>
-	</div>
+<div id="edit-text" style="display: none" title="Edit Content">
+	<input type="text" size="55" class="title" />
+	<textarea class="content" rows="5" cols="50"></textarea>
+</div>
 
-	<div id="dialog-confirm" style="display: none" title="Delete Content">
-		<p>This content will be permanently deleted and cannot be
-		recovered. Are you sure?</p>
-	</div>
+<div id="dialog-confirm" style="display: none" title="Delete Content">
+	<p>This content will be permanently deleted and cannot be
+	recovered. Are you sure?</p>
+</div>
 </body>
 
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
 <script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
@@ -181,6 +186,7 @@ $(document).ready(function() {
 		});
 	});
 
+	$('form.quiz input[type="text"]').watermark('Name of Quiz');
 	$('tbody a[rel!="quiz"]').click(function(e) {
 		var pos = $(e.target).parent().parent().index();
 		$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
@@ -315,6 +321,27 @@ $(document).ready(function() {
 		gManifest.push({"title": 'untitled', "path": relativize(path)});
 		saveManifest();
 		window.htmlLoader.reload();
+	});
+
+	$('#btnQuiz').click(function() {
+		$('form.quiz').toggle();
+	});
+
+	$('form.quiz').submit(function() {
+		// note that 'q' is a global variable holding query parameters to this page
+		var quiztitle = $('form.quiz input[name="title"]');
+		var quizdir   = new air.File(
+			[air.File.applicationStorageDirectory.nativePath, q.name, quiztitle].join(air.File.separator));
+		gManifest.push({"title": quiztitle, "path": relativize(quizdir.nativePath)});
+		saveManifest();
+		
+		quizdir.createDirectory();
+		var man = quizdir.resolvePath('manifest');
+		var fs = new air.FileStream();
+		fs.open(man, air.FileMode.WRITE);
+		fs.writeMultiByte('', "utf-8");
+		window.location = 'quiz.html?proj=' + q.name + '&name=' + quiztitle;
+		return false;
 	});
 
 	function saveManifest() {
