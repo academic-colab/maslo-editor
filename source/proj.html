@@ -132,7 +132,7 @@ $(document).ready(function() {
 			continue;
 		}
 		if(type == 'quiz') {
-			path = 'quiz.html?path=hi';
+			path = 'quiz.html?proj=' + q.name + '&title=' + m.title;
 		}
 		tr.append($('<td class="icon"><img src="' + iconForType(type) + '"/></td>'));
 		tr.append($('<td><a rel="' + type + '" href="' + path + '">' + m.title + '</a></td>'));
@@ -348,8 +348,6 @@ $(document).ready(function() {
 		fs.open(man, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
 		$(event.target).children('input[name="proj"]').val(q.name);
-		//window.location = 'quiz.html?proj=' + urlencode(q.name)
-		//                  + '&title=' + urlencode(quiztitle);
 		return true;
 	});
 
