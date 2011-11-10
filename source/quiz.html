@@ -1,0 +1,50 @@
+<html>
+<head>
+	<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" /> 
+	<link type="text/css" href="css/screen.css" rel="stylesheet" />
+	<link type="text/css" href="css/jquery.cleditor.css" rel="stylesheet" />
+	<title>MASLO - Edit Quiz</title>
+</head>
+<body>
+<h1><a href="index.html">My Content Packs</a> >
+	<a class="back" href="#"></a> >
+	<span class="current"></span></h1>
+<div class="extra"><a href="#">Help</a></div>
+<table>
+<thead>
+	<tr>
+		<th>Type</th>
+		<th class="big">Title</th>
+		<th>Remove</th>
+	</tr>
+</thead>
+<tbody class="proj">
+</tbody>
+</table>
+<div class="action">
+	<a class="alt" href="">+ Add Question</a>
+	<button type="button" id="back">Back</button>
+	<div class="clear"></div>
+</div>
+<script type="text/javascript" src="AIRAliases.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
+<script type="text/javascript" src="js/mpthrize.js"></script>
+<script type="text/javascript" src="js/param.js"></script>
+<script type="text/javascript" src="js/load.js"></script>
+<script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/manifest.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	var q = queryParameters(document.location.search);
+	$('a.back').attr('href', 'proj.html?name=' + q.proj);
+	$('a.back').text(q.proj.toString());
+	$('span.current').text(q.title.toString());
+	$('#back').click(function() {
+		window.location = 'proj.html?name=' + q.proj;
+	});
+});
+</script>
+</body>
+</html>
+

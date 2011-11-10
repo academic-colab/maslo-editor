@@ -64,9 +64,10 @@
 			</tr>
 		</tbody>
 	</table>
-	<form class="quiz" style="display:none">
+	<form class="quiz" style="display:none" action="quiz.html" method="GET">
 		<input type="text" name="title" />
-		<input type="submit" value="Create" />
+		<input type="hidden" name="proj" />
+		<input type="submit" value="Create" disabled="disabled" />
 	</form>
 </div>
 <div id="edit-image" style="display: none" title="Edit Content">
@@ -187,6 +188,10 @@ $(document).ready(function() {
 	});
 
 	$('form.quiz input[type="text"]').watermark('Name of Quiz');
+	$('form.quiz input[type="text"]').keyup(function() {
+			$('form.quiz input[type="submit"]').attr('disabled',
+				$(this).val() == '');
+	});
 	$('tbody a[rel!="quiz"]').click(function(e) {
 		var pos = $(e.target).parent().parent().index();
 		$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
@@ -327,12 +332,14 @@ $(document).ready(function() {
 		$('form.quiz').toggle();
 	});
 
-	$('form.quiz').submit(function() {
-		// note that 'q' is a global variable holding query parameters to this page
-		var quiztitle = $('form.quiz input[name="title"]');
+	$('form.quiz').submit(function(event) {
+		var quiztitle = $('form.quiz input[name="title"]').val();
 		var quizdir   = new air.File(
 			[air.File.applicationStorageDirectory.nativePath, q.name, quiztitle].join(air.File.separator));
-		gManifest.push({"title": quiztitle, "path": relativize(quizdir.nativePath)});
+		gManifest.push({
+			"title": quiztitle,
+			"path": relativize(quizdir.nativePath)
+		});
 		saveManifest();
 		
 		quizdir.createDirectory();
@@ -340,8 +347,10 @@ $(document).ready(function() {
 		var fs = new air.FileStream();
 		fs.open(man, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
-		window.location = 'quiz.html?proj=' + q.name + '&name=' + quiztitle;
-		return false;
+		$(event.target).children('input[name="proj"]').val(q.name);
+		//window.location = 'quiz.html?proj=' + urlencode(q.name)
+		//                  + '&title=' + urlencode(quiztitle);
+		return true;
 	});
 
 	function saveManifest() {
