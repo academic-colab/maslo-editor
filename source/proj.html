@@ -33,11 +33,15 @@
 	<div class="clear"></div>
 </div>
 
+<!------------------- ######### DIALOGS --------------------- -->
+
 <div id="dialog" style="display: none" title="Add Content">
 	<table>
 		<tbody>
 			<tr>
 				<td><input type="file" id="upload" style="display: none" />
+					<!-- this button sends any click to the hidden
+					     file input element -->
 					<button onclick="$('#upload').click()">Upload</button></td>
 				<td>
 					<img src="icons/image.png" height="16" width="16"/>
@@ -70,34 +74,17 @@
 		<input type="submit" value="Create" disabled="disabled" />
 	</form>
 </div>
-<div id="edit-image" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<img class="content" />
-	<div>Description</div>
-	<textarea rows="5" cols="55" class="description"></textarea>
-</div>
 
-<div id="edit-video" style="display: none" title="Edit Content">
+<div id="edit-content" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
-	<div class="movie"></div>
-	<textarea rows="5" cols="55" class="description"></textarea>
-</div>
-
-<div id="edit-audio" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<div class="audio-preview"></div>
-	<textarea rows="5" cols="55" class="description"></textarea>
-</div>
-
-<div id="edit-text" style="display: none" title="Edit Content">
-	<input type="text" size="55" class="title" />
-	<textarea class="content" rows="5" cols="50"></textarea>
+	<div></div>
 </div>
 
 <div id="dialog-confirm" style="display: none" title="Delete Content">
 	<p>This content will be permanently deleted and cannot be
 	recovered. Are you sure?</p>
 </div>
+
 </body>
 
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
@@ -107,35 +94,31 @@
 <script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
-<script type="text/javascript" src="js/load.js"></script>
-<script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/urldecode.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
-var gManifest = [];
-var toggleSound = function() {};
+var gPageParams = queryParameters(document.location.search);
+var	gManifest = manifest(gPageParams.name);
+
 var dlgCloseTrigger = function() {};
 
 $(document).ready(function() {
-	air.HTMLLoader.placeLoadStringContentInApplicationSandbox = true;
-	var q = queryParameters(document.location.search);
-	$('#proj').text(q.name.toString());
-	gManifest = manifest(q.name);
+	$('#proj').text(gPageParams.name.toString());
 
 	for(var m in gManifest) {
 		m = gManifest[m];
 		var tr = $('<tr />');
-		var type = typeOfFile(m.path);
-		var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + m.path;
-		if(type == 'unknown' || !iconForType(type)) {
+		// turn relative path in manifest into absolute path under the
+		// application storage directory
+		var path = air.File.applicationStorageDirectory.resolvePath(m.path).nativePath;
+
+		if(m.type == 'unknown' || !iconForType(m.type)) {
 			continue;
 		}
-		if(type == 'quiz') {
-			path = 'quiz.html?proj=' + q.name + '&title=' + m.title;
-		}
-		tr.append($('<td class="icon"><img src="' + iconForType(type) + '"/></td>'));
-		tr.append($('<td><a rel="' + type + '" href="' + path + '">' + m.title + '</a></td>'));
+		tr.append($('<td class="icon"><img src="' + iconForType(m.type) + '"/></td>'));
+		tr.append($('<td><a rel="' + m.type + '" href="' + path + '">' + m.title + '</a></td>'));
 		tr.append($('<td>Unpublished</td>'));
 		tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 		$('tbody.proj').append(tr);
@@ -154,7 +137,7 @@ $(document).ready(function() {
 			var start_pos = ui.item.data('start_pos');
 			var end_pos   = ui.item.data('end_pos');
 			if(end_pos > start_pos) {
-				end_pos--
+				end_pos--;
 			}
 			if(end_pos >= gManifest.length) {
 				gManifest.push(undefined);
@@ -173,10 +156,17 @@ $(document).ready(function() {
 			buttons: {
 				"Delete Content": function() {
 					gManifest.splice(elt.index(), 1);
+					air.trace(
+						elt.find('a').attr('href')
+					);
 					var condemned = new air.File(
 						elt.find('a').attr('href')
 					);
-					condemned.deleteFile();
+					if(condemned.isDirectory) {
+						comdemned.deleteDirectory(true);
+					} else {
+						condemned.deleteFile();
+					}
 					saveManifest();
 					window.htmlLoader.reload();
 				},
@@ -192,23 +182,38 @@ $(document).ready(function() {
 			$('form.quiz input[type="submit"]').attr('disabled',
 				$(this).val() == '');
 	});
-	$('tbody a[rel!="quiz"]').click(function(e) {
+
+	$('tbody a[rel]').click(function(e) {
 		var pos = $(e.target).parent().parent().index();
-		$('#edit-' + e.target.rel + ' input.title').val($(e.target).text());
-		if(e.target.rel == 'image') {
-			$('#edit-image img').attr('src', 'file://' + $(e.target).attr('href'));
-			$('#edit-image textarea').val(gManifest[pos].description);
+		$('#edit-content input.title').val($(e.target).text());
+		var contentDiv = $('#edit-content div');
+		contentDiv.empty();
+
+		// first set up the edit-content dialog
+		var textArea = $('<textarea rows="3" cols="50">temp</textarea>');
+
+		if(e.target.rel == 'text') {
+			textArea.val(loadTextfile($(e.target).attr('href')));
+			contentDiv.append(textArea);
+		} else if(e.target.rel == 'image') {
+			var img = $('<img />')
+			img.attr('src', 'file://' + $(e.target).attr('href'));
+			contentDiv.append(img);
+			contentDiv.append(textArea);
 		} else if(e.target.rel == 'audio') {
-			$('#edit-audio textarea').val(gManifest[pos].description);
-			$('.audio-preview').html('');
-			mpthrize($('.audio-preview'), 'file://' + $(e.target).attr('href'))
+			mpthrize(contentDiv, 'file://' + $(e.target).attr('href'))
+			textArea.val(gManifest[pos].description);
+			contentDiv.append(textArea);
+		} else if(e.target.rel == 'quiz') {
+			window.location = 'quiz.html?name=' +
+				relativize($(e.target).attr('href'));
+			return false;
 		} else if(e.target.rel == 'video') {
 			var options = new air.NativeWindowInitOptions(); 
 			options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
 			options.transparent = false; 
 			var newWindow = new air.NativeWindow(options);
 			newWindow.activate();
-
 			var nc = new air.NetConnection()
 			nc.connect(null);
 			var ns = new air.NetStream(nc);
@@ -219,7 +224,9 @@ $(document).ready(function() {
 			vid.attachNetStream(ns);
 			newWindow.stage.addChild(vid);
 		}
-		$('#edit-' + e.target.rel).dialog({
+
+		// now show the dialog
+		$('#edit-content').dialog({
 			autoOpen: true,
 			modal: true,
 			width: 540,
@@ -265,19 +272,16 @@ $(document).ready(function() {
 				} 
 			}
 		});
-		if(e.target.rel == 'text') {
-			$('#edit-text textarea.content').val(loadTextfile($(e.target).attr('href')));
-			$('#edit-text textarea.content').cleditor({
-				controls: "bold italic underline bullets numbering alignleft " +
-				          " center alignright justify undo redo cut copy paste"
-			})[0].refresh();
-		}
+		textArea.cleditor({
+			controls: "bold italic underline bullets numbering alignleft " +
+					  "center alignright justify undo redo cut copy paste"
+		})[0].refresh();
 
 		return false;
 	});
 
 	$('#preview').click(function() {
-		window.location = 'preview.html?name=' + q.name;
+		window.location = 'preview.html?name=' + gPageParams.name;
 	});
 	$('.action a.alt').click(function() {
 		$('#dialog').dialog({
@@ -302,11 +306,12 @@ $(document).ready(function() {
 				1 + e.target.url.lastIndexOf('/'));
 			// but when specifying a destination we use the native separator
 			var path = [air.File.applicationStorageDirectory.nativePath,
-						 q.name, end].join(air.File.separator);
+						 gPageParams.name, end].join(air.File.separator);
 			var title = end.slice(0, end.lastIndexOf('.'));
 			var dst = new air.File(path);
 			e.target.copyTo(dst, true);
-			gManifest.push({"title": title, "path": relativize(path)});
+			gManifest.push({"title": title, "type": typeOfFile(path),
+			                "path": relativize(path)});
 			saveManifest();
 
 			window.htmlLoader.reload();
@@ -315,7 +320,7 @@ $(document).ready(function() {
 
 	$('#btnCreate').click(function() {
 		var path = [air.File.applicationStorageDirectory.nativePath,
-			q.name, 'file-' + Math.floor(Math.random()*4000000000) + '.txt'
+			gPageParams.name, 'file-' + Math.floor(Math.random()*4000000000) + '.txt'
 		].join(air.File.separator);
 		var f = new air.File(path);
 		var fs = new air.FileStream();
@@ -323,7 +328,10 @@ $(document).ready(function() {
 		fs.writeMultiByte('', "utf-8");
 		fs.close();
 
-		gManifest.push({"title": 'untitled', "path": relativize(path)});
+		gManifest.push({
+			"title": 'untitled',
+			"type": "text", "path": relativize(path)
+		});
 		saveManifest();
 		window.htmlLoader.reload();
 	});
@@ -335,10 +343,11 @@ $(document).ready(function() {
 	$('form.quiz').submit(function(event) {
 		var quiztitle = $('form.quiz input[name="title"]').val();
 		var quizdir   = new air.File(
-			[air.File.applicationStorageDirectory.nativePath, q.name, quiztitle].join(air.File.separator));
+			[air.File.applicationStorageDirectory.nativePath, gPageParams.name, quiztitle].join(air.File.separator));
 		gManifest.push({
 			"title": quiztitle,
-			"path": relativize(quizdir.nativePath)
+			"path": relativize(quizdir.nativePath),
+			"type": 'quiz'
 		});
 		saveManifest();
 		
@@ -347,13 +356,13 @@ $(document).ready(function() {
 		var fs = new air.FileStream();
 		fs.open(man, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
-		$(event.target).children('input[name="proj"]').val(q.name);
+		$(event.target).children('input[name="proj"]').val(gPageParams.name);
 		return true;
 	});
 
 	function saveManifest() {
 		var f = new air.File(
-			[air.File.applicationStorageDirectory.nativePath, q.name, 'manifest']
+			[air.File.applicationStorageDirectory.nativePath, gPageParams.name, 'manifest']
 			.join(air.File.separator)
 		);
 		var fs = new air.FileStream();
@@ -362,24 +371,7 @@ $(document).ready(function() {
 		fs.close();
 	}
 
-	function relativize(path) {
-		// regex to match final /(project/file)
-		// using an absolute url would prevent exporting projects to another computer
-		var s = air.File.separator;
-		var ending = new RegExp('[^' + s + ']+' + s + '[^' + s + ']+$');
-		return ending.exec(path)[0];
-	}
 
-	function chooseFile(action) {
-		file = new window.runtime.flash.filesystem.File();
-		file.addEventListener(air.Event.SELECT, action);
-		fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
-		fltr_aud = new air.FileFilter("audio", "*.mp3;*.wav;*.aiff");
-		fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.mpg;*.avi;*.flv");
-		fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
-		file.browseForOpen("Please select a file...",
-		                   [fltr_img, fltr_aud, fltr_vid, fltr_doc]);
-	}
 });
 </script>
 </html>

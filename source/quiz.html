@@ -36,12 +36,16 @@
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	var q = queryParameters(document.location.search);
-	$('a.back').attr('href', 'proj.html?name=' + q.proj);
-	$('a.back').text(q.proj.toString());
-	$('span.current').text(q.title.toString());
+	var gPageParams = queryParameters(document.location.search);
+	// the parameter "name" is formatted as "project/quiz"
+	var names = gPageParams.name.toString().split(air.File.separator);
+	var gProj = names[0];
+	var gName = names[1];
+	$('a.back').attr('href', 'proj.html?name=' + gProj);
+	$('a.back').text(gProj.toString());
+	$('span.current').text(gName.toString());
 	$('#back').click(function() {
-		window.location = 'proj.html?name=' + q.proj;
+		window.location = 'proj.html?name=' + gProj;
 	});
 });
 </script>

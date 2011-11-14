@@ -43,43 +43,9 @@
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cuteTime.min.js"></script>
+<script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
-function recursiveSize(folder) {
-	var currentFolder = new air.File(folder);
-	var files = currentFolder.getDirectoryListing();
-	var s = 0;
-	for(var f in files) {
-		if(files[f].isDirectory && !$.inArray(files[f].name, ['.', '..'])) {
-			s += recursiveSize(files[f].nativePath);
-		} else {
-			s += files[f].size;
-		}
-	}
-	return s;
-}
-
-function recursiveModified(folder) {
-	var currentFolder = new air.File(folder);
-	var files = currentFolder.getDirectoryListing();
-	var mod = currentFolder.modificationDate.time;
-	for(var f in files) {
-		if(files[f].isDirectory && !$.inArray(files[f].name, ['.', '..'])) {
-			mod = Math.max(mod, recursiveModified(files[f].nativePath));
-		} else {
-			mod = Math.max(mod, files[f].modificationDate.time);
-		}
-	}
-	return mod;
-}
-
-// this code is nice
-function bytes2human(n) {
-	if(n < 1024) return n + 'B';
-	var exp = Math.floor(Math.log(n) / Math.log(1024));
-	var pre = 'KMGTPE'.charAt(exp-1);
-	return Math.round((n / Math.pow(1024, exp))*10)/10 + pre;
-}
 
 $(document).ready(function() {
 	var directory = air.File.applicationStorageDirectory; 
@@ -102,6 +68,8 @@ $(document).ready(function() {
 	}
 	$('.action input').watermark('Name of Project');
 	$('.action a.alt, .action .cancel').click(function() {
+		// both the Add Project link and the creation form have the class
+		// "alt" meaning alternate, and they switch
 		$('.action .alt').toggle();
 		return false;
 	});
