@@ -87,12 +87,12 @@
 
 </body>
 
+<script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
 <script type="text/javascript" src="js/mpthrize.js"></script>
-<script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/urldecode.js"></script>
@@ -101,8 +101,11 @@
 <script type="text/javascript">
 var gPageParams = queryParameters(document.location.search);
 var	gManifest = manifest(gPageParams.name);
-
-var dlgCloseTrigger = function() {};
+var dlgCloseTrigger = function() {
+	// when the edit content dialog is closed, clean it for the
+	// next time, which may be a very different kind of content
+	$('#edit-content div').empty();
+};
 
 $(document).ready(function() {
 	$('#proj').text(gPageParams.name.toString());
@@ -187,7 +190,6 @@ $(document).ready(function() {
 		var pos = $(e.target).parent().parent().index();
 		$('#edit-content input.title').val($(e.target).text());
 		var contentDiv = $('#edit-content div');
-		contentDiv.empty();
 
 		// first set up the edit-content dialog
 		var textArea = $('<textarea rows="3" cols="50">temp</textarea>');
@@ -242,7 +244,7 @@ $(document).ready(function() {
 					f.target.copyTo(orig, true);
 					d = new Date();
 					// reload image with cache-busting querystring
-					$('#edit-' + e.target.rel + ' img')
+					$('#edit-content img')
 						.attr('src', 'file://' + $(e.target).attr('href') +
 						      '?' + d.getTime());
 					});
@@ -252,11 +254,11 @@ $(document).ready(function() {
 						var f = new air.File($(e.target).attr('href'));
 						var fs = new air.FileStream();
 						fs.open(f, air.FileMode.WRITE);
-						fs.writeMultiByte($('#edit-text textarea').val(), "utf-8");
+						fs.writeMultiByte($('#edit-content textarea').val(), "utf-8");
 						fs.close();
 					}
-					var title = $('#edit-' + e.target.rel + ' input.title').val();
-					var desc = $('#edit-' + e.target.rel + ' textarea').val();
+					var title = $('#edit-content input.title').val();
+					var desc = $('#edit-content textarea').val();
 					var modified = false;
 					if(gManifest[pos].title != title ||
 					   gManifest[pos].description != desc) {
@@ -275,7 +277,7 @@ $(document).ready(function() {
 		textArea.cleditor({
 			controls: "bold italic underline bullets numbering alignleft " +
 					  "center alignright justify undo redo cut copy paste"
-		})[0].refresh();
+		});
 
 		return false;
 	});
