@@ -33,9 +33,9 @@
 	<div class="clear"></div>
 </div>
 
-<!------------------- ######### DIALOGS --------------------- -->
+<!------------------- DIALOGS --------------------- -->
 
-<div id="dialog" style="display: none" title="Add Content">
+<div id="dialog-add" style="display: none" title="Add Content">
 	<table>
 		<tbody>
 			<tr>
@@ -75,7 +75,7 @@
 	</form>
 </div>
 
-<div id="edit-content" style="display: none" title="Edit Content">
+<div id="dialog-content" style="display: none" title="Edit Content">
 	<input type="text" size="55" class="title" />
 	<div></div>
 </div>
@@ -87,6 +87,7 @@
 
 </body>
 
+<script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
@@ -97,16 +98,16 @@
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/urldecode.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
-<script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 var gPageParams = queryParameters(document.location.search);
 var	gManifest = manifest(gPageParams.name);
-var dlgCloseTrigger = function() {
-	// when the edit content dialog is closed, clean it for the
-	// next time, which may be a very different kind of content
-	$('#edit-content div').empty();
-};
 
+// This function is called when the dialog-content is closed, and
+// is used to stop audio in the case of audio content which is still
+// playing when the dialog is closed.
+var gCloseDlgHandler = function() {};
+
+// -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	$('#proj').text(gPageParams.name.toString());
 
@@ -146,11 +147,11 @@ $(document).ready(function() {
 				gManifest.push(undefined);
 			}
 			gManifest.splice(end_pos, 0, gManifest.splice(start_pos, 1)[0]);
-			saveManifest();
+			saveManifest(gManifest, gPageParams.name);
 		}
 	});
 
-
+// -------------------------- REGISTER LINK CLICKS -------------------------
 	$('img.remove').click(function(e) {
 		var elt = $(this).parent().parent();
 		$( "#dialog-confirm" ).dialog({
@@ -159,9 +160,6 @@ $(document).ready(function() {
 			buttons: {
 				"Delete Content": function() {
 					gManifest.splice(elt.index(), 1);
-					air.trace(
-						elt.find('a').attr('href')
-					);
 					var condemned = new air.File(
 						elt.find('a').attr('href')
 					);
@@ -170,7 +168,7 @@ $(document).ready(function() {
 					} else {
 						condemned.deleteFile();
 					}
-					saveManifest();
+					saveManifest(gManifest, gPageParams.name);
 					window.htmlLoader.reload();
 				},
 				Cancel: function() {
@@ -188,11 +186,11 @@ $(document).ready(function() {
 
 	$('tbody a[rel]').click(function(e) {
 		var pos = $(e.target).parent().parent().index();
-		$('#edit-content input.title').val($(e.target).text());
-		var contentDiv = $('#edit-content div');
+		$('#dialog-content input.title').val($(e.target).text());
+		var contentDiv = $('#dialog-content div');
 
-		// first set up the edit-content dialog
-		var textArea = $('<textarea rows="3" cols="50">temp</textarea>');
+		// first set up the dialog-content dialog
+		var textArea = $('<textarea rows="3" cols="50"></textarea>');
 
 		if(e.target.rel == 'text') {
 			textArea.val(loadTextfile($(e.target).attr('href')));
@@ -201,16 +199,22 @@ $(document).ready(function() {
 			var img = $('<img />')
 			img.attr('src', 'file://' + $(e.target).attr('href'));
 			contentDiv.append(img);
+			textArea.val(gManifest[pos].description);
+			textArea.addClass('description');
 			contentDiv.append(textArea);
 		} else if(e.target.rel == 'audio') {
-			mpthrize(contentDiv, 'file://' + $(e.target).attr('href'))
+			// mpthrize returns a STOP AUDIO function
+			gCloseDlgHandler = mpthrize(
+				contentDiv, 'file://' + $(e.target).attr('href'))
 			textArea.val(gManifest[pos].description);
+			textArea.addClass('description');
 			contentDiv.append(textArea);
 		} else if(e.target.rel == 'quiz') {
 			window.location = 'quiz.html?name=' +
 				relativize($(e.target).attr('href'));
 			return false;
 		} else if(e.target.rel == 'video') {
+			textArea.addClass('description');
 			var options = new air.NativeWindowInitOptions(); 
 			options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
 			options.transparent = false; 
@@ -228,14 +232,16 @@ $(document).ready(function() {
 		}
 
 		// now show the dialog
-		$('#edit-content').dialog({
+		$('#dialog-content').dialog({
 			autoOpen: true,
 			modal: true,
 			width: 540,
 			position: 'top',
 			beforeClose: function() {
-				/* inside to avoid being frozen in closure */
-				dlgCloseTrigger();
+				// when the edit content dialog is closed, clean it for the
+				// next time, which may be a very different kind of content
+				$('#dialog-content div').empty();
+				gCloseDlgHandler();
 			},
 			buttons: {
 				"Replace": function() { 
@@ -244,7 +250,7 @@ $(document).ready(function() {
 					f.target.copyTo(orig, true);
 					d = new Date();
 					// reload image with cache-busting querystring
-					$('#edit-content img')
+					$('#dialog-content img')
 						.attr('src', 'file://' + $(e.target).attr('href') +
 						      '?' + d.getTime());
 					});
@@ -254,11 +260,11 @@ $(document).ready(function() {
 						var f = new air.File($(e.target).attr('href'));
 						var fs = new air.FileStream();
 						fs.open(f, air.FileMode.WRITE);
-						fs.writeMultiByte($('#edit-content textarea').val(), "utf-8");
+						fs.writeMultiByte($('#dialog-content textarea').val(), "utf-8");
 						fs.close();
 					}
-					var title = $('#edit-content input.title').val();
-					var desc = $('#edit-content textarea').val();
+					var title = $('#dialog-content input.title').val();
+					var desc = $('#dialog-content textarea.description').val();
 					var modified = false;
 					if(gManifest[pos].title != title ||
 					   gManifest[pos].description != desc) {
@@ -268,7 +274,7 @@ $(document).ready(function() {
 					}
 					$(this).dialog("close"); 
 					if(modified) {
-						saveManifest();
+						saveManifest(gManifest, gPageParams.name);
 						window.htmlLoader.reload();
 					}
 				} 
@@ -282,11 +288,12 @@ $(document).ready(function() {
 		return false;
 	});
 
+// -------------------------- REGISTER BUTTON CLICKS -------------------------
 	$('#preview').click(function() {
 		window.location = 'preview.html?name=' + gPageParams.name;
 	});
 	$('.action a.alt').click(function() {
-		$('#dialog').dialog({
+		$('#dialog-add').dialog({
 			autoOpen: true,
 			modal: true,
 			width: 450,
@@ -314,7 +321,7 @@ $(document).ready(function() {
 			e.target.copyTo(dst, true);
 			gManifest.push({"title": title, "type": typeOfFile(path),
 			                "path": relativize(path)});
-			saveManifest();
+			saveManifest(gManifest, gPageParams.name);
 
 			window.htmlLoader.reload();
 		});
@@ -334,7 +341,7 @@ $(document).ready(function() {
 			"title": 'untitled',
 			"type": "text", "path": relativize(path)
 		});
-		saveManifest();
+		saveManifest(gManifest, gPageParams.name);
 		window.htmlLoader.reload();
 	});
 
@@ -351,7 +358,7 @@ $(document).ready(function() {
 			"path": relativize(quizdir.nativePath),
 			"type": 'quiz'
 		});
-		saveManifest();
+		saveManifest(gManifest, gPageParams.name);
 		
 		quizdir.createDirectory();
 		var man = quizdir.resolvePath('manifest');
@@ -361,17 +368,6 @@ $(document).ready(function() {
 		$(event.target).children('input[name="proj"]').val(gPageParams.name);
 		return true;
 	});
-
-	function saveManifest() {
-		var f = new air.File(
-			[air.File.applicationStorageDirectory.nativePath, gPageParams.name, 'manifest']
-			.join(air.File.separator)
-		);
-		var fs = new air.FileStream();
-		fs.open(f, air.FileMode.WRITE);
-		fs.writeMultiByte(JSON.stringify(gManifest), "utf-8");
-		fs.close();
-	}
 
 
 });

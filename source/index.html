@@ -47,6 +47,7 @@
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 
+// -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	var directory = air.File.applicationStorageDirectory; 
 	var files = directory.getDirectoryListing();  
@@ -67,6 +68,9 @@ $(document).ready(function() {
 		}
 	}
 	$('.action input').watermark('Name of Project');
+
+
+// -------------------------- REGISTER LINK CLICKS -------------------------
 	$('.action a.alt, .action .cancel').click(function() {
 		// both the Add Project link and the creation form have the class
 		// "alt" meaning alternate, and they switch

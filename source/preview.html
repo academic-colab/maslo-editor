@@ -24,66 +24,68 @@
 		<div class="phone">
 			<img class="background" src="icons/phone.png" alt="Phone" />
 			<div class="viewport">
-				<div class="canvas">preview text</div>
+				<div class="canvas">
+					<ul class="data"></ul>
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<ul class="data" style="display: none"></ul>
 
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
 <script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
-<script type="text/javascript" src="js/load.js"></script>
+<script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
+
+// -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
-	var q = queryParameters(document.location.search);
-	$('a.back').attr('href', 'proj.html?name=' + q.name);
-	$('a.back').text(q.name.toString());
+	var gPageParams = queryParameters(document.location.search);
+	air.trace(gPageParams.name);
+	$('a.back').attr('href', 'proj.html?name=' + gPageParams.name);
+	$('a.back').text(gPageParams.name.toString());
 	$('#back').click(function() {
-		window.location = 'proj.html?name=' + q.name;
+		window.location = 'proj.html?name=' + gPageParams.name;
 	});
 
-	var gManifest = manifest(q.name);
+	var gManifest = manifest(gPageParams.name);
+	// the visible TOC ui
 	var s = $('select');
+	// the hidden source of actual data
 	var d = $('ul.data');
 	for(var m in gManifest) {
 		m = gManifest[m];
 		s.append("<option>" + m.title + "</option>");
-		var path = air.File.applicationStorageDirectory.nativePath
-			+ air.File.separator + m.path;
-		var type = typeOfFile(path);
-		var li = $('<li></li>');
-		if(type == 'text') {
+		var path = air.File.applicationStorageDirectory.resolvePath(m.path).nativePath;
+		air.trace(path);
+		var li = $('<li style="display:none"></li>');
+		if(m.type == 'text') {
 			li.append('<span>' + loadTextfile(path) + '</span>');
-			d.append(li);
-		} else if(type == 'image') {
+		} else if(m.type == 'image') {
 			li.append(['<img src=', 'file://' + path, '/>'].join('"'));
-			if(m.description) {
-				li.append('<p>' + m.description + '</p>');
-			}
-			d.append(li);
-		} else if(type == 'audio') {
-			mpthrize(li, 'file://' + path)
-			d.append(li);
-			if(m.description) {
-				li.append('<p>' + m.description + '</p>');
-			}
+		} else if(m.type == 'audio') {
+			mpthrize(li, 'file://' + path);
 		}
+		if(m.description) {
+			li.append('<p>' + m.description + '</p>');
+		}
+		d.append(li);
 	}
 
-	$('div.canvas').html('').append($('ul.data li:eq(0)').clone(true).children());
+
+// ----------------------- LOAD FIRST PAGE INTO PHONE ----------------------
+	$('div.canvas li:eq(0)').toggle();
 	$("select option:first").attr('selected','selected');
+	
+
+// -------------------------- SET UP CLICK HANDLER -------------------------
 	$("select").selectBox().change( function() {
-		$('div.canvas')
-		   .empty()
-		   .append($('ul.data > li:eq(' + this.selectedIndex + ')')
-		   .clone(true).children());
-		$('span.pg').html(this.selectedIndex + 1);
+		$('div.canvas li').hide();
+		$('div.canvas li:eq(' + this.selectedIndex + ')').show();
 	});
 });
 </script>

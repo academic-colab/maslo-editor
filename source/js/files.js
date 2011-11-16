@@ -71,3 +71,14 @@ function bytes2human(n) {
 	return Math.round((n / Math.pow(1024, exp))*10)/10 + pre;
 }
 
+function saveManifest(manifest, proj) {
+	var f = new air.File(
+			[air.File.applicationStorageDirectory.nativePath,
+			 proj, 'manifest'].join(air.File.separator)
+	);
+	var fs = new air.FileStream();
+	fs.open(f, air.FileMode.WRITE);
+	fs.writeMultiByte(JSON.stringify(manifest), "utf-8");
+	fs.close();
+}
+
