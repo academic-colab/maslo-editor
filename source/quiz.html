@@ -35,6 +35,8 @@
 <script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
+
+// -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	var gPageParams = queryParameters(document.location.search);
 	// the parameter "name" is formatted as "project/quiz"
@@ -47,6 +49,9 @@ $(document).ready(function() {
 	$('#back').click(function() {
 		window.location = 'proj.html?name=' + gProj;
 	});
+
+	var	gManifest = manifest(gPageParams.name);
+
 });
 </script>
 </body>

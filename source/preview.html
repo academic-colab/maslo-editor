@@ -42,10 +42,13 @@
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
 
+// this will be called on page turn, and will be used to stop
+// audio that might have been playing in a page.
+var gSwitchHandler = function() {};
+
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	var gPageParams = queryParameters(document.location.search);
-	air.trace(gPageParams.name);
 	$('a.back').attr('href', 'proj.html?name=' + gPageParams.name);
 	$('a.back').text(gPageParams.name.toString());
 	$('#back').click(function() {
@@ -61,14 +64,14 @@ $(document).ready(function() {
 		m = gManifest[m];
 		s.append("<option>" + m.title + "</option>");
 		var path = air.File.applicationStorageDirectory.resolvePath(m.path).nativePath;
-		air.trace(path);
 		var li = $('<li style="display:none"></li>');
 		if(m.type == 'text') {
 			li.append('<span>' + loadTextfile(path) + '</span>');
 		} else if(m.type == 'image') {
 			li.append(['<img src=', 'file://' + path, '/>'].join('"'));
 		} else if(m.type == 'audio') {
-			mpthrize(li, 'file://' + path);
+			// save the STOP AUDIO function
+			gSwitchHandler = mpthrize(li, 'file://' + path);
 		}
 		if(m.description) {
 			li.append('<p>' + m.description + '</p>');
@@ -84,6 +87,7 @@ $(document).ready(function() {
 
 // -------------------------- SET UP CLICK HANDLER -------------------------
 	$("select").selectBox().change( function() {
+		gSwitchHandler();
 		$('div.canvas li').hide();
 		$('div.canvas li:eq(' + this.selectedIndex + ')').show();
 	});
