@@ -26,8 +26,19 @@
 	<button type="button" id="back">Back</button>
 	<div class="clear"></div>
 </div>
+
+<form id="dialog-question" style="display: none" title="Edit Question">
+	<fieldset>
+		<label for="question">Question</label>
+		<textarea rows="2" cols="50" name="question"></textarea>
+	</fieldset>
+	<input type="button" value="+ Add another answer"
+		onclick="addAnswer($('#dialog-question fieldset'))"/>
+</form>
+
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
 <script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
@@ -51,8 +62,46 @@ $(document).ready(function() {
 	});
 
 	var	gManifest = manifest(gPageParams.name);
+	for(var m in gManifest) {
+		m = gManifest[m];
+		var tr = $('<tr />');
+		tr.append($('<td class="icon"><img src="' +
+			iconForType('question') + '"/></td>'));
+		tr.append($('<td><a href="#">' + m.question + '</a></td>'));
+		tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
+		$('tbody.proj').append(tr);
+	}
+	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPageParams.name);
+
+	addAnswer($('#dialog-question fieldset'));
+	addAnswer($('#dialog-question fieldset'));
+	addAnswer($('#dialog-question fieldset'));
+	$('#dialog-question').dialog({
+		autoOpen: true,
+		modal: true,
+		width: 540,
+		position: 'top',
+		buttons: {
+			"Save": function() { }
+		}
+	});
 
 });
+
+function addAnswer(q) {
+	var a = $('<div class="answer" />')
+
+	a.append($('<img class="remove" src="icons/remove.png" alt="Remove Item" />'));
+
+	a.append($('<label for="answer">Answer</label>'))
+	a.append($('<input type"text" name="answer" />'));
+
+	a.append($('<input type="checkbox" name="correct" />'));
+	a.append($('<label for="correct">Correct</label>'));
+
+	a.append($('<input type="button" value="+ Feedback" />'));
+	q.append(a);
+}
 </script>
 </body>
 </html>

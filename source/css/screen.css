@@ -157,3 +157,11 @@ div.nav .toc {
 	display: block;
 	margin: 0 auto;
 }
+
+#dialog-question fieldset input[type=button] {
+	display: block;
+}
+
+fieldset {
+	border: none;
+}

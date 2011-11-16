@@ -127,29 +127,9 @@ $(document).ready(function() {
 		tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 		$('tbody.proj').append(tr);
 	}
-
-	$("tbody.proj").sortable({
-		items: 'tr',
-		axis: 'y',
-		start: function(event, ui) {
-			ui.item.data('start_pos', ui.item.index());
-		},
-		change: function(event, ui) {
-			ui.item.data('end_pos', ui.placeholder.index());
-		},
-		update: function(event, ui) {
-			var start_pos = ui.item.data('start_pos');
-			var end_pos   = ui.item.data('end_pos');
-			if(end_pos > start_pos) {
-				end_pos--;
-			}
-			if(end_pos >= gManifest.length) {
-				gManifest.push(undefined);
-			}
-			gManifest.splice(end_pos, 0, gManifest.splice(start_pos, 1)[0]);
-			saveManifest(gManifest, gPageParams.name);
-		}
-	});
+	// this function modifies the order of gManifest, and saves it when
+	// it changes
+	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPageParams.name);
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 	$('img.remove').click(function(e) {
