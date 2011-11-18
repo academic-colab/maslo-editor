@@ -104,7 +104,7 @@
 	
 	/* table thead { background: #f5f5f5; } */
 	table thead tr th,
-	table tbody tr td { font-size: 12px; line-height: 18px; }
+	table tbody tr td { font-size: 16px; line-height: 18px; }
 	table thead tr th { padding: 8px 10px 9px; font-size: 14px; font-weight: bold; color: white; }
 	table thead tr th:first-child { border-left: none; }
 	table thead tr th:last-child { border-right: none; }
