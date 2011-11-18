@@ -1,13 +1,16 @@
 <html>
 <head>
 	<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" /> 
-	<link type="text/css" href="css/screen.css" rel="stylesheet" />
 	<link type="text/css" href="css/jquery.cleditor.css" rel="stylesheet" />
+	<link type="text/css" href="css/foundation.css" rel="stylesheet" />
+	<link type="text/css" href="css/screen.css" rel="stylesheet" />
 	<title>MASLO - Edit Project</title>
 </head>
 <body>
-	<h1><a href="index.html">My Content Packs</a> > <span id="proj"></span></h1>
-	<div class="extra"><a href="#">Help</a></div>
+	<header>
+	<h3><a href="index.html">My Content Packs</a> > <span id="proj"></span></h3>
+	<div class="extra"><a href="#">Help</a><img src="icons/maslo_icon_logo.png" /></div>
+	</header>
 	<table>
 	<thead>
 		<tr>
@@ -20,16 +23,15 @@
 	<tbody class="proj">
 	</tbody>
 </table>
-
 <div class="action">
-	<a class="alt" href="">+ Add Content</a>
+	<a class="alt nice small radius blue button" href="">+ Add Content</a>
 	<div class="alt">
 		<input type="text" length="10" />
 		<button type="button">OK</button>
 		<button type="button" class="cancel">Cancel</button>
 	</div>
-	<button type="button">Publish</button>
-	<button type="button" id="preview">Preview</button>
+	<button type="button" class="nice small radius blue button">Publish</button>
+	<button type="button" class="nice small radius blue button" id="preview">Preview</button>
 	<div class="clear"></div>
 </div>
 
@@ -151,9 +153,6 @@ $(document).ready(function() {
 	$('form.quiz input[type="text"]').keyup(function() {
 		$('form.quiz input[type="submit"]').attr('disabled', $(this).val() == '');
 	});
-	$('form.quiz').submit(function() {
-			return true;
-	});
 
 	function activateItemLinks(link) {
 		link.click(function(e) {
@@ -263,7 +262,6 @@ $(document).ready(function() {
 			return false;
 		});
 	} // end activeItemLinks
-	activateItemLinks($('tbody a[rel]'));
 
 // -------------------------- REGISTER BUTTON CLICKS -------------------------
 	$('#preview').click(function() {
@@ -349,7 +347,8 @@ $(document).ready(function() {
 
 		// change name field in form so the quiz page can parse it right
 		var name = $(this).find('input[type="text"]').val();
-		$(this).find('input[type="text"]').val(gPageParams.name + '/' + name);
+		$(this).find('input[type="text"]').val(
+			urlencode(gPageParams.name) + '/' + urlencode(name));
 
 		return true;
 	});

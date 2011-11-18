@@ -1,23 +1,42 @@
 body {
-  background: #eeeeee;
+  background: white;
 }
-h1 {
+header h3 {
+  display: inline-block;
   margin: 10px;
   font-size: 16px;
-  float: left;
 }
 div.extra {
    float:right;
-   margin: 10px;
+   margin-top: -5px;
+}
+div.extra img {
+   vertical-align: middle;
+   max-height: 50px;
+   margin: 0;
 }
 a {
-  color: #600;
+  color: #487a9f;
 }
 img.remove {
   cursor: pointer;
 }
-div.action {
-  background: #999;
+
+div.action, header {
+	background-image: linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
+	background-image: -o-linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
+	background-image: -moz-linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
+	background-image: -webkit-linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
+	background-image: -ms-linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
+
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.2, rgb(159,159,159)),
+		color-stop(0.55, rgb(195,195,195)),
+		color-stop(1, rgb(220,220,220))
+	);
   padding: 5px;
   clear: both;
 }
@@ -26,8 +45,6 @@ div.action button {
 }
 div.action a {
   font-weight: bold;
-  margin-top: 7px;
-  margin-bottom: 7px;
   display: block;
   float: left;
 }
@@ -56,6 +73,7 @@ thead th.big {
 }
 tbody {
   background: white;
+  vertical-align: center;
 }
 
 tbody.proj {
@@ -66,14 +84,15 @@ tbody td {
   border-top: 1px solid #AAA;
 }
 
-td.icon {
+td.icon, th.icon {
   text-align: center;
 }
 
-tbody tr:nth-child(2n+1) {
-  background-color: #DADADA;
+tbody tr {
+  background-color: #ebf4f9;
+  border-bottom: 1px solid #444;
 }
-tbody tr:nth-child(2n) {
+tbody tr:hover {
   background-color: white;
 }
 
@@ -89,7 +108,7 @@ div.phone {
     position: relative;
     width: 246px;
     color: black;
-    padding: 100px 40px;
+    padding: 120px 35px;
 }
 
 div.phone > img {
@@ -100,10 +119,10 @@ div.phone > img {
 }
 
 div.phone div.viewport {
-    height:400px;
+    height:345px;
     overflow: auto;
     padding-right: 65px;
-    width: 250px;
+    width: 260px;
 }
 
 div.phone div.canvas img {

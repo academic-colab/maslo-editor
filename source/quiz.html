@@ -35,6 +35,10 @@
 	<input type="button" value="+ Add another answer"
 		onclick="addAnswer($('#dialog-question fieldset'))"/>
 </form>
+<div id="dialog-confirm" style="display: none" title="Delete Content">
+	<p>This question will be permanently deleted and cannot be
+	recovered. Are you sure?</p>
+</div>
 
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
@@ -43,6 +47,7 @@
 <script type="text/javascript" src="js/urldecode.js"></script>
 <script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
+<script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/load.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
@@ -52,9 +57,9 @@
 $(document).ready(function() {
 	var gPageParams = queryParameters(document.location.search);
 	// the parameter "name" is formatted as "project/quiz"
-	var names = urldecode(gPageParams.name.toString().split(air.File.separator));
-	var gProj = names[0];
-	var gName = names[1];
+	var names = gPageParams.name.toString().split(air.File.separator);
+	var gProj = urldecode(names[0]);
+	var gName = urldecode(names[1]);
 	$('a.back').attr('href', 'proj.html?name=' + gProj);
 	$('a.back').text(gProj.toString());
 	$('span.current').text(gName.toString());
@@ -65,17 +70,16 @@ $(document).ready(function() {
 	var	gManifest = manifest(gPageParams.name);
 	for(var m in gManifest) {
 		m = gManifest[m];
-		var tr = $('<tr />');
-		tr.append($('<td class="icon"><img src="' +
-			iconForType('question') + '"/></td>'));
-		tr.append($('<td><a href="#">' + m.question + '</a></td>'));
-		tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
-		$('tbody.proj').append(tr);
+		appendItemToQuiz(m, $('tbody.proj'));
 	}
 	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPageParams.name);
 
-
 	$('.action a.alt').click(function() {
+		var m = {"question": "", "type": "question"};
+		var newlink = appendItemToQuiz(m, $('tbody.proj'));
+		gManifest.push(m);
+		saveManifest(gManifest, gPageParams.name);
+
 		$('#dialog-question fieldset .answer').empty();
 		addAnswer($('#dialog-question fieldset'));
 		addAnswer($('#dialog-question fieldset'));
@@ -86,7 +90,9 @@ $(document).ready(function() {
 			width: 540,
 			position: 'top',
 			buttons: {
-				"Save": function() { }
+				"Save": function() {
+					
+				}
 			},
 			open: function(event, ui) {
 				$('div.ui-button-text button').attr('disabled', 'disabled');
@@ -96,6 +102,22 @@ $(document).ready(function() {
 	});
 
 });
+
+function appendItemToQuiz(m, list) {
+	var tr = $('<tr />');
+
+	if(m.type == 'unknown' || !iconForType(m.type)) {
+		return;
+	}
+	tr.append($('<td class="icon"><img src="' + iconForType(m.type) + '"/></td>'));
+	tr.append($('<td><a rel="' + m.type + '" href="#">' +
+				(m.question ? m.question : 'unwritten question') + '</a></td>'));
+	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
+	list.append(tr);
+	//activateItemLinks(tr.find('a'));
+	activateRemoveLinks(tr.find('img.remove'));
+	return tr;
+}
 
 function addAnswer(q) {
 	var a = $('<div class="answer" />')
@@ -115,6 +137,28 @@ function addAnswer(q) {
 	a.append($('<input type="button" value="+ Feedback" />'));
 	q.append(a);
 }
+
+function activateRemoveLinks(link) {
+	link.click(function(e) {
+		var elt = $(this).parent().parent();
+		$( "#dialog-confirm" ).dialog({
+			height:240,
+			modal: true,
+			buttons: {
+				"Delete Content": function() {
+					gManifest.splice(elt.index(), 1);
+					saveManifest(gManifest, gPageParams.name);
+					elt.remove();
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+	});
+}
+
 </script>
 </body>
 </html>

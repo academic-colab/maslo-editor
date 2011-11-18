@@ -20,7 +20,7 @@ function iconForType(type) {
 	return {
 		'image': "icons/image.png", 'text': "icons/text.png",
 		'video': 'icons/video.png', 'audio': "icons/audio.png",
-		'quiz':  'icons/quiz.png'
+		'quiz':  'icons/quiz.png', 'question': "icons/question.png"
 	}[type] || 'unknown';
 }
 
