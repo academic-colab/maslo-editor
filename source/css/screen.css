@@ -1,6 +1,9 @@
 body {
-  background: white;
-  
+  background: #ebf4f9;
+  background-image:url('/images/cloud.png');
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  background-position:bottom right;
 }
 header h3 {
   display: inline-block;
