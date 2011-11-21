@@ -74,7 +74,6 @@ thead th.big {
 }
 tbody {
   background: white;
-  vertical-align: center;
 }
 
 tbody.proj {
@@ -164,7 +163,7 @@ div.nav .toc {
 
 #focus {
     width: 610px;
-    margin: 40px auto;
+    margin: 20px auto;
 }
 
 #focus > div {
