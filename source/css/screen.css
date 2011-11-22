@@ -132,10 +132,20 @@ div.phone div.canvas img {
     max-width: 246px;
 }
 
+div.phone b {
+	font-weight: bold;
+}
+div.phone i {
+	font-style: italic;
+}
+
 ul.data {
-	list-style-type: none;
 	margin: 0;
 	padding: 0;
+}
+
+ul.data ul {
+	list-style-type: disc;
 }
 
 div.nav {
@@ -206,7 +216,7 @@ select {
 }
 
 #dialog-content img {
-	max-height: 500px;
+	max-height: 400px;
 	max-width: 500px;
 	display: block;
 	margin: 0 auto;
@@ -232,4 +242,5 @@ input.feedback {
 fieldset {
 	border: none;
 }
+
 

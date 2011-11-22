@@ -9,7 +9,7 @@
 	<header>
 	<h3><a href="index.html">My Content Packs</a> >
 		<a class="back" href="">hello</a> > Preview</h3>
-	<div class="extra"><a href="#">Help</a><img src="icons/maslo_icon_logo.png" /></div>
+	<div class="extra"><a href="#" onclick="help()">Help</a><img src="icons/maslo_icon_logo.png" /></div>
 	</header>
 
 	<div id="focus">
@@ -48,6 +48,7 @@
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
 
@@ -105,8 +106,8 @@ $(document).ready(function() {
 // -------------------------- SET UP CLICK HANDLER -------------------------
 	$("select").selectBox().change( function() {
 		gSwitchHandler();
-		$('div.canvas > ul li').hide();
-		$('div.canvas > ul li:eq(' + this.selectedIndex + ')').show();
+		$('div.canvas > ul > li').hide();
+		$('div.canvas > ul > li:eq(' + this.selectedIndex + ')').show();
 	});
 });
 </script>

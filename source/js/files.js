@@ -11,8 +11,8 @@ function typeOfFile(path) {
 	var temp = path.match(/\.(\w+)$/);
   	return {
   		'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
-		'jpg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video', 'avi':'video',
-		'flv':'video', 'mp3':'audio', 'wav':'audio', 'aiff':'audio'
+		'jpg':'image', 'jpeg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video',
+		'avi':'video', 'flv':'video', 'mp3':'audio', 'wav':'audio', 'aiff':'audio'
 	}[temp[1]] || 'unknown';
 }
 

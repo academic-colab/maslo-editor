@@ -11,9 +11,7 @@
 	<h3><a href="index.html">My Content Packs</a> >
 	<a class="back" href="#"></a> >
 	<span class="current"></span></h3>
-<div class="extra"><a href="#">Help</a>
-<img src="icons/maslo_icon_logo.png" />
-</div>
+	<div class="extra"><a href="#" onclick="help(); return false;">Help</a><img src="icons/maslo_icon_logo.png" /></div>
 	</header>
 <table>
 <thead>
@@ -56,6 +54,7 @@
 <script type="text/javascript" src="js/load.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
+<script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript">
 
 var gManifest, gPageParams;
@@ -82,30 +81,13 @@ $(document).ready(function() {
 	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPageParams.name);
 
 	$('.action a.alt').click(function() {
-		var m = {"question": "", "type": "question"};
+		var m = {question: "", type: "question",
+		         answers:[{text:""},{text:""},{text:""}]};
 		var newlink = appendItemToQuiz(m, $('tbody.proj'));
 		gManifest.push(m);
 		saveManifest(gManifest, gPageParams.name);
-
-		$('#dialog-question textarea[name="question"]').val(m.question);
-		$('#dialog-question fieldset .answer').empty();
-		addAnswer($('#dialog-question fieldset'));
-		addAnswer($('#dialog-question fieldset'));
-		addAnswer($('#dialog-question fieldset'));
-		$('#dialog-question').dialog({
-			autoOpen: true,
-			modal: true,
-			width: 540,
-			position: 'top',
-			buttons: {
-				"Save": function() {
-					
-				}
-			},
-			open: function(event, ui) {
-				$('div.ui-button-text button').attr('disabled', 'disabled');
-			}
-		});
+		activateItemLinks(newlink.find('a'));
+		newlink.find('a').click(); // will open edit dialog
 		return false;
 	});
 
