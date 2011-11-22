@@ -74,13 +74,13 @@
 .selectBox-inline {
 	width: 250px;
 	outline: none;
-	border: solid 1px #BBB;
-	background: #FFF;
+	border: none;
+	background: transparent;
 	display: inline-block;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
 	overflow: auto;
+
+    border-left: 1px solid #999;
+    border-right: 1px solid #999;
 }
 
 .selectBox-inline:focus {
@@ -100,15 +100,17 @@
 }
 
 .selectBox-options LI A {
-	line-height: 1.5;
-	padding: 0 .5em;
+	line-height: 2.5;
+	padding: 0 1.3em;
 	white-space: nowrap;
 	overflow: hidden;
 	background: 6px center no-repeat;
+	font-size: medium;
+	font-weight: bold;
 }
 
 .selectBox-options LI.selectBox-hover A {
-	background-color: #EEE;
+	background-color: white;
 }
 
 .selectBox-options LI.selectBox-disabled A {
@@ -117,7 +119,7 @@
 }
 
 .selectBox-options LI.selectBox-selected A {
-	background-color: #C8DEF4;
+	background-color: #DDD;
 }
 
 .selectBox-options .selectBox-optgroup {

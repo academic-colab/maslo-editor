@@ -44,7 +44,7 @@
 				<td><input type="file" id="upload" style="display: none" />
 					<!-- this button sends any click to the hidden
 					     file input element -->
-					<button onclick="$('#upload').click()">Upload</button></td>
+					<button class="alt nice small radius blue button" onclick="$('#upload').click()">Upload</button></td>
 				<td>
 					<img src="icons/image.png" height="16" width="16"/>
 					Image:&nbsp;png,&nbsp;jpg,&nbsp;gif,&nbsp;tiff<br />
@@ -55,14 +55,14 @@
 				</td>
 			</tr>
 			<tr>
-				<td><button id="btnCreate" type="button">Create Text</button></td>
+				<td><button class="alt nice small radius blue button" id="btnCreate" type="button">Create Text</button></td>
 				<td>
 					<img src="icons/text.png" height="16" width="16"/>
 					Write new, or copy and paste
 				</td>
 			</tr>
 			<tr>
-				<td><button id="btnQuiz" type="button">Create Quiz</button></td>
+				<td><button class="alt nice small radius blue button" id="btnQuiz" type="button">Create Quiz</button></td>
 				<td>
 					<img src="icons/quiz.png" height="16" width="16"/>
 					Questions, answer, hints
@@ -132,7 +132,7 @@ $(document).ready(function() {
 							elt.find('a').attr('href')
 						);
 						if(condemned.isDirectory) {
-							comdemned.deleteDirectory(true);
+							condemned.deleteDirectory(true);
 						} else {
 							condemned.deleteFile();
 						}

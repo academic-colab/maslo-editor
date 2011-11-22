@@ -125,7 +125,7 @@ div.phone div.viewport {
     height:345px;
     overflow: auto;
     padding-right: 65px;
-    width: 260px;
+    width: 250px;
 }
 
 div.phone div.canvas img {
@@ -139,29 +139,61 @@ ul.data {
 }
 
 div.nav {
-    margin-top: 170px;
+    margin-top: 10px;
     margin-right: 20px;
-    background-color: white;
-    border: 1px solid #222;
-    border-radius: 10px;
-    -webkit-border-radius: 10px;
+    background-color: transparent;
     padding: 0;
 }
 div.nav h2 {
-    background: #999;
-    color: white;
+    background: white;
+	color: #11639d;
     margin: 0;
-    font-size: small;
-    padding: 5px;
+    font-size: large;
+    padding: 10px;
+    padding-top: 30px;
     text-align: center;
-    border-top-right-radius: 10px;
-    -webkit-border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
-    -webkit-border-top-left-radius: 10px;
+    border-left: 1px solid #999;
+    border-right: 1px solid #999;
 }
-div.nav .toc {
-    margin: 10px;
-    width: 240px;
+
+div.nav select {
+	display: block;
+}
+
+div.nav img {
+	display: inline-block;
+}
+
+div.flippers {
+	text-align: center;
+}
+div.flippers a {
+	vertical-align: middle;
+}
+
+a.vertical {
+	background: url(/icons/phone_set_vert.png) no-repeat 0 0;
+	width: 53px;
+	height: 85px;
+	display: inline-block;
+	overflow: none;
+}
+a.vertical.active {
+	background: url(/icons/phone_set_vert.png) no-repeat 0 -85;
+}
+
+a.horizontal {
+	background: url(/icons/phone_set_horiz.png) no-repeat 0 0;
+	width: 90px;
+	height: 50px;
+	display: inline-block;
+}
+a.horizontal.active {
+	background: url(/icons/phone_set_horiz.png) no-repeat 0 -50;
+}
+
+select {
+	background: transparent;
 }
 
 #focus {
@@ -184,6 +216,20 @@ div.nav .toc {
 	display: block;
 }
 
+#dialog-question img.remove {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+div.answer {
+	margin-bottom: 10px;
+}
+input.feedback {
+	margin-top: 5px;
+	margin-left: 25px;
+}
+
 fieldset {
 	border: none;
 }
+

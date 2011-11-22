@@ -34,10 +34,10 @@
 
 <form id="dialog-question" style="display: none" title="Edit Question">
 	<fieldset>
-		<label for="question">Question</label>
-		<textarea rows="2" cols="50" name="question"></textarea>
+		<h6>Question</h6>
+		<textarea class="large" rows="4" cols="50" name="question"></textarea>
 	</fieldset>
-	<input type="button" value="+ Add another answer"
+	<input type="button" class="small radius white button" value="+ Add another answer"
 		onclick="addAnswer($('#dialog-question fieldset'))"/>
 </form>
 <div id="dialog-confirm" style="display: none" title="Delete Content">
@@ -58,9 +58,11 @@
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
 
+var gManifest, gPageParams;
+
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
-	var gPageParams = queryParameters(document.location.search);
+	gPageParams = queryParameters(document.location.search);
 	// the parameter "name" is formatted as "project/quiz"
 	var names = gPageParams.name.toString().split(air.File.separator);
 	var gProj = urldecode(names[0]);
@@ -72,7 +74,7 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + gProj;
 	});
 
-	var	gManifest = manifest(gPageParams.name);
+	gManifest = manifest(gPageParams.name);
 	for(var m in gManifest) {
 		m = gManifest[m];
 		appendItemToQuiz(m, $('tbody.proj'));
@@ -85,6 +87,7 @@ $(document).ready(function() {
 		gManifest.push(m);
 		saveManifest(gManifest, gPageParams.name);
 
+		$('#dialog-question textarea[name="question"]').val(m.question);
 		$('#dialog-question fieldset .answer').empty();
 		addAnswer($('#dialog-question fieldset'));
 		addAnswer($('#dialog-question fieldset'));
@@ -116,30 +119,35 @@ function appendItemToQuiz(m, list) {
 	}
 	tr.append($('<td class="icon"><img src="' + iconForType(m.type) + '"/></td>'));
 	tr.append($('<td><a rel="' + m.type + '" href="#">' +
-				(m.question ? m.question : 'unwritten question') + '</a></td>'));
+	          (m.question ? truncate(m.question) : 'unwritten question') + '</a></td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	list.append(tr);
-	//activateItemLinks(tr.find('a'));
+	activateItemLinks(tr.find('a'));
 	activateRemoveLinks(tr.find('img.remove'));
 	return tr;
 }
 
-function addAnswer(q) {
-	var a = $('<div class="answer" />')
+function addAnswer(q, answer, correct, feedback) {
+	var a = $('<div class="answer" />');
 
-	var killer = $('<img class="remove" src="icons/remove.png" alt="Remove Item" />');
-	killer.click(function() {
-		a.remove();
-	});
-	a.append(killer);
-
-	a.append($('<label for="answer">Answer</label>'))
-	a.append($('<input type"text" name="answer" />'));
-
-	a.append($('<input type="checkbox" name="correct" />'));
+	a.append(
+		$('<img class="remove" src="icons/remove.png" alt="Remove Item" />')
+		.click(function() {
+			a.remove();
+		})
+	);
+	a.append($('<label for="answer">Answer </label>'))
+	a.append(
+		$('<input type"text" size="35" name="answer" />')
+			.val(answer)
+	);
+	a.append(
+		$('<input type="checkbox" name="correct" />')
+			.attr('checked', correct || false)
+	);
 	a.append($('<label for="correct">Correct</label>'));
 
-	a.append($('<input type="button" value="+ Feedback" />'));
+	a.append($('<input type="button" class="feedback small radius white button" value="+ Feedback" />'));
 	q.append(a);
 }
 
@@ -162,6 +170,59 @@ function activateRemoveLinks(link) {
 			}
 		});
 	});
+}
+
+function activateItemLinks(link) {
+	link.click(function(e) {
+		var elt = $(e.target).parent().parent();
+		var pos = elt.index();
+		$('div.answer').remove();
+		$('#dialog-question textarea[name="question"]').val(gManifest[pos].question);
+		for(var a in gManifest[pos].answers) {
+			a = gManifest[pos].answers[a];
+			addAnswer($('#dialog-question fieldset'), a.text, a.correct);
+		}
+
+		// first set up the dialog-content dialog
+		var textArea = $('<textarea rows="3" cols="50"></textarea>');
+
+		// now show the dialog
+		$('#dialog-question').dialog({
+			autoOpen: true,
+			modal: true,
+			width: 540,
+			position: 'top',
+			buttons: {
+				"Save": function() { 
+					var question = $('#dialog-question textarea').val();
+					var modified = false;
+					// update the visible TOC with new title
+					// e.target is the link that clicks
+					$(e.target).text(truncate(question));
+					gManifest[pos].question = question;
+					gManifest[pos].answers = [];
+
+					$('div.answer').each(function(index, a) {
+						gManifest[pos].answers.push({
+							text: $(a).find('input[name="answer"]').val(),
+							correct: $(a).find('input[name="correct"]').attr('checked')
+								|| ''
+						})
+					});
+					saveManifest(gManifest, gPageParams.name);
+
+					$(this).dialog("close"); 
+				} 
+			}
+		});
+
+		return false;
+	});
+} // end activeItemLinks
+
+function truncate(s, len) {
+	var len = len || 70;
+	return s.length < len ? s : s.substring(0, len) + '...';
 }
 
 </script>

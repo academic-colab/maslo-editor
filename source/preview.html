@@ -14,9 +14,13 @@
 
 	<div id="focus">
 		<div class="nav">
-			<h2>Table of Contents / Page <span class="pg">1</span></h2>
+			<h2>Table of Contents</h2>
 			<select size="10" class="toc">
 			</select>
+			<div class="flippers">
+				<a class="vertical active" href=""></a>
+				<a class="horizontal" href=""></a>
+			</div>
 		</div>
 
 		<div class="phone">
@@ -77,6 +81,14 @@ $(document).ready(function() {
 		} else if(m.type == 'audio') {
 			// save the STOP AUDIO function
 			gSwitchHandler = mpthrize(li, 'file://' + path);
+		} else if(m.type == 'quiz') {
+			var q = manifest(m.path);
+			li.append('<p>' + q[0].question + '</p>');
+			for(var i in q[0].answers) {
+				li.append('<input type="checkbox" />')
+				li.append(q[0].answers[i].text + '<br />');
+			}
+			li.append('<button class="nice small radius black button" >Submit</button>')
 		}
 		if(m.description) {
 			li.append('<p>' + m.description + '</p>');
@@ -86,15 +98,15 @@ $(document).ready(function() {
 
 
 // ----------------------- LOAD FIRST PAGE INTO PHONE ----------------------
-	$('div.canvas li:eq(0)').toggle();
+	$('div.canvas > ul li:eq(0)').toggle();
 	$("select option:first").attr('selected','selected');
 	
 
 // -------------------------- SET UP CLICK HANDLER -------------------------
 	$("select").selectBox().change( function() {
 		gSwitchHandler();
-		$('div.canvas li').hide();
-		$('div.canvas li:eq(' + this.selectedIndex + ')').show();
+		$('div.canvas > ul li').hide();
+		$('div.canvas > ul li:eq(' + this.selectedIndex + ')').show();
 	});
 });
 </script>
