@@ -57,7 +57,7 @@
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript">
 
-var gManifest, gPageParams;
+var gManifest, gPageParams, gPath;
 
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
@@ -66,6 +66,7 @@ $(document).ready(function() {
 	var names = gPageParams.name.toString().split(air.File.separator);
 	var gProj = urldecode(names[0]);
 	var gName = urldecode(names[1]);
+	gPath = urldecode(gPageParams.name.toString());
 	$('a.back').attr('href', 'proj.html?name=' + gProj);
 	$('a.back').text(gProj.toString());
 	$('span.current').text(gName.toString());
@@ -73,19 +74,19 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + gProj;
 	});
 
-	gManifest = manifest(gPageParams.name);
+	gManifest = manifest(gPath);
 	for(var m in gManifest) {
 		m = gManifest[m];
 		appendItemToQuiz(m, $('tbody.proj'));
 	}
-	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPageParams.name);
+	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPath);
 
 	$('.action a.alt').click(function() {
 		var m = {question: "", type: "question",
 		         answers:[{text:""},{text:""},{text:""}]};
 		var newlink = appendItemToQuiz(m, $('tbody.proj'));
 		gManifest.push(m);
-		saveManifest(gManifest, gPageParams.name);
+		saveManifest(gManifest, gPath);
 		activateItemLinks(newlink.find('a'));
 		newlink.find('a').click(); // will open edit dialog
 		return false;
@@ -142,7 +143,7 @@ function activateRemoveLinks(link) {
 			buttons: {
 				"Delete Content": function() {
 					gManifest.splice(elt.index(), 1);
-					saveManifest(gManifest, gPageParams.name);
+					saveManifest(gManifest, gPath);
 					elt.remove();
 					$( this ).dialog( "close" );
 				},
@@ -191,7 +192,7 @@ function activateItemLinks(link) {
 								|| ''
 						})
 					});
-					saveManifest(gManifest, gPageParams.name);
+					saveManifest(gManifest, gPath);
 
 					$(this).dialog("close"); 
 				} 
