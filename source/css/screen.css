@@ -63,6 +63,14 @@ div.action div.alt button {
   clear: both;
 }
 
+.bottom {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	padding: 20px;
+}
+
 table {
   width: 100%;
   border-spacing: 0;
@@ -108,7 +116,7 @@ tbody tr:hover {
 }
 
 div.phone {
-		background: url('/icons/phone.png') no-repeat top left;
+	background: url('/icons/phone.png') no-repeat top left;
     position: relative;
     margin-left: 150px;
     width: 260px;
@@ -118,9 +126,9 @@ div.phone {
 }
 
 div.phone.horizontal {
-		background: url('/icons/phone-h.png') no-repeat top left;
-		margin-left: 0;
-		margin-top: 100px;
+	background: url('/icons/phone-h.png') no-repeat top left;
+	margin-left: 20px;
+	margin-top: 100px;
     padding: 35px 115px;
     width: 420px;
     height: 270px;
@@ -227,6 +235,7 @@ select {
 #focus {
     width: 1000px;
     margin: 20px auto;
+    position: relative;
 }
 
 #focus > div {

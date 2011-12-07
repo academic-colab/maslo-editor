@@ -32,7 +32,7 @@
 		</div>
 	</div>
 
-	<div class="action">
+	<div class="action bottom">
 		<button class="nice small radius blue button" type="button">Publish</button>
 		<button class="nice small radius blue button" id="back" type="button">Back</button>
 		<div class="clear"></div>
@@ -109,19 +109,19 @@ $(document).ready(function() {
 		$('div.canvas > ul > li:eq(' + this.selectedIndex + ')').show();
 	});
 
-		$('div.flippers a.horizontal').click(function() {
-				$('div.flippers a.horizontal').addClass('active');
-				$('div.flippers a.vertical').removeClass('active');
-				$('.phone').addClass('horizontal');
-				return false;
-		});
+	$('div.flippers a.horizontal').click(function() {
+			$('div.flippers a.horizontal').addClass('active');
+			$('div.flippers a.vertical').removeClass('active');
+			$('.phone').addClass('horizontal');
+			return false;
+	});
 
-		$('div.flippers a.vertical').click(function() {
-				$('div.flippers a.horizontal').removeClass('active');
-				$('div.flippers a.vertical').addClass('active');
-				$('.phone').removeClass('horizontal');
-				return false;
-		});
+	$('div.flippers a.vertical').click(function() {
+			$('div.flippers a.horizontal').removeClass('active');
+			$('div.flippers a.vertical').addClass('active');
+			$('.phone').removeClass('horizontal');
+			return false;
+	});
 
 });
 </script>
