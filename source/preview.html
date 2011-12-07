@@ -24,7 +24,6 @@
 		</div>
 
 		<div class="phone">
-			<img class="background" src="icons/phone.png" alt="Phone" />
 			<div class="viewport">
 				<div class="canvas">
 					<ul class="data"></ul>
@@ -109,6 +108,21 @@ $(document).ready(function() {
 		$('div.canvas > ul > li').hide();
 		$('div.canvas > ul > li:eq(' + this.selectedIndex + ')').show();
 	});
+
+		$('div.flippers a.horizontal').click(function() {
+				$('div.flippers a.horizontal').addClass('active');
+				$('div.flippers a.vertical').removeClass('active');
+				$('.phone').addClass('horizontal');
+				return false;
+		});
+
+		$('div.flippers a.vertical').click(function() {
+				$('div.flippers a.horizontal').removeClass('active');
+				$('div.flippers a.vertical').addClass('active');
+				$('.phone').removeClass('horizontal');
+				return false;
+		});
+
 });
 </script>
 </body>

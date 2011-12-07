@@ -108,32 +108,49 @@ tbody tr:hover {
 }
 
 div.phone {
+		background: url('/icons/phone.png') no-repeat top left;
     position: relative;
-    width: 246px;
+    margin-left: 150px;
+    width: 260px;
+    height: 375px;
     color: black;
     padding: 120px 35px;
 }
 
-div.phone > img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
+div.phone.horizontal {
+		background: url('/icons/phone-h.png') no-repeat top left;
+		margin-left: 0;
+		margin-top: 100px;
+    padding: 35px 115px;
+    width: 420px;
+    height: 270px;
+}
+
+div.phone.horizontal div.viewport {
+    height: 250px;
+    width: 365px;
 }
 
 div.phone div.viewport {
-    height:345px;
+    height:365px;
+    width: 250px;
     overflow: auto;
     padding-right: 65px;
-    width: 250px;
 }
 
+div.phone.horizontal div.viewport {
+    padding-right: 150px;
+}
 div.phone div.canvas img {
-    max-width: 246px;
+    max-width: 255px;
+    margin-bottom: 10px;
+}
+div.phone.horizontal div.canvas img {
+    max-width: 360px;
 }
 
 div.phone b {
-	font-weight: bold;
+		font-weight: bold;
 }
 div.phone i {
 	font-style: italic;
@@ -156,7 +173,7 @@ div.nav {
 }
 div.nav h2 {
     background: white;
-	color: #11639d;
+		color: #11639d;
     margin: 0;
     font-size: large;
     padding: 10px;
@@ -176,6 +193,7 @@ div.nav img {
 
 div.flippers {
 	text-align: center;
+	margin-bottom: 50px;
 }
 div.flippers a {
 	vertical-align: middle;
@@ -207,7 +225,7 @@ select {
 }
 
 #focus {
-    width: 610px;
+    width: 1000px;
     margin: 20px auto;
 }
 
