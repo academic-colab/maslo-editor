@@ -164,6 +164,33 @@ div.phone i {
 	font-style: italic;
 }
 
+div.movement {
+	position: absolute;
+	top: 450px;
+	left: 320px;
+	width: 530px;
+}
+
+div.movement a.move {
+	display: block;
+	width: 70px;
+	height: 45px;
+}
+
+div.movement a.move.left:hover, div.movement a.move.right:hover {
+	background-position: 0 -46px;
+}
+
+div.movement a.move.left {
+	background: url(/icons/arrow_left.png) no-repeat;
+	float: left;
+}
+
+div.movement a.move.right {
+	background: url(/icons/arrow_right.png) no-repeat;
+	float: right;
+}
+
 ul.data {
 	margin: 0;
 	padding: 0;
