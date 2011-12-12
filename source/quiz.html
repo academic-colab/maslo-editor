@@ -112,7 +112,6 @@ function appendItemToQuiz(m, list) {
 
 function addAnswer(q, answer, correct, feedback) {
 	var a = $('<div class="answer" />');
-
 	a.append(
 		$('<img class="remove" src="icons/remove.png" alt="Remove Item" />')
 		.click(function() {
@@ -129,8 +128,22 @@ function addAnswer(q, answer, correct, feedback) {
 			.attr('checked', correct || false)
 	);
 	a.append($('<label for="correct">Correct</label>'));
+	a.append($('<br />'));
 
-	a.append($('<input type="button" class="feedback small radius white button" value="+ Feedback" />'));
+	if(feedback) {
+		a.append($('<label for="feedback">Feedback </label>'))
+		var f = $('<input type="text" name="feedback" size="45" />');
+		f.val(feedback);
+		a.append(f);
+	} else {
+		a.append($('<input type="button" class="feedback small radius white button" value="+ Feedback" />'));
+		a.find('input[type="button"]').click(function() {
+			$(this).remove();
+			a.append($('<label for="feedback">Feedback </label>'))
+			a.append($('<input type="text" name="feedback" size="45" />'));
+		});
+	}
+
 	q.append(a);
 }
 
@@ -163,7 +176,8 @@ function activateItemLinks(link) {
 		$('#dialog-question textarea[name="question"]').val(gManifest[pos].question);
 		for(var a in gManifest[pos].answers) {
 			a = gManifest[pos].answers[a];
-			addAnswer($('#dialog-question fieldset'), a.text, a.correct);
+			addAnswer($('#dialog-question fieldset'), a.text,
+				a.correct, a.feedback);
 		}
 
 		// first set up the dialog-content dialog
@@ -188,8 +202,9 @@ function activateItemLinks(link) {
 					$('div.answer').each(function(index, a) {
 						gManifest[pos].answers.push({
 							text: $(a).find('input[name="answer"]').val(),
-							correct: $(a).find('input[name="correct"]').attr('checked')
-								|| ''
+							correct: $(a).find('input[name="correct"]')
+								.attr('checked') || '',
+							feedback: $(a).find('input[name="feedback"]').val()
 						})
 					});
 					saveManifest(gManifest, gPath);

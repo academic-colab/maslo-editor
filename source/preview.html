@@ -129,6 +129,18 @@ $(document).ready(function() {
 			return false;
 	});
 
+	$('div.movement a.move.left').click(function() {
+		var s = $('select').selectBox('control');
+		s.find(':nth-child(3)').attr('selected', 'selected');
+		s.change();
+		return false;
+	});
+
+	$('div.movement a.move.right').click(function() {
+		alert('right');
+		return false;
+	});
+
 });
 </script>
 </body>
