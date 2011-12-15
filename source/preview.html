@@ -53,6 +53,7 @@
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
@@ -130,14 +131,18 @@ $(document).ready(function() {
 	});
 
 	$('div.movement a.move.left').click(function() {
-		var s = $('select').selectBox('control');
-		s.find(':nth-child(3)').attr('selected', 'selected');
-		s.change();
+		var v = $('select').find('OPTION:selected').prev().val();
+		if(v) {
+			s.selectBox('value', v).change();
+		}
 		return false;
 	});
 
 	$('div.movement a.move.right').click(function() {
-		alert('right');
+		var v = $('select').find('OPTION:selected').next().val();
+		if(v) {
+			s.selectBox('value', v).change();
+		}
 		return false;
 	});
 
