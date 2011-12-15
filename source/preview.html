@@ -90,12 +90,7 @@ $(document).ready(function() {
 			gSwitchHandler = mpthrize(li, 'file://' + path);
 		} else if(m.type == 'quiz') {
 			var q = manifest(m.path);
-			li.append('<p>' + q[0].question + '</p>');
-			for(var i in q[0].answers) {
-				li.append('<input type="checkbox" />')
-				li.append(q[0].answers[i].text + '<br />');
-			}
-			li.append('<button class="nice small radius black button" >Submit</button>')
+			presentQuestion(q, 0, li);
 		}
 		if(m.description) {
 			li.append('<p>' + m.description + '</p>');
@@ -130,6 +125,7 @@ $(document).ready(function() {
 			return false;
 	});
 
+
 	$('div.movement a.move.left').click(function() {
 		var v = $('select').find('OPTION:selected').prev().val();
 		if(v) {
@@ -137,7 +133,6 @@ $(document).ready(function() {
 		}
 		return false;
 	});
-
 	$('div.movement a.move.right').click(function() {
 		var v = $('select').find('OPTION:selected').next().val();
 		if(v) {
@@ -145,6 +140,54 @@ $(document).ready(function() {
 		}
 		return false;
 	});
+
+
+	function presentQuestion(questions, index, canvas) {
+		canvas.empty();
+		canvas.append('<p>' + questions[index].question + '</p>');
+		for(var i in questions[index].answers) {
+			canvas.append('<input name="answer" value="' + i + '" type="radio" />');
+			canvas.append(questions[index].answers[i].text + '<br />');
+		}
+
+		// next is called both directly and in case of
+		// existing feedback in a click callback
+		var next = function() {
+			if(index+1 >= questions.length) {
+				canvas.empty();
+				canvas.append('<p>End of quiz.</p>');
+				var reset = $('<button class="nice small radius black button">Retry quiz</button>');
+				reset.click(function() {
+					presentQuestion(questions, 0, canvas);
+				});
+				canvas.append(reset);
+			} else {
+				presentQuestion(questions, index+1, canvas);
+			}
+		};
+		var submit = $('<button class="nice small radius black button" >Submit</button>');
+		submit.click(function() {
+			var i = $('input[name=answer]:checked').val();
+			// feedback is blank when no selection is made
+			// or when there simply is no feedback for a selection
+			var feedback = i === undefined
+				? '' : questions[index].answers[i].feedback;
+			if(feedback) {
+				canvas.empty();
+				canvas.append('<p>' + feedback + '</p>');
+
+				// We are reusing this button as the continue button
+				// for the feedback screen. The whole screen is erased
+				// next time so it will reset to Submit.
+				submit.click(next);
+				submit.text('Continue');
+				canvas.append(submit);
+			} else {
+				next();
+			}
+		});
+		canvas.append(submit);
+	}
 
 });
 </script>
