@@ -20,10 +20,6 @@ FileCache.prototype.flush = function() {
 };
 
 FileCache.prototype._saveData = function(path, data) {
-	if(!data) {
-		return false;
-	}
-	air.trace("save: " + path)
 	var f = new air.File(path);
 	var fs = new air.FileStream();
 	fs.open(f, air.FileMode.WRITE);
@@ -33,7 +29,6 @@ FileCache.prototype._saveData = function(path, data) {
 };
 
 FileCache.prototype._loadData = function(path) {
-	air.trace("load: " + path)
 	var f = new air.File(path);
 	var ret = '';
 	if(f.exists) {
@@ -66,14 +61,14 @@ function Content(projectBase, title, idOrPath) {
 	} else {
 		// prepare a new place within this project
 		this.id = this._uniqueId();
-		if(idOrPath != '') {
-			// if an outside path was specified, copy that file
-			var src = new air.File(idOrPath);
-			var dst = new air.File(this.path());
-			src.copyTo(dst, true);
-		}
 	}
-	this.path     = this._base + air.File.separator + this.id;
+	this.path = this._base + air.File.separator + this.id;
+	// if an outside path was specified, copy that file
+	if(typeof idOrPath == 'string' && idOrPath != '') {
+		var src = new air.File(idOrPath);
+		var dst = new air.File(this.path);
+		src.copyTo(dst, true);
+	}
 	this.title    = title;
 	// descriptions are associated by convention in an <id>.dsc file
 	this.descFile = new FileCache(this.path + '.dsc');
@@ -94,8 +89,8 @@ Content.prototype.metadata = function() {
 }
 
 Content.prototype.save = function() {
+	// render creates the text input _titleInput
 	this.title = this._titleInput.val() || this.title;
-	this.descFile.flush();
 };
 
 Content.prototype.render = function(div) {
@@ -130,8 +125,8 @@ Content.prototype._uniqueId = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Image(projectBase, title, originalPath) {
-	Content.call(this, projectBase, title, originalPath);
+function Image(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
 	this.icon = 'icons/image.png';
 	this.type = 'image'; // used in saving/loading object
 }
@@ -141,21 +136,30 @@ Image.prototype.constructor = Image;
 Image.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	var img = $('<img />');
-	img.attr('src', 'file://' + this.path());
+	img.attr('src', 'file://' + this.path);
 	div.append(img);
-	textArea.val(this.descFile.val);
-	textArea.addClass('description');
-	div.append(textArea);	
+	this._descInput.val(this.descFile.val);
+	this._descInput.addClass('description');
+	div.append(this._descInput);	
 	return div;
 };
 
+Image.prototype.save = function() {
+	Content.prototype.save.call(this);
+	if(this._descInput) {
+		this.descFile.val = this._descInput.val();
+	}
+	this.descFile.flush();
+};
+
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Text(projectBase, title, originalPath) {
-	Content.call(this, projectBase, title, originalPath);
+function Text(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
 	this.docFile = new FileCache(this.path);
 	this.icon = 'icons/text.png';
 	this.type = 'text';
@@ -166,16 +170,17 @@ Text.prototype.constructor = Text;
 Text.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	this._textInput = $('<textarea rows="3" cols="50"></textarea>');
-	this._textInput.val(this.descFile.val);
+	this._textInput.val(this.docFile.val);
 	this._textInput.addClass('description');
 	div.append(this._textInput);	
 	return div;
 };
 
 Text.prototype.save = function() {
-	air.trace('text save');
 	Content.prototype.save.call(this);
-	this.docFile.val = this._textInput.val();
+	if(this._textInput) {
+		this.docFile.val = this._textInput.val();
+	}
 	this.docFile.flush();
 };
 
@@ -184,8 +189,8 @@ Text.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Audio(projectBase, title, originalPath) {
-	Content.call(this, projectBase, title, originalPath);
+function Audio(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
 	this.icon = 'icons/audio.png';
 	this.type = 'audio';
 }
@@ -193,11 +198,6 @@ Audio.prototype = new Content();
 Audio.prototype.constructor = Audio;
 
 Audio.prototype.render = function(div) {
-	// if an unrender function has been previously assigned, call it
-	// to clean up before proceeding to render again.
-	if(this.hasOwnProperty('unrender')) {
-		this.unrender();
-	}
 	Content.prototype.render.call(this, div);
 	var mp3         = new air.Sound(new air.URLRequest(this.path));
 	var channel     = null;
@@ -231,10 +231,13 @@ Audio.prototype.render = function(div) {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Quiz(projectBase, title) {
-	Content.call(this, projectBase, title);
-	var d = new air.File(this.path);
-	d.createDirectory();
+function Quiz(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
+	// create new quiz directory if existing id not specified
+	if(typeof idOrPath != 'number') {
+		var d = new air.File(this.path);
+		d.createDirectory();
+	}
 	this.icon = 'icons/quiz.png';
 	this.type = 'quiz';
 }
@@ -243,10 +246,6 @@ Quiz.prototype.constructor = Quiz;
 
 Quiz.prototype.render = function(div) {
 	window.location = 'quiz.html?name=' + this.id;
-};
-
-Text.prototype.save = function() {
-	Content.prototype.save.call(this);
 };
 
 
@@ -268,13 +267,12 @@ Content.FromImport = function(projectBase, title, originalPath) {
 };
 
 Content.FromMetadata = function(projectBase, md) {
-	air.trace([md.type, md.title, md.id].join(', '));
 	var ctor = Content.TypeConstructor(md.type);
 	return new ctor(projectBase, md.title, md.id);
 };
 
 Content.TypeConstructor = function(type) {
 	return {
-		'image': Image, 'text': Text, 'audio': Audio, 'video': Content
+		"image": Image, "text": Text, "audio": Audio, "video": Content
 	}[type] || Content;
 };

@@ -110,6 +110,7 @@ $(document).ready(function() {
 	var manifest = loadManifest();
 	for(var i in manifest) {
 		var content = Content.FromMetadata(gPageParams.path, manifest[i]);
+		air.trace(content.save.toString());
 		list.append(summaryForContent(content));
 	}
 
@@ -144,7 +145,8 @@ $(document).ready(function() {
 			});
 		});
 		tr.find('a').click(function() {
-			var c = $(this).parent().parent().data('content');
+			var tr = $(this).parent().parent(); 
+			var c = tr.data('content');
 			$('#dialog-content').empty();
 			c.render($('#dialog-content'));
 			$('#dialog-content').dialog({
@@ -156,6 +158,7 @@ $(document).ready(function() {
 				buttons: {
 					"Save": function() { 
 						c.save();
+						tr.find('a').text(c.title);
 						saveManifest();
 						$(this).dialog("close"); 
 					} 
