@@ -110,13 +110,17 @@ $(document).ready(function() {
 	var manifest = loadManifest();
 	for(var i in manifest) {
 		var content = Content.FromMetadata(gPageParams.path, manifest[i]);
-		air.trace(content.save.toString());
 		list.append(summaryForContent(content));
 	}
 
 	$('form.quiz input[type="text"]').watermark('Name of Quiz');
 	$('form.quiz input[type="text"]').keyup(function() {
 		$('form.quiz input[type="submit"]').attr('disabled', $(this).val() == '');
+	});
+
+	$("tbody.proj").sortable({
+		items: 'tr', axis: 'y',
+        update: function(event, ui) { saveManifest(); }
 	});
 
 	function summaryForContent(content) {

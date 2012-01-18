@@ -138,6 +138,7 @@ Image.prototype.render = function(div) {
 	var img = $('<img />');
 	img.attr('src', 'file://' + this.path);
 	div.append(img);
+	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
 	div.append(this._descInput);	
@@ -199,7 +200,7 @@ Audio.prototype.constructor = Audio;
 
 Audio.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
-	var mp3         = new air.Sound(new air.URLRequest(this.path));
+	var mp3         = new air.Sound(new air.URLRequest('file://' + this.path));
 	var channel     = null;
 	var btn         = $('<input type="button" value="Play" />');
 	var toggleSound = function() {
