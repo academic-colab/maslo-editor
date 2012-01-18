@@ -153,6 +153,7 @@ $(document).ready(function() {
 			var c = tr.data('content');
 			$('#dialog-content').empty();
 			c.render($('#dialog-content'));
+
 			$('#dialog-content').dialog({
 				autoOpen: true,
 				modal: true,
@@ -168,6 +169,9 @@ $(document).ready(function() {
 					} 
 				}
 			});
+			$('#dialog-content textarea').cleditor({
+				controls: "bold italic underline bullets numbering alignleft " +
+						  "center alignright justify undo redo cut copy paste"});
 			return false;
 		});
 		return tr;
@@ -190,10 +194,6 @@ $(document).ready(function() {
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 /*
-			textArea.cleditor({
-				controls: "bold italic underline bullets numbering alignleft " +
-						  "center alignright justify undo redo cut copy paste"
-			});
 */
 
 // -------------------------- REGISTER BUTTON CLICKS -------------------------
