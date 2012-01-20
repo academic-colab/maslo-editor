@@ -71,7 +71,9 @@
 		</tbody>
 	</table>
 	<form class="quiz" style="display:none" action="quiz.html" method="GET">
-		<input type="text" name="name" />
+		<input type="text" name="title" />
+		<input type="hidden" name="id" />
+		<input type="hidden" name="project" />
 		<input type="submit" value="Create" disabled="disabled" />
 	</form>
 </div>
@@ -152,26 +154,26 @@ $(document).ready(function() {
 			var tr = $(this).parent().parent(); 
 			var c = tr.data('content');
 			$('#dialog-content').empty();
-			c.render($('#dialog-content'));
-
-			$('#dialog-content').dialog({
-				autoOpen: true,
-				modal: true,
-				width: 540,
-				position: 'top',
-				beforeClose: c.unrender,
-				buttons: {
-					"Save": function() { 
-						c.save();
-						tr.find('a').text(c.title);
-						saveManifest();
-						$(this).dialog("close"); 
-					} 
-				}
-			});
-			$('#dialog-content textarea').cleditor({
-				controls: "bold italic underline bullets numbering alignleft " +
-						  "center alignright justify undo redo cut copy paste"});
+			if(c.render($('#dialog-content'))) {
+				$('#dialog-content').dialog({
+					autoOpen: true,
+					modal: true,
+					width: 540,
+					position: 'top',
+					beforeClose: c.unrender,
+					buttons: {
+						"Save": function() { 
+							c.save();
+							tr.find('a').text(c.title);
+							saveManifest();
+							$(this).dialog("close"); 
+						} 
+					}
+				});
+				$('#dialog-content textarea').cleditor({
+					controls: "bold italic underline bullets numbering alignleft " +
+							  "center alignright justify undo redo cut copy paste"});
+			}
 			return false;
 		});
 		return tr;
@@ -238,12 +240,14 @@ $(document).ready(function() {
 	});
 
 	$('form.quiz').submit(function(event) {
-		var content = new Quiz(gPageParams.path, $('form.quiz input[name="name"]').val());
+		var content = new Quiz(gPageParams.path,
+			$('form.quiz input[name="name"]').val());
+		$('tbody.proj').append(summaryForContent(content));
+		saveManifest();
 
-		// change name field in form so the quiz page can parse it right
-		var name = $(this).find('input[type="text"]').val();
-		$(this).find('input[type="text"]').val(
-			urlencode(gPageParams.name) + '/' + urlencode(name));
+		// add hidden form variables to orient the quiz screen
+		$(this).find('input[type="id"]').val(content.id);
+		$(this).find('input[type="proj"]').val(gPageParams.name);
 
 		return true;
 	});

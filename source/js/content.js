@@ -246,7 +246,10 @@ Quiz.prototype = new Content();
 Quiz.prototype.constructor = Quiz;
 
 Quiz.prototype.render = function(div) {
-	window.location = 'quiz.html?name=' + this.id;
+	var project = /([^\/]+)$/.exec(this._base)[0];
+	window.location = 'quiz.html?' + $.param(
+		{id:this.id, proj:project, title:this.title}, true);
+	return false;
 };
 
 
@@ -274,6 +277,7 @@ Content.FromMetadata = function(projectBase, md) {
 
 Content.TypeConstructor = function(type) {
 	return {
-		"image": Image, "text": Text, "audio": Audio, "video": Content
+		"image": Image, "text": Text, "audio": Audio,
+		"video": Content, "quiz": Quiz
 	}[type] || Content;
 };

@@ -1,17 +1,16 @@
 function manifest(name) {
+	air.trace("manifest: " + name);
 	var f = new air.File(
 		[air.File.applicationStorageDirectory.nativePath, name, 'manifest']
 		.join(air.File.separator)
 	);
 	var fs = new air.FileStream();
-	fs.open(f, air.FileMode.READ);
-	var ret;
+	var ret = [];
 	try {
+		fs.open(f, air.FileMode.READ);
 		ret = JSON.parse(fs.readMultiByte(fs.bytesAvailable, "utf-8"));
-	} catch(e) {
-		ret = [];
-	}
-	fs.close();
+		fs.close();
+	} catch(e) {}
 	return ret;
 }
 

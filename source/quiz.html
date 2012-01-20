@@ -62,11 +62,9 @@ var gManifest, gPageParams, gPath;
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	gPageParams = queryParameters(document.location.search);
-	// the parameter "name" is formatted as "project/quiz"
-	var names = gPageParams.name.toString().split(air.File.separator);
-	var gProj = urldecode(names[0]);
-	var gName = urldecode(names[1]);
-	gPath = urldecode(gPageParams.name.toString());
+	var gProj = urldecode(gPageParams.proj.toString());
+	var gName = urldecode(gPageParams.title.toString());
+	var gPath = [gProj, gPageParams.id].join(air.File.separator);
 	$('a.back').attr('href', 'proj.html?name=' + gProj);
 	$('a.back').text(gProj.toString());
 	$('span.current').text(gName.toString());
