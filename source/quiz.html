@@ -72,14 +72,18 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + gProj;
 	});
 
+	var list = $('tbody.proj');
 	gManifest = manifest(gPath);
-	for(var m in gManifest) {
-		m = gManifest[m];
-		appendItemToQuiz(m, $('tbody.proj'));
+	for(var i in gManifest) {
+		var content = Content.FromMetadata(gPageParams.path, manifest[i]);
+		list.append(summaryForContent(content));
 	}
-	linkManifestOrderToTable(gManifest, $('tbody.proj'), gPath);
 
 	$('.action a.alt').click(function() {
+		var content = new Question(gPath, 'Untitled Document');
+		$('tbody.proj').append(summaryForContent(content));
+		saveManifest();
+
 		var m = {question: "", type: "question",
 		         answers:[{text:""},{text:""},{text:""}]};
 		var newlink = appendItemToQuiz(m, $('tbody.proj'));
@@ -91,6 +95,60 @@ $(document).ready(function() {
 	});
 
 });
+
+function summaryForContent(content) {
+	var tr = $('<tr />');
+	tr.data('content', content);
+	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
+	tr.append($('<td><a href="#">' + content.title + '</a></td>'));
+	tr.append($('<td>Unpublished</td>'));
+	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
+
+	tr.find('img.remove').click(function() {
+		$( "#dialog-confirm" ).dialog({
+			height:240,
+			modal: true,
+			buttons: {
+				"Delete Content": function() {
+					tr.data('content').deleteFile();
+					tr.remove();
+					saveManifest();
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+	});
+	tr.find('a').click(function() {
+		var tr = $(this).parent().parent(); 
+		var c = tr.data('content');
+		$('#dialog-content').empty();
+		if(c.render($('#dialog-content'))) {
+			$('#dialog-content').dialog({
+				autoOpen: true,
+				modal: true,
+				width: 540,
+				position: 'top',
+				beforeClose: c.unrender,
+				buttons: {
+					"Save": function() { 
+						c.save();
+						tr.find('a').text(c.title);
+						saveManifest();
+						$(this).dialog("close"); 
+					} 
+				}
+			});
+			$('#dialog-content textarea').cleditor({
+				controls: "bold italic underline bullets numbering alignleft " +
+						  "center alignright justify undo redo cut copy paste"});
+		}
+		return false;
+	});
+	return tr;
+}
 
 function appendItemToQuiz(m, list) {
 	var tr = $('<tr />');

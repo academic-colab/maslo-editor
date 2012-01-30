@@ -1,49 +1,5 @@
 'use strict';
 
-function FileCache(path) {
-	this.path = path;
-}
-
-FileCache.prototype.__defineGetter__('val', function() {
-	if(!this._val) {
-		this._val = this._loadData(this.path);
-	}
-	return this._val;
-});
-
-FileCache.prototype.__defineSetter__('val', function(v) {
-	this._val = v;
-});
-
-FileCache.prototype.flush = function() {
-	this._saveData(this.path, this._val);
-};
-
-FileCache.prototype._saveData = function(path, data) {
-	var f = new air.File(path);
-	var fs = new air.FileStream();
-	fs.open(f, air.FileMode.WRITE);
-	fs.writeMultiByte(data, "utf-8");
-	fs.close();
-	return true;
-};
-
-FileCache.prototype._loadData = function(path) {
-	var f = new air.File(path);
-	var ret = '';
-	if(f.exists) {
-		var fs = new air.FileStream();
-		fs.open(f, air.FileMode.READ);
-		ret = fs.readMultiByte(fs.bytesAvailable, "utf-8");
-		fs.close();
-	}
-	return ret;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
 // If idOrPath is a path, then the constructor will import the file
 // into the projectBase and give it a new unique name. If idOrPath is
 // a number, the constructed content will refer to an existing import.
@@ -250,6 +206,25 @@ Quiz.prototype.render = function(div) {
 	window.location = 'quiz.html?' + $.param(
 		{id:this.id, proj:project, title:this.title}, true);
 	return false;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+
+function Question(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
+	this.icon = 'icons/question.png';
+	this.type = 'question';
+	this.answerFile = new FileCache(this.path);
+	this.answers = this.answerFile.val;
+}
+
+Question.prototype.save = function() {
+	Content.prototype.save.call(this);
+	this.answerFile.val = JSON.stringify(this.answers);
+	this.answerFile.flush();
 };
 
 
