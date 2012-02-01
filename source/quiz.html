@@ -8,63 +8,48 @@
 </head>
 <body>
 	<header>
-	<h3><a href="index.html">My Content Packs</a> >
-	<a class="back" href="#"></a> >
-	<span class="current"></span></h3>
-	<div class="extra"><a href="#" onclick="help(); return false;">Help</a><img src="icons/maslo_icon_logo.png" /></div>
+		<h3>
+			<a href="index.html">My Content Packs</a> &gt;
+			<a class="back" href="#"></a> &gt;
+			<span class="current"></span>
+		</h3>
+		<div class="extra">
+			<a href="#" onclick="help(); return false;">Help</a>
+			<img src="icons/maslo_icon_logo.png" />
+		</div>
 	</header>
-<table>
-<thead>
-	<tr>
-		<th>Type</th>
-		<th class="big">Title</th>
-		<th>Remove</th>
-	</tr>
-</thead>
-<tbody class="proj">
-</tbody>
-</table>
-<div class="action">
-	<a class="alt nice small radius blue button" href="">+ Add Question</a>
-	<button class="nice small radius blue button" id="back">Back</button>
-	<div class="clear"></div>
-</div>
 
-<form id="dialog-question" style="display: none" title="Edit Question">
-	<fieldset>
-		<h6>Question</h6>
-		<textarea class="large" rows="4" cols="50" name="question"></textarea>
-	</fieldset>
-	<input type="button" class="small radius white button" value="+ Add another answer"
-		onclick="addAnswer($('#dialog-question fieldset'))"/>
-</form>
-<div id="dialog-confirm" style="display: none" title="Delete Content">
-	<p>This question will be permanently deleted and cannot be
-	recovered. Are you sure?</p>
-</div>
+	<div id="toc"></div>
+
+	<div class="action">
+		<a class="alt nice small radius blue button" href="">+ Add Question</a>
+		<button class="nice small radius blue button" id="back">Back</button>
+		<div class="clear"></div>
+	</div>
 
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
+<script type="text/javascript" src="js/jquery.cleditor.js"></script>
 <script type="text/javascript" src="js/urldecode.js"></script>
-<script type="text/javascript" src="js/mpthrize.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
-<script type="text/javascript" src="js/files.js"></script>
-<script type="text/javascript" src="js/load.js"></script>
-<script type="text/javascript" src="js/types.js"></script>
+<script type="text/javascript" src="js/filecache.js"></script>
+<script type="text/javascript" src="js/content.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript">
 
-var gManifest, gPageParams, gPath;
+var gManifest, gPageParams, gPath, gProj, gName;
 
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	gPageParams = queryParameters(document.location.search);
-	var gProj = urldecode(gPageParams.proj.toString());
-	var gName = urldecode(gPageParams.title.toString());
-	var gPath = [gProj, gPageParams.id].join(air.File.separator);
+	gProj       = urldecode(gPageParams.proj.toString());
+	gName       = urldecode(gPageParams.title.toString());
+	gPath       = [air.File.applicationStorageDirectory.nativePath,
+	               gProj, gPageParams.id].join(air.File.separator);
+
 	$('a.back').attr('href', 'proj.html?name=' + gProj);
 	$('a.back').text(gProj.toString());
 	$('span.current').text(gName.toString());
@@ -72,212 +57,17 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + gProj;
 	});
 
-	var list = $('tbody.proj');
-	gManifest = manifest(gPath);
-	for(var i in gManifest) {
-		var content = Content.FromMetadata(gPageParams.path, manifest[i]);
-		list.append(summaryForContent(content));
-	}
+	gManifest = new Manifest(gPath);
+	gManifest.render($('#toc'));
 
 	$('.action a.alt').click(function() {
-		var content = new Question(gPath, 'Untitled Document');
-		$('tbody.proj').append(summaryForContent(content));
-		saveManifest();
-
-		var m = {question: "", type: "question",
-		         answers:[{text:""},{text:""},{text:""}]};
-		var newlink = appendItemToQuiz(m, $('tbody.proj'));
-		gManifest.push(m);
-		saveManifest(gManifest, gPath);
-		activateItemLinks(newlink.find('a'));
-		newlink.find('a').click(); // will open edit dialog
+		var content = new Question(gPath, 'Unwritten Question');
+		gManifest.addContent(content);
+		gManifest.save();
 		return false;
 	});
 
 });
-
-function summaryForContent(content) {
-	var tr = $('<tr />');
-	tr.data('content', content);
-	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
-	tr.append($('<td><a href="#">' + content.title + '</a></td>'));
-	tr.append($('<td>Unpublished</td>'));
-	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
-
-	tr.find('img.remove').click(function() {
-		$( "#dialog-confirm" ).dialog({
-			height:240,
-			modal: true,
-			buttons: {
-				"Delete Content": function() {
-					tr.data('content').deleteFile();
-					tr.remove();
-					saveManifest();
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
-		});
-	});
-	tr.find('a').click(function() {
-		var tr = $(this).parent().parent(); 
-		var c = tr.data('content');
-		$('#dialog-content').empty();
-		if(c.render($('#dialog-content'))) {
-			$('#dialog-content').dialog({
-				autoOpen: true,
-				modal: true,
-				width: 540,
-				position: 'top',
-				beforeClose: c.unrender,
-				buttons: {
-					"Save": function() { 
-						c.save();
-						tr.find('a').text(c.title);
-						saveManifest();
-						$(this).dialog("close"); 
-					} 
-				}
-			});
-			$('#dialog-content textarea').cleditor({
-				controls: "bold italic underline bullets numbering alignleft " +
-						  "center alignright justify undo redo cut copy paste"});
-		}
-		return false;
-	});
-	return tr;
-}
-
-function appendItemToQuiz(m, list) {
-	var tr = $('<tr />');
-
-	if(m.type == 'unknown' || !iconForType(m.type)) {
-		return;
-	}
-	tr.append($('<td class="icon"><img src="' + iconForType(m.type) + '"/></td>'));
-	tr.append($('<td><a rel="' + m.type + '" href="#">' +
-	          (m.question ? truncate(m.question) : 'unwritten question') + '</a></td>'));
-	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
-	list.append(tr);
-	activateItemLinks(tr.find('a'));
-	activateRemoveLinks(tr.find('img.remove'));
-	return tr;
-}
-
-function addAnswer(q, answer, correct, feedback) {
-	var a = $('<div class="answer" />');
-	a.append(
-		$('<img class="remove" src="icons/remove.png" alt="Remove Item" />')
-		.click(function() {
-			a.remove();
-		})
-	);
-	a.append($('<label for="answer">Answer </label>'))
-	a.append(
-		$('<input type"text" size="35" name="answer" />')
-			.val(answer)
-	);
-	a.append(
-		$('<input type="checkbox" name="correct" />')
-			.attr('checked', correct || false)
-	);
-	a.append($('<label for="correct">Correct</label>'));
-	a.append($('<br />'));
-
-	if(feedback) {
-		a.append($('<label for="feedback">Feedback </label>'))
-		var f = $('<input type="text" name="feedback" size="45" />');
-		f.val(feedback);
-		a.append(f);
-	} else {
-		a.append($('<input type="button" class="feedback small radius white button" value="+ Feedback" />'));
-		a.find('input[type="button"]').click(function() {
-			$(this).remove();
-			a.append($('<label for="feedback">Feedback </label>'))
-			a.append($('<input type="text" name="feedback" size="45" />'));
-		});
-	}
-
-	q.append(a);
-}
-
-function activateRemoveLinks(link) {
-	link.click(function(e) {
-		var elt = $(this).parent().parent();
-		$( "#dialog-confirm" ).dialog({
-			height:240,
-			modal: true,
-			buttons: {
-				"Delete Content": function() {
-					gManifest.splice(elt.index(), 1);
-					saveManifest(gManifest, gPath);
-					elt.remove();
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
-		});
-	});
-}
-
-function activateItemLinks(link) {
-	link.click(function(e) {
-		var elt = $(e.target).parent().parent();
-		var pos = elt.index();
-		$('div.answer').remove();
-		$('#dialog-question textarea[name="question"]').val(gManifest[pos].question);
-		for(var a in gManifest[pos].answers) {
-			a = gManifest[pos].answers[a];
-			addAnswer($('#dialog-question fieldset'), a.text,
-				a.correct, a.feedback);
-		}
-
-		// first set up the dialog-content dialog
-		var textArea = $('<textarea rows="3" cols="50"></textarea>');
-
-		// now show the dialog
-		$('#dialog-question').dialog({
-			autoOpen: true,
-			modal: true,
-			width: 540,
-			position: 'top',
-			buttons: {
-				"Save": function() { 
-					var question = $('#dialog-question textarea').val();
-					var modified = false;
-					// update the visible TOC with new title
-					// e.target is the link that clicks
-					$(e.target).text(truncate(question));
-					gManifest[pos].question = question;
-					gManifest[pos].answers = [];
-
-					$('div.answer').each(function(index, a) {
-						gManifest[pos].answers.push({
-							text: $(a).find('input[name="answer"]').val(),
-							correct: $(a).find('input[name="correct"]')
-								.attr('checked') || '',
-							feedback: $(a).find('input[name="feedback"]').val()
-						})
-					});
-					saveManifest(gManifest, gPath);
-
-					$(this).dialog("close"); 
-				} 
-			}
-		});
-
-		return false;
-	});
-} // end activeItemLinks
-
-function truncate(s, len) {
-	var len = len || 70;
-	return s.length < len ? s : s.substring(0, len) + '...';
-}
 
 </script>
 </body>

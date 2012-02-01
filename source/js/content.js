@@ -218,15 +218,83 @@ function Question(projectBase, title, idOrPath) {
 	this.icon = 'icons/question.png';
 	this.type = 'question';
 	this.answerFile = new FileCache(this.path);
-	this.answers = this.answerFile.val;
+	this._answerForm = $('<form class="answers"><fieldset /></form>').find('fieldset');
+	var answers = this.answerFile.val ?
+		JSON.parse(this.answerFile.val) : [];
+	for(var a in answers) {
+		a = answers[a];
+		this.addAnswer(a.text, a.feedback, a.correct);
+	}
 }
+Question.prototype = new Content();
+Question.prototype.constructor = Question;
 
 Question.prototype.save = function() {
 	Content.prototype.save.call(this);
-	this.answerFile.val = JSON.stringify(this.answers);
-	this.answerFile.flush();
+	if(this._answerForm) {
+		var ar = [];
+		this._answerForm.find('div.answer').each(function(k, v) {
+			ar.push( {
+				text: $(v).find('input[name="answer"]').val(),
+				feedback: $(v).find('input[name="feedback"]').val(),
+				correct: $(v).find('input[name="correct"]').val(),
+			});
+		});
+		this.answerFile.val = JSON.stringify(ar);
+		this.answerFile.flush();
+	}
 };
 
+Question.prototype.render = function(div) {
+	div.append('<h6>Question</h6>');
+	Content.prototype.render.call(this, div);
+	div.append(this._answerForm);
+	var add = $('<button class="small radius white button">+ Add another answer</button>');
+
+	var q = this;
+	add.click(function() {
+		q.addAnswer();
+	});
+	div.append(add);
+	return div;
+};
+
+Question.prototype.addAnswer = function(answer, correct, feedback) {
+	var a = $('<div class="answer"></div>');
+	a.append(
+		$('<img class="remove" src="icons/remove.png" alt="Remove Item" />')
+		.click(function() {
+			a.remove();
+		})
+	);
+	a.append($('<label for="answer">Answer </label>'))
+	a.append(
+		$('<input type"text" size="35" name="answer" />')
+			.val(answer)
+	);
+	a.append(
+		$('<input type="checkbox" name="correct" />')
+			.attr('checked', correct || false)
+	);
+	a.append($('<label for="correct">Correct</label>'));
+	a.append($('<br />'));
+
+	if(feedback) {
+		a.append($('<label for="feedback">Feedback </label>'))
+		var f = $('<input type="text" name="feedback" size="45" />');
+		f.val(feedback);
+		a.append(f);
+	} else {
+		a.append($('<input type="button" class="feedback small radius white button" value="+ Feedback" />'));
+		a.find('input[type="button"]').click(function() {
+			$(this).remove();
+			a.append($('<label for="feedback">Feedback </label>'))
+			a.append($('<input type="text" name="feedback" size="45" />'));
+		});
+	}
+
+	this._answerForm.append(a);
+};
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +321,6 @@ Content.FromMetadata = function(projectBase, md) {
 Content.TypeConstructor = function(type) {
 	return {
 		"image": Image, "text": Text, "audio": Audio,
-		"video": Content, "quiz": Quiz
+		"video": Content, "quiz": Quiz, "question": Question
 	}[type] || Content;
 };

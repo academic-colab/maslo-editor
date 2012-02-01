@@ -64,7 +64,7 @@
 	<form class="quiz" style="display:none" action="quiz.html" method="GET">
 		<input type="text" name="title" />
 		<input type="hidden" name="id" />
-		<input type="hidden" name="project" />
+		<input type="hidden" name="proj" />
 		<input type="submit" value="Create" disabled="disabled" />
 	</form>
 </div>
@@ -77,7 +77,6 @@
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
-<script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/urldecode.js"></script>
 <script type="text/javascript" src="js/content.js"></script>
 <script type="text/javascript" src="js/filecache.js"></script>
@@ -142,12 +141,13 @@ $(document).ready(function() {
 
 	$('form.quiz').submit(function(event) {
 		var content = new Quiz(gPageParams.path,
-			$('form.quiz input[name="name"]').val());
+			$('form.quiz input[name="title"]').val());
 		gManifest.addContent(content);
+		gManifest.save();
 
 		// add hidden form variables to orient the quiz screen
-		$(this).find('input[type="id"]').val(content.id);
-		$(this).find('input[type="proj"]').val(gPageParams.name);
+		$(this).find('input[name="id"]').val(content.id);
+		$(this).find('input[name="proj"]').val(gPageParams.name);
 
 		return true;
 	});
