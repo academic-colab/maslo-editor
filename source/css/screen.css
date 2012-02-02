@@ -276,11 +276,11 @@ select {
 	margin: 0 auto;
 }
 
-#dialog-question fieldset input[type=button] {
+#dialog-content fieldset input[type=button] {
 	display: block;
 }
 
-#dialog-question img.remove {
+#dialog-content img.remove {
 	display: inline-block;
 	margin-right: 10px;
 }

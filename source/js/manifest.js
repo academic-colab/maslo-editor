@@ -107,5 +107,6 @@ Manifest.prototype.addContent = function(content) {
 		}
 		return false;
 	});
+	this.save();
 };
 

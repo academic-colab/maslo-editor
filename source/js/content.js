@@ -223,7 +223,7 @@ function Question(projectBase, title, idOrPath) {
 		JSON.parse(this.answerFile.val) : [];
 	for(var a in answers) {
 		a = answers[a];
-		this.addAnswer(a.text, a.feedback, a.correct);
+		this.addAnswer(a.text, a.correct, a.feedback);
 	}
 }
 Question.prototype = new Content();
@@ -234,10 +234,11 @@ Question.prototype.save = function() {
 	if(this._answerForm) {
 		var ar = [];
 		this._answerForm.find('div.answer').each(function(k, v) {
+			feedback = $(v).find('input[name="feedback"]');
 			ar.push( {
 				text: $(v).find('input[name="answer"]').val(),
-				feedback: $(v).find('input[name="feedback"]').val(),
-				correct: $(v).find('input[name="correct"]').val(),
+				feedback: feedback ? feedback.val() : '',
+				correct: $(v).find('input[name="correct"]').attr('checked')
 			});
 		});
 		this.answerFile.val = JSON.stringify(ar);
@@ -296,6 +297,55 @@ Question.prototype.addAnswer = function(answer, correct, feedback) {
 	this._answerForm.append(a);
 };
 
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+
+function Video(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
+	this.icon = 'icons/video.png';
+	this.type = 'video';
+	// an AIR netstream object
+}
+Video.prototype = new Content();
+Video.prototype.constructor = Video;
+
+Video.prototype.render = function(div) {
+	Content.prototype.render.call(this, div);
+	var playBtn = $('<button>Preview Video (FLV only)</button>');
+	var self = this;
+	var nc, ns, vid, newWindow;
+	playBtn.click(function() {
+		var options = new air.NativeWindowInitOptions(); 
+		options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
+		options.transparent = false; 
+		newWindow = new air.NativeWindow(options);
+		newWindow.activate();
+
+		nc = new air.NetConnection();
+		nc.connect(null);
+		ns = new air.NetStream(nc);
+		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, function(){});
+		ns.play('file://' + self.path);
+		vid = new air.Video();
+		vid.attachNetStream(ns);
+		newWindow.stage.addChild(vid);	
+	});
+	this.unrender = function() {
+		Content.prototype.unrender.call(self);
+		if(vid && ns && nc && newWindow) {
+			vid.clear();
+			ns.close();
+			nc.close();
+			newWindow.close();
+		}
+	};
+	div.append(playBtn);
+	return div;
+};
+
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -321,6 +371,6 @@ Content.FromMetadata = function(projectBase, md) {
 Content.TypeConstructor = function(type) {
 	return {
 		"image": Image, "text": Text, "audio": Audio,
-		"video": Content, "quiz": Quiz, "question": Question
+	    "video": Video, "quiz": Quiz, "question": Question
 	}[type] || Content;
 };
