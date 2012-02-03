@@ -42,14 +42,27 @@ Manifest.prototype.render = function(div) {
 	});
 };
 
-Manifest.prototype.save = function() {
+Manifest.prototype.data = function() {
+	var ar = [];
+	var is = this.items();
+	for(var i in is) {
+		ar.push(is[i].metadata())
+	}
+	return ar;
+};
+
+Manifest.prototype.items = function() {
 	var ar = [];
 	this.tbl.find('tr').each(function(k, v) {
 		if($(v).data('content')) {
-			ar.push($(v).data('content').metadata());
+			ar.push($(v).data('content'));
 		}
 	});
-	this.file.val = JSON.stringify(ar);
+	return ar;
+};
+
+Manifest.prototype.save = function() {
+	this.file.val = JSON.stringify(this.data());
 	this.file.flush();
 };
 

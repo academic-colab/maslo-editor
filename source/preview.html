@@ -55,6 +55,8 @@
 <script type="text/javascript" src="js/types.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
+<script type="text/javascript" src="js/filecache.js"></script>
+<script type="text/javascript" src="js/content.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript">
 
@@ -71,30 +73,19 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + gPageParams.name;
 	});
 
-	var gManifest = manifest(gPageParams.name);
+	gPageParams.path = air.File.applicationStorageDirectory.nativePath +
+	                   air.File.separator + gPageParams.name;
+	var gManifest = new Manifest(gPageParams.path);
 	// the visible TOC ui
 	var s = $('select');
 	// the hidden source of actual data
 	var d = $('ul.data');
-	for(var m in gManifest) {
-		m = gManifest[m];
-		s.append("<option>" + m.title + "</option>");
-		var path = air.File.applicationStorageDirectory.resolvePath(m.path).nativePath;
+	var items = gManifest.items();
+	for(var c in items) {
+		c = items[c];
+		s.append("<option>" + c.title + "</option>");
 		var li = $('<li style="display:none"></li>');
-		if(m.type == 'text') {
-			li.append('<span>' + loadTextfile(path) + '</span>');
-		} else if(m.type == 'image') {
-			li.append(['<img src=', 'file://' + path, '/>'].join('"'));
-		} else if(m.type == 'audio') {
-			// save the STOP AUDIO function
-			gSwitchHandler = mpthrize(li, 'file://' + path);
-		} else if(m.type == 'quiz') {
-			var q = manifest(m.path);
-			presentQuestion(q, 0, li);
-		}
-		if(m.description) {
-			li.append('<p>' + m.description + '</p>');
-		}
+		c.preview(li);
 		d.append(li);
 	}
 

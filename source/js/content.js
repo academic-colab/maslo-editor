@@ -56,6 +56,8 @@ Content.prototype.render = function(div) {
 	return div;
 };
 
+Content.prototype.preview = function(div) { }
+
 Content.prototype.deleteFile = function() {
 	var condemned = new air.File(this.path);
 	if(condemned.isDirectory) {
@@ -101,6 +103,17 @@ Image.prototype.render = function(div) {
 	return div;
 };
 
+Image.prototype.preview = function(div) {
+	Content.prototype.preview.call(this, div);
+	var img = $('<img />');
+	img.attr('src', 'file://' + this.path);
+	div.append(img);
+	var p = $('<p>');
+	p.html(this.descFile.val);
+	div.append(p);
+	return div;
+}
+
 Image.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
@@ -108,7 +121,6 @@ Image.prototype.save = function() {
 	}
 	this.descFile.flush();
 };
-
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +145,14 @@ Text.prototype.render = function(div) {
 	return div;
 };
 
+Text.prototype.preview = function(div) {
+	Content.prototype.preview.call(this, div);
+	var p = $('<p>');
+	p.html(this.docFile.val);
+	div.append(p);
+	return div;
+}
+
 Text.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._textInput) {
@@ -156,6 +176,11 @@ Audio.prototype.constructor = Audio;
 
 Audio.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
+	return this.preview(div);
+};
+
+Audio.prototype.preview = function(div) {
+	Content.prototype.preview.call(this, div);
 	var mp3         = new air.Sound(new air.URLRequest('file://' + this.path));
 	var channel     = null;
 	var btn         = $('<input type="button" value="Play" />');
@@ -181,7 +206,7 @@ Audio.prototype.render = function(div) {
 		}
 	};
 	return div;
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +233,12 @@ Quiz.prototype.render = function(div) {
 	return false;
 };
 
+Quiz.prototype.preview = function(div) {
+	div.append(
+		'<h3 style="color:red"><b>TODO</b>: copy logic from presentQuestion \
+		 function (in preview.html) to Quiz::preview.</h3>');
+	return div;
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -313,6 +344,11 @@ Video.prototype.constructor = Video;
 
 Video.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
+	return this.preview(div);
+};
+
+Video.prototype.preview = function(div) {
+	Content.prototype.preview.call(this, div);
 	var playBtn = $('<button>Preview Video (FLV only)</button>');
 	var self = this;
 	var nc, ns, vid, newWindow;
@@ -343,7 +379,7 @@ Video.prototype.render = function(div) {
 	};
 	div.append(playBtn);
 	return div;
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////

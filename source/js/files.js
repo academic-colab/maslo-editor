@@ -1,29 +1,3 @@
-function loadTextfile(path) {
-	var f = new air.File(path);
-	var fs = new air.FileStream();
-	fs.open(f, air.FileMode.READ);
-	var ret = fs.readMultiByte(fs.bytesAvailable, "utf-8");
-	fs.close();
-	return ret;
-}
-
-function typeOfFile(path) {
-	var temp = path.match(/\.(\w+)$/);
-  	return {
-  		'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
-		'jpg':'image', 'jpeg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video',
-		'avi':'video', 'flv':'video', 'mp3':'audio', 'wav':'audio', 'aiff':'audio'
-	}[temp[1]] || 'unknown';
-}
-
-function iconForType(type) {
-	return {
-		'image': "icons/image.png", 'text': "icons/text.png",
-		'video': 'icons/video.png', 'audio': "icons/audio.png",
-		'quiz':  'icons/quiz.png', 'question': "icons/question.png"
-	}[type] || 'unknown';
-}
-
 function chooseFile(action) {
 	file = new window.runtime.flash.filesystem.File();
 	file.addEventListener(air.Event.SELECT, action);
