@@ -231,13 +231,67 @@ Quiz.prototype.render = function(div) {
 	window.location = 'quiz.html?' + $.param(
 		{id:this.id, proj:project, title:this.title}, true);
 	return false;
-};
+}
 
-Quiz.prototype.preview = function(div) {
-	div.append(
-		'<h3 style="color:red"><b>TODO</b>: copy logic from presentQuestion \
-		 function (in preview.html) to Quiz::preview.</h3>');
-	return div;
+
+Quiz.prototype.preview = function(argDiv) {
+	
+	function doDisplay(which, div, argIndex){
+		div.empty();
+		var index = 0;
+		if (argIndex != null)
+			index = argIndex;
+		var quiz = new Manifest(which.path);
+		var questions = quiz.data();
+		var question = questions[index];
+		var answerFile = new FileCache(question.path);
+		var answers = answerFile.val ?
+			JSON.parse(answerFile.val) : [];
+		div.append('<p>' + questions[index].title +'</p>');
+		for(var i in answers) {
+			var a = answers[i];
+			div.append('<input name="answer" value="' + i + '" type="radio" />');
+			div.append(a.text + '<br />');
+		}
+		var next = function() {
+			if(index+1 >= questions.length) {
+				div.empty();
+				div.append('<p>End of quiz.</p>');
+				var reset = $('<button class="nice small radius black button">Retry quiz</button>');
+				reset.click(function() {
+				doDisplay(which, div, 0);
+				});
+				div.append(reset);
+			} else {
+				doDisplay(which, div, index+1);
+			}
+		};
+		var submit = $('<button class="nice small radius black button" >Submit</button>');
+		submit.click(function() {
+			var i = $('input[name=answer]:checked').val();
+			// feedback is blank when no selection is made
+			// or when there simply is no feedback for a selection
+			var feedback = i === undefined
+				? '' : answers[i].feedback;
+			if(feedback) {
+				div.empty();
+				div.append('<p>' + feedback + '</p>');
+
+				// We are reusing this button as the continue button
+				// for the feedback screen. The whole screen is erased
+				// next time so it will reset to Submit.
+				submit.click(next);
+				submit.text('Continue');
+				div.append(submit);
+			} else {
+				div.empty();
+				next();
+			}
+		});
+		div.append(submit);
+	}
+	doDisplay(this, argDiv);
+	return argDiv;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
