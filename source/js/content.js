@@ -44,9 +44,14 @@ Content.prototype.metadata = function() {
 	return ret; // wouldn't it be nice to have filter() in JS?
 }
 
-Content.prototype.save = function() {
+Content.prototype.save = function(title) {
 	// render creates the text input _titleInput
-	this.title = this._titleInput.val() || this.title;
+	if (this._titleInput){
+		this.title = this._titleInput.val() || this.title;
+		return;
+	}
+	if (title != null)
+		this.title = title
 };
 
 Content.prototype.render = function(div) {
@@ -327,6 +332,9 @@ Question.prototype.save = function() {
 			});
 		});
 		this.answerFile.val = JSON.stringify(ar);
+		this.answerFile.flush();
+	} else {
+		this.answerFile.val = "{}";
 		this.answerFile.flush();
 	}
 };

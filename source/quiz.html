@@ -63,6 +63,7 @@ $(document).ready(function() {
 	$('.action a.alt').click(function() {
 		var content = new Question(gPath, 'Unwritten Question');
 		gManifest.addContent(content);
+		content.save();
 		return false;
 	});
 
