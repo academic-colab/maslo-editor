@@ -3,7 +3,7 @@ function chooseFile(action) {
 	file.addEventListener(air.Event.SELECT, action);
 	fltr_img = new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg");
 	fltr_aud = new air.FileFilter("audio", "*.mp3;*.wav;*.aiff");
-	fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.mpg;*.avi;*.flv");
+	fltr_vid = new air.FileFilter("video", "*.swf;*.mpeg;*.mpg;*.avi;*.flv;*.mp4");
 	fltr_doc = new air.FileFilter("text", "*.txt;*.html;*.htm");
 	file.browseForOpen("Please select a file...",
 					   [fltr_img, fltr_aud, fltr_vid, fltr_doc]);

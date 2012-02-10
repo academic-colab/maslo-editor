@@ -182,7 +182,12 @@ Audio.prototype.constructor = Audio;
 
 Audio.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
-	return this.preview(div);
+	div = this.preview(div);
+	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput.val(this.descFile.val);
+	this._descInput.addClass('description');
+	div.append(this._descInput);
+	return div;
 };
 
 Audio.prototype.preview = function(div) {
@@ -211,9 +216,19 @@ Audio.prototype.preview = function(div) {
 			channel = null;
 		}
 	};
+	var p = $('<p>');
+	p.html(this.descFile.val);
+	div.append(p);
 	return div;
 }
 
+Audio.prototype.save = function() {
+	Content.prototype.save.call(this);
+	if(this._descInput) {
+		this.descFile.val = this._descInput.val();
+	}
+	this.descFile.flush();
+};
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -414,12 +429,17 @@ Video.prototype.constructor = Video;
 
 Video.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
-	return this.preview(div);
+	div = this.preview(div);
+	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput.val(this.descFile.val);
+	this._descInput.addClass('description');
+	div.append(this._descInput);
+	return div;
 };
 
 Video.prototype.preview = function(div) {
 	Content.prototype.preview.call(this, div);
-	var playBtn = $('<button>Preview Video (FLV only)</button>');
+	var playBtn = $('<button>Preview Video</button>');
 	var self = this;
 	var nc, ns, vid, newWindow;
 	playBtn.click(function() {
@@ -436,7 +456,7 @@ Video.prototype.preview = function(div) {
 		ns.play('file://' + self.path);
 		vid = new air.Video();
 		vid.attachNetStream(ns);
-		newWindow.stage.addChild(vid);	
+		newWindow.stage.addChild(vid);
 	});
 	this.unrender = function() {
 		Content.prototype.unrender.call(self);
@@ -448,8 +468,19 @@ Video.prototype.preview = function(div) {
 		}
 	};
 	div.append(playBtn);
+	var p = $('<p>');
+	p.html(this.descFile.val);
+	div.append(p);
 	return div;
 }
+
+Video.prototype.save = function() {
+	Content.prototype.save.call(this);
+	if(this._descInput) {
+		this.descFile.val = this._descInput.val();
+	}
+	this.descFile.flush();
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -463,7 +494,7 @@ Content.FromImport = function(projectBase, title, originalPath) {
   	var type      = {
   		'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
 		'jpg':'image', 'jpeg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video',
-		'avi':'video', 'flv':'video', 'mp3':'audio', 'wav':'audio', 'aiff':'audio'
+		'avi':'video', 'flv':'video', 'mp3':'audio', 'mp4':'video', 'wav':'audio', 'aiff':'audio'
 	}[extension[1]] || 'unknown';
 	var ctor = Content.TypeConstructor(type);
 	return new ctor(projectBase, title, originalPath);
