@@ -70,18 +70,19 @@
 </div>
 
 
-<script type="text/javascript" src="AIRAliases.js"></script>
-<script type="text/javascript" src="js/json2.js"></script>
-<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
-<script type="text/javascript" src="js/jquery.watermark.min.js"></script>
-<script type="text/javascript" src="js/jquery.cleditor.js"></script>
-<script type="text/javascript" src="js/param.js"></script>
-<script type="text/javascript" src="js/urldecode.js"></script>
-<script type="text/javascript" src="js/content.js"></script>
-<script type="text/javascript" src="js/filecache.js"></script>
-<script type="text/javascript" src="js/manifest.js"></script>
-<script type="text/javascript" src="js/help.js"></script>
+<script type="text/javascript" src="AIRAliases.js"/>
+<script type="text/javascript" src="js/json2.js"/>
+<script type="text/javascript" src="js/jquery-1.6.1.min.js"/>
+<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"/>
+<script type="text/javascript" src="js/jquery.watermark.min.js"/>
+<script type="text/javascript" src="js/jquery.cleditor.js"/>
+<script type="text/javascript" src="js/param.js"/>
+<script type="text/javascript" src="js/urldecode.js"/>
+<script type="text/javascript" src="js/content.js"/>
+<script type="text/javascript" src="js/filecache.js"/>
+<script type="text/javascript" src="js/files.js"/>
+<script type="text/javascript" src="js/manifest.js"/>
+<script type="text/javascript" src="js/help.js"/>
 <script type="text/javascript">
 var gPageParams = queryParameters(document.location.search);
 gPageParams.path = air.File.applicationStorageDirectory.nativePath +
@@ -131,6 +132,7 @@ $(document).ready(function() {
 	$('#btnCreate').click(function() {
 		var content = new Text(gPageParams.path, 'Untitled Document');
 		gManifest.addContent(content);
+		content.save();
 		// the create text button is inside #dialog-add
 		$('#dialog-add').dialog("close");
 	});
