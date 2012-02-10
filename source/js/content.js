@@ -137,6 +137,7 @@ function Text(projectBase, title, idOrPath) {
 	this.docFile = new FileCache(this.path);
 	this.icon = 'icons/text.png';
 	this.type = 'text';
+	this.docFile.val = "";
 }
 Text.prototype = new Content();
 Text.prototype.constructor = Text;
@@ -148,7 +149,7 @@ Text.prototype.render = function(div) {
 	this._textInput.addClass('description');
 	div.append(this._textInput);	
 	return div;
-};
+} 
 
 Text.prototype.preview = function(div) {
 	Content.prototype.preview.call(this, div);
@@ -302,19 +303,23 @@ Quiz.prototype.preview = function(argDiv) {
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+function createAnswers(question){
+	question._answerForm = $('<form class="answers"><fieldset /></form>').find('fieldset');
+	question._answerForm.empty();
+	var answers = question.answerFile.val ?
+		JSON.parse(question.answerFile.val) : [];
+	for(var a in answers) {
+		a = answers[a];
+		question.addAnswer(a.text, a.correct, a.feedback);
+	}
+}
 
 function Question(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.icon = 'icons/question.png';
 	this.type = 'question';
 	this.answerFile = new FileCache(this.path);
-	this._answerForm = $('<form class="answers"><fieldset /></form>').find('fieldset');
-	var answers = this.answerFile.val ?
-		JSON.parse(this.answerFile.val) : [];
-	for(var a in answers) {
-		a = answers[a];
-		this.addAnswer(a.text, a.correct, a.feedback);
-	}
+	createAnswers(this);
 }
 Question.prototype = new Content();
 Question.prototype.constructor = Question;
@@ -342,19 +347,21 @@ Question.prototype.save = function() {
 Question.prototype.render = function(div) {
 	div.append('<h6>Question</h6>');
 	Content.prototype.render.call(this, div);
+	createAnswers(this);
 	div.append(this._answerForm);
 	var add = $('<button class="small radius white button">+ Add another answer</button>');
 
 	var q = this;
 	add.click(function() {
 		q.addAnswer();
+		return false;
 	});
 	div.append(add);
 	return div;
 };
 
 Question.prototype.addAnswer = function(answer, correct, feedback) {
-	var a = $('<div class="answer"></div>');
+	var a = $('<div class="answer"/>');
 	a.append(
 		$('<img class="remove" src="icons/remove.png" alt="Remove Item" />')
 		.click(function() {
@@ -384,6 +391,7 @@ Question.prototype.addAnswer = function(answer, correct, feedback) {
 			$(this).remove();
 			a.append($('<label for="feedback">Feedback </label>'))
 			a.append($('<input type="text" name="feedback" size="45" />'));
+			return false;
 		});
 	}
 
