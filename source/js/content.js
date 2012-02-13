@@ -29,6 +29,12 @@ function Content(projectBase, title, idOrPath) {
 	// descriptions are associated by convention in an <id>.dsc file
 	this.descFile = new FileCache(this.path + '.dsc');
 	this.icon     = 'icons/unknown.png';
+	this.saved = false;
+	this.confirm = $('\
+		<div id="dialog-confirm" style="display: none" title="Discard unsaved changes"> \
+			<p>You are about to close this edit window. \
+			Do you want to discard unsaved changes? \
+		</div>');
 }
 
 // Return this object but with members of only simple types
@@ -45,6 +51,7 @@ Content.prototype.metadata = function() {
 }
 
 Content.prototype.save = function(title) {
+	this.saved = true;
 	// render creates the text input _titleInput
 	if (this._titleInput){
 		this.title = this._titleInput.val() || this.title;
@@ -57,7 +64,8 @@ Content.prototype.save = function(title) {
 Content.prototype.render = function(div) {
 	this._titleInput = $('<input type="text" size="55" class="title" />');
 	this._titleInput.val(this.title);
-	div.append(this._titleInput);	
+	div.append(this._titleInput);
+	this.saved = false;
 	return div;
 };
 
@@ -72,7 +80,12 @@ Content.prototype.deleteFile = function() {
 	}
 };
 
-Content.prototype.unrender = function() { };
+Content.prototype.unrender = function() { 
+	// technically this is not true, but if we get to 
+	// this function, then we sure don't want to save the
+	// content anymore. So let's just claim we did save
+	this.saved = true;
+};
 
 Content.prototype._uniqueId = function() {
 	var f, id;

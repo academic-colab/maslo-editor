@@ -103,7 +103,32 @@ Manifest.prototype.addContent = function(content) {
 				modal: true,
 				width: 540,
 				position: 'top',
-				beforeClose: c.unrender,
+				beforeClose: function(event) {
+					var result = true;
+					if (!c.saved){ 
+				     	c.confirm.dialog({
+							height:240,
+							modal: true,
+							buttons: {
+								"Discard changes": function(event) {
+									c.unrender();
+									$( this ).dialog( "close" );
+									manifest.edit.dialog("close");
+									return true;
+									
+								},
+								Cancel: function(event) {
+									$( this ).dialog( "close" );
+									return false;
+								}
+							}
+						});
+					} else {
+						c.unrender();
+						return true;
+					}
+					return false;
+				 },
 				buttons: {
 					"Save": function() { 
 						c.save();
@@ -111,6 +136,7 @@ Manifest.prototype.addContent = function(content) {
 						tr.data('content', c);
 						manifest.save();
 						$(this).dialog("close"); 
+						return true;
 					} 
 				}
 			});
