@@ -1,3 +1,9 @@
+function getAppPath(){
+	var path = air.File.applicationStorageDirectory.nativePath +
+		air.File.separator;
+	return path;
+}
+
 function chooseFile(action) {
 	file = new window.runtime.flash.filesystem.File();
 	file.addEventListener(air.Event.SELECT, action);

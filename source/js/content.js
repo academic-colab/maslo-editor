@@ -11,6 +11,9 @@ function Content(projectBase, title, idOrPath) {
 	}
 	this.type  = 'content'; // used in saving/loading object
 	this._base = projectBase;
+	if (air.File.separator != "/"){
+		this._base = this._base.replace("/", air.File.separator);
+	}
 	idOrPath   = idOrPath || '';
 	if(typeof idOrPath == 'number') {
 		this.id = idOrPath;
@@ -27,10 +30,10 @@ function Content(projectBase, title, idOrPath) {
 	}
 	this.title    = title;
 	// descriptions are associated by convention in an <id>.dsc file
-	this.descFile = new FileCache(this.path + '.dsc');
+	this.descFile = new FileCache(this.path + '.dsc');	
 	this.icon     = 'icons/unknown.png';
-	this.saved = false;
-	this.confirm = $('\
+	this._saved = false;
+	this._confirm = $('\
 		<div id="dialog-confirm" style="display: none" title="Discard unsaved changes"> \
 			<p>You are about to close this edit window. \
 			Do you want to discard unsaved changes? \
@@ -40,18 +43,24 @@ function Content(projectBase, title, idOrPath) {
 // Return this object but with members of only simple types
 // (strings, numbers). Exclude members beginning with '_'
 // because they are considered "private."
-Content.prototype.metadata = function() {
+Content.prototype.metadata = function(basePath) {
 	var ret = {};
 	for(var m in this) {
 		if(m[0] != '_' && (typeof this[m] == 'string') || (typeof this[m] == 'number')) {
-			ret[m] = this[m];
+			var val = this[m];
+			if (m == "path" && basePath != null){
+				val = val.replace(basePath, "");
+				if (air.File.separator != "/")
+					val = val.replace(air.File.separator, "/");
+			}
+			ret[m] = val;
 		}
 	}
 	return ret; // wouldn't it be nice to have filter() in JS?
 }
 
 Content.prototype.save = function(title) {
-	this.saved = true;
+	this._saved = true;
 	// render creates the text input _titleInput
 	if (this._titleInput){
 		this.title = this._titleInput.val() || this.title;
@@ -65,7 +74,7 @@ Content.prototype.render = function(div) {
 	this._titleInput = $('<input type="text" size="55" class="title" />');
 	this._titleInput.val(this.title);
 	div.append(this._titleInput);
-	this.saved = false;
+	this._saved = false;
 	return div;
 };
 
@@ -84,7 +93,7 @@ Content.prototype.unrender = function() {
 	// technically this is not true, but if we get to 
 	// this function, then we sure don't want to save the
 	// content anymore. So let's just claim we did save
-	this.saved = true;
+	this._saved = true;
 };
 
 Content.prototype._uniqueId = function() {
@@ -148,7 +157,7 @@ Image.prototype.save = function() {
 function Text(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.docFile = new FileCache(this.path);
-	this.icon = 'icons/text.png';
+	this.icon = 'icons/text2.png';
 	this.type = 'text';
 	this.docFile.val = "";
 }
@@ -187,7 +196,7 @@ Text.prototype.save = function() {
 
 function Audio(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
-	this.icon = 'icons/audio.png';
+	this.icon = 'icons/audio2.png';
 	this.type = 'audio';
 }
 Audio.prototype = new Content();
@@ -254,7 +263,7 @@ function Quiz(projectBase, title, idOrPath) {
 		var d = new air.File(this.path);
 		d.createDirectory();
 	}
-	this.icon = 'icons/quiz.png';
+	this.icon = 'icons/quiz2.png';
 	this.type = 'quiz';
 }
 Quiz.prototype = new Content();
@@ -344,7 +353,7 @@ function createAnswers(question){
 
 function Question(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
-	this.icon = 'icons/question.png';
+	this.icon = 'icons/check.png';
 	this.type = 'question';
 	this.answerFile = new FileCache(this.path);
 	createAnswers(this);
@@ -456,29 +465,37 @@ Video.prototype.preview = function(div) {
 	var self = this;
 	var nc, ns, vid, newWindow;
 	playBtn.click(function() {
-		var options = new air.NativeWindowInitOptions(); 
-		options.systemChrome = air.NativeWindowSystemChrome.STANDARD; 
-		options.transparent = false; 
-		newWindow = new air.NativeWindow(options);
-		newWindow.activate();
+		if(air.NativeProcess.isSupported){
+			var dir = air.File.applicationDirectory;
+			var opsys = air.Capabilities.os;
+			var file = null;
+			if (opsys.substring(0, 3) == "Mac"){
+				file = dir.resolvePath("vlc/VLC.app/Contents/MacOS/VLC");
+			} else if (opsys.substring(0, 3) == "Win") {
+				file = dir.resolvePath("vlc/vlc/vlc.exe");
+			}
+			if (file != null && !file.exists){
+				alert("Apparently your MASLO release does not contain the VLC player. Video preview is therefore disabled.");
+			}
+			if (file != null) {
+		    	var nativeProcessStartupInfo = new air.NativeProcessStartupInfo();
+		    	nativeProcessStartupInfo.executable = file;
+		    	var process = new air.NativeProcess();
+				var processArgs = new air.Vector["<String>"]();
+				processArgs.push("--video-on-top");
+				processArgs.push("--play-and-exit");
 
-		nc = new air.NetConnection();
-		nc.connect(null);
-		ns = new air.NetStream(nc);
-		ns.addEventListener(air.AsyncErrorEvent.ASYNC_ERROR, function(){});
-		ns.play('file://' + self.path);
-		vid = new air.Video();
-		vid.attachNetStream(ns);
-		newWindow.stage.addChild(vid);
+				processArgs.push(self.path); 
+				nativeProcessStartupInfo.arguments = processArgs;
+		    	process.start(nativeProcessStartupInfo);
+			} else {
+				alert("Video preview is not supported on this platform. (Platform string: "+opsys+")");
+				
+			}
+		}
 	});
 	this.unrender = function() {
 		Content.prototype.unrender.call(self);
-		if(vid && ns && nc && newWindow) {
-			vid.clear();
-			ns.close();
-			nc.close();
-			newWindow.close();
-		}
 	};
 	div.append(playBtn);
 	var p = $('<p>');

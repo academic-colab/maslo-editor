@@ -1,6 +1,8 @@
 'use strict';
 
-function Manifest(path) {
+function Manifest(path, name) {
+	this.projectName = name;
+	this.path = path;
 	var f = new FileCache(path + air.File.separator + 'manifest');
 	var data = f.val ? JSON.parse(f.val) : [];
 	this.file = f;
@@ -43,10 +45,13 @@ Manifest.prototype.render = function(div) {
 };
 
 Manifest.prototype.data = function() {
+	var basePath = air.File.applicationStorageDirectory.nativePath +
+		air.File.separator;
 	var ar = [];
 	var is = this.items();
 	for(var i in is) {
-		ar.push(is[i].metadata())
+		ar.push(is[i].metadata(basePath))
+		//ar.push(is[i].metadata())
 	}
 	return ar;
 };
@@ -105,8 +110,8 @@ Manifest.prototype.addContent = function(content) {
 				position: 'top',
 				beforeClose: function(event) {
 					var result = true;
-					if (!c.saved){ 
-				     	c.confirm.dialog({
+					if (!c._saved){ 
+				     	c._confirm.dialog({
 							height:240,
 							modal: true,
 							buttons: {
@@ -148,4 +153,36 @@ Manifest.prototype.addContent = function(content) {
 	});
 	this.save();
 };
+
+Manifest.prototype.zip = function() {
+	var zipName = air.File.applicationStorageDirectory.nativePath +
+		air.File.separator + "contents.zip";
+	var zipFile = new air.File(zipName);
+	var writer = new window.runtime.com.coltware.airxzip.ZipFileWriter();
+	writer.open(zipFile);
+	var currentFolder = new air.File(this.path);
+	writer.addDirectory(this.projectName);
+	
+	function addData(prefix, dirFile){
+		var files = dirFile.getDirectoryListing();
+		for (var i = 0; i < files.length; i++){
+			if (files[i].isDirectory) {
+                if (files[i].name !="." && files[i].name !="..") {
+					var nDir = new air.File(files[i].nativePath);
+					var nPrefix = prefix+air.File.separator+files[i].name;
+					writer.addDirectory(nPrefix);
+					addData(nPrefix, nDir);
+				}
+			} else {
+				var nFile = new air.File(files[i].nativePath);
+				writer.addFile(nFile,prefix+air.File.separator+files[i].name);
+			}
+		}
+		return false;	
+	};
+	
+	var res = addData(this.projectName, currentFolder);
+	writer.close();
+};
+
 

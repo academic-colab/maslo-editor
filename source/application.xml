@@ -15,4 +15,5 @@
     <image48x48>icons/logo48.png</image48x48>
     <image128x128>icons/logo128.png</image128x128>
   </icon>
+ <supportedProfiles>extendedDesktop desktop</supportedProfiles>
 </application>
