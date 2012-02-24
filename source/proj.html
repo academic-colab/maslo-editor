@@ -94,7 +94,7 @@ $(document).ready(function() {
 	$('#proj').text(gPageParams.name.toString());
 
 	// load manifest, render table of contents
-	gManifest = new Manifest(gPageParams.path);
+	gManifest = new Manifest(gPageParams.path, gPageParams.name);
 	gManifest.render($('#toc'));
 
 	$('form.quiz input[type="text"]').watermark('Name of Quiz');
