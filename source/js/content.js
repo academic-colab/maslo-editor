@@ -157,7 +157,7 @@ Image.prototype.save = function() {
 function Text(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.docFile = new FileCache(this.path);
-	this.icon = 'icons/text2.png';
+	this.icon = 'icons/text.png';
 	this.type = 'text';
 	this.docFile.val = "";
 }
@@ -196,7 +196,7 @@ Text.prototype.save = function() {
 
 function Audio(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
-	this.icon = 'icons/audio2.png';
+	this.icon = 'icons/audio.png';
 	this.type = 'audio';
 }
 Audio.prototype = new Content();
@@ -263,7 +263,7 @@ function Quiz(projectBase, title, idOrPath) {
 		var d = new air.File(this.path);
 		d.createDirectory();
 	}
-	this.icon = 'icons/quiz2.png';
+	this.icon = 'icons/quiz.png';
 	this.type = 'quiz';
 }
 Quiz.prototype = new Content();
@@ -353,7 +353,7 @@ function createAnswers(question){
 
 function Question(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
-	this.icon = 'icons/check.png';
+	this.icon = 'icons/question.png';
 	this.type = 'question';
 	this.answerFile = new FileCache(this.path);
 	createAnswers(this);
