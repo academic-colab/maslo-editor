@@ -44,12 +44,15 @@ Manifest.prototype.render = function(div) {
 	});
 };
 
-Manifest.prototype.data = function() {
-	var basePath = air.File.applicationStorageDirectory.nativePath +
+Manifest.prototype.data = function(convert) {
+	var basePath = null;
+	if (convert) {
+		basePath = air.File.applicationStorageDirectory.nativePath +
 		air.File.separator;
+	}
 	var ar = [];
 	var is = this.items();
-	for(var i in is) {
+	for(var i in is) {		
 		ar.push(is[i].metadata(basePath))
 		//ar.push(is[i].metadata())
 	}
@@ -67,7 +70,7 @@ Manifest.prototype.items = function() {
 };
 
 Manifest.prototype.save = function() {
-	this.file.val = JSON.stringify(this.data());
+	this.file.val = JSON.stringify(this.data(true));
 	this.file.flush();
 };
 
