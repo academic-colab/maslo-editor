@@ -25,6 +25,8 @@ function Content(projectBase, title, idOrPath) {
 	// if an outside path was specified, copy that file
 	if(typeof idOrPath == 'string' && idOrPath != '') {
 		var src = new air.File(idOrPath);
+		if (src.extension)
+			this.path = this.path + "." + src.extension;
 		var dst = new air.File(this.path);
 		src.copyTo(dst, true);
 	}
