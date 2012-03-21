@@ -13,8 +13,10 @@ function Content(projectBase, title, idOrPath, ext) {
 	this._base = projectBase;
 	this.extension = ext;
 	if (air.File.separator != "/"){
-		this._base = this._base.replace("/", air.File.separator);
+		this._base = this._base.replace(/\//g, air.File.separator);
 	}
+	this._project = projectBase.split(air.File.separator);
+	this._project = this._project[this._project.length - 1];
 	idOrPath   = idOrPath || '';
 	if(typeof idOrPath == 'number') {
 		this.id = idOrPath;
@@ -58,8 +60,10 @@ Content.prototype.metadata = function(basePath) {
 			var val = this[m];
 			if (m == "path" && basePath != null){
 				val = val.replace(basePath, "");
-				if (air.File.separator != "/")
-					val = val.replace(air.File.separator, "/");
+				if (air.File.separator != "/"){
+					var re = new RegExp("\\"+air.File.separator, "g");
+					val = val.replace(re, "/");
+				}
 			}
 			ret[m] = val;
 		}
@@ -278,9 +282,8 @@ Quiz.prototype = new Content();
 Quiz.prototype.constructor = Quiz;
 
 Quiz.prototype.render = function(div) {
-	var project = /([^\/]+)$/.exec(this._base)[0];
 	window.location = 'quiz.html?' + $.param(
-		{id:this.id, proj:project, title:this.title}, true);
+		{id:this.id, proj:this._project, title:this.title}, true);
 	return false;
 }
 
@@ -295,7 +298,7 @@ Quiz.prototype.preview = function(argDiv) {
 		var quiz = new Manifest(which.path);
 		var questions = quiz.data();
 		var question = questions[index];
-		var answerFile = new FileCache(question.path);
+		var answerFile = new FileCache(question.path); 
 		var answers = answerFile.val ?
 			JSON.parse(answerFile.val) : [];
 		div.append('<p>' + questions[index].title +'</p>');
