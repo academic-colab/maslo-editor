@@ -3,7 +3,7 @@
 // If idOrPath is a path, then the constructor will import the file
 // into the projectBase and give it a new unique name. If idOrPath is
 // a number, the constructed content will refer to an existing import.
-function Content(projectBase, title, idOrPath) {
+function Content(projectBase, title, idOrPath, ext) {
 	if(!projectBase) {
 		// when Content is used in prototypal inherience, these
 		// arguments will be unspecified
@@ -11,6 +11,7 @@ function Content(projectBase, title, idOrPath) {
 	}
 	this.type  = 'content'; // used in saving/loading object
 	this._base = projectBase;
+	this.extension = ext;
 	if (air.File.separator != "/"){
 		this._base = this._base.replace("/", air.File.separator);
 	}
@@ -21,12 +22,17 @@ function Content(projectBase, title, idOrPath) {
 		// prepare a new place within this project
 		this.id = this._uniqueId();
 	}
+	
 	this.path = this._base + air.File.separator + this.id;
+	if (this.extension && this.extension != "")
+		this.path += "." + this.extension
 	// if an outside path was specified, copy that file
 	if(typeof idOrPath == 'string' && idOrPath != '') {
 		var src = new air.File(idOrPath);
-		if (src.extension)
+		if (src.extension) {
 			this.path = this.path + "." + src.extension;
+			this.extension = src.extension;
+		}
 		var dst = new air.File(this.path);
 		src.copyTo(dst, true);
 	}
@@ -112,7 +118,7 @@ Content.prototype._uniqueId = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Image(projectBase, title, idOrPath) {
+function Image(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.icon = 'icons/image.png';
 	this.type = 'image'; // used in saving/loading object
@@ -156,7 +162,7 @@ Image.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Text(projectBase, title, idOrPath) {
+function Text(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.docFile = new FileCache(this.path);
 	this.icon = 'icons/text.png';
@@ -196,7 +202,7 @@ Text.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Audio(projectBase, title, idOrPath) {
+function Audio(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.icon = 'icons/audio.png';
 	this.type = 'audio';
@@ -258,7 +264,7 @@ Audio.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Quiz(projectBase, title, idOrPath) {
+function Quiz(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
 	// create new quiz directory if existing id not specified
 	if(typeof idOrPath != 'number') {
@@ -353,7 +359,7 @@ function createAnswers(question){
 	}
 }
 
-function Question(projectBase, title, idOrPath) {
+function Question(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.icon = 'icons/question.png';
 	this.type = 'question';
@@ -442,8 +448,8 @@ Question.prototype.addAnswer = function(answer, correct, feedback) {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Video(projectBase, title, idOrPath) {
-	Content.call(this, projectBase, title, idOrPath);
+function Video(projectBase, title, idOrPath, ext) {
+	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/video.png';
 	this.type = 'video';
 	// an AIR netstream object
@@ -534,7 +540,7 @@ Content.FromImport = function(projectBase, title, originalPath) {
 
 Content.FromMetadata = function(projectBase, md) {
 	var ctor = Content.TypeConstructor(md.type);
-	return new ctor(projectBase, md.title, md.id);
+	return new ctor(projectBase, md.title, md.id, md.extension);
 };
 
 Content.TypeConstructor = function(type) {
