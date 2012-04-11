@@ -327,8 +327,9 @@ Quiz.prototype.preview = function(argDiv) {
 			// or when there simply is no feedback for a selection
 			var feedback = i === undefined
 				? '' : answers[i].feedback;
+			div.empty();
 			if(feedback) {
-				div.empty();
+				
 				div.append('<p>' + feedback + '</p>');
 
 				// We are reusing this button as the continue button
@@ -338,8 +339,21 @@ Quiz.prototype.preview = function(argDiv) {
 				submit.text('Continue');
 				div.append(submit);
 			} else {
-				div.empty();
-				next();
+				var msg = "Incorrect!";
+				if (i === undefined) {
+					msg = "No answer selected.";
+				} else {
+					if (answers[i].correct == "checked")
+						msg = "Correct!";
+				}
+				div.append('<p>' + msg + '</p>');
+
+				// We are reusing this button as the continue button
+				// for the feedback screen. The whole screen is erased
+				// next time so it will reset to Submit.
+				submit.click(next);
+				submit.text('Continue');
+				div.append(submit);
 			}
 		});
 		div.append(submit);
