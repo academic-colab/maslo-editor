@@ -17,6 +17,7 @@ function Content(projectBase, title, idOrPath, ext) {
 	}
 	this._project = projectBase.split(air.File.separator);
 	this._project = this._project[this._project.length - 1];
+	
 	idOrPath   = idOrPath || '';
 	if(typeof idOrPath == 'number') {
 		this.id = idOrPath;
@@ -39,6 +40,8 @@ function Content(projectBase, title, idOrPath, ext) {
 		src.copyTo(dst, true);
 	}
 	this.title    = title;
+	this.attachments = [];
+	
 	// descriptions are associated by convention in an <id>.dsc file
 	this.descFile = new FileCache(this.path + '.dsc');	
 	this.icon     = 'icons/unknown.png';
@@ -66,7 +69,16 @@ Content.prototype.metadata = function(basePath) {
 				}
 			}
 			ret[m] = val;
-		}
+		}	
+	}
+	var attach = [];
+	
+	for (var a in this.attachments) {
+		a = this.attachments[a];
+		attach.push(a.metadata(basePath));
+	}
+	if (attach.length > 0){
+		ret["attachments"] = attach;
 	}
 	return ret; // wouldn't it be nice to have filter() in JS?
 }
@@ -123,7 +135,7 @@ Content.prototype._uniqueId = function() {
 
 
 function Image(projectBase, title, idOrPath, ext) {
-	Content.call(this, projectBase, title, idOrPath);
+	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/image.png';
 	this.type = 'image'; // used in saving/loading object
 }
@@ -147,8 +159,11 @@ Image.prototype.preview = function(div) {
 	var img = $('<img />');
 	img.attr('src', 'file://' + this.path);
 	div.append(img);
-	var p = $('<p>');
-	p.html(this.descFile.val);
+	var p = $('<p/>');
+	var descContent = this.descFile.val;
+	if (descContent.trim() == "")
+		descContent = descContent.trim();
+	p.html(descContent);
 	div.append(p);
 	return div;
 }
@@ -166,7 +181,7 @@ Image.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-function Text(projectBase, title, idOrPath, ext) {
+function Text(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.docFile = new FileCache(this.path);
 	this.icon = 'icons/text.png';
@@ -207,7 +222,7 @@ Text.prototype.save = function() {
 
 
 function Audio(projectBase, title, idOrPath, ext) {
-	Content.call(this, projectBase, title, idOrPath);
+	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/audio.png';
 	this.type = 'audio';
 }
@@ -286,8 +301,7 @@ Quiz.prototype.render = function(div) {
 		{id:this.id, proj:this._project, title:this.title}, true);
 	return false;
 }
-
-
+ 
 Quiz.prototype.preview = function(argDiv) {
 	
 	function doDisplay(which, div, argIndex){
@@ -301,12 +315,20 @@ Quiz.prototype.preview = function(argDiv) {
 		var answerFile = new FileCache(question.path); 
 		var answers = answerFile.val ?
 			JSON.parse(answerFile.val) : [];
-		div.append('<p>' + questions[index].title +'</p>');
+		var idx = (index+1);
+		div.append('<p><b>Question '+idx+'/'+questions.length+'</b><br/><br/>' + questions[index].title +'</p>');
+		for (var att in questions[index].attachments) {
+			attach = questions[index].attachments[att];
+			attach = Content.FromMetadata(which.path, attach);
+			attach.preview(div);
+		}
+		div.append('<p><b>Answers</b></p>');
 		for(var i in answers) {
 			var a = answers[i];
 			div.append('<input name="answer" value="' + i + '" type="radio" />');
 			div.append(a.text + '<br />');
 		}
+		div.append('<p/>');
 		var next = function() {
 			if(index+1 >= questions.length) {
 				div.empty();
@@ -358,6 +380,7 @@ Quiz.prototype.preview = function(argDiv) {
 		});
 		div.append(submit);
 	}
+	Content.prototype.preview.call(this, argDiv);
 	doDisplay(this, argDiv);
 	return argDiv;
 }
@@ -377,7 +400,8 @@ function createAnswers(question){
 }
 
 function Question(projectBase, title, idOrPath, ext) {
-	Content.call(this, projectBase, title, idOrPath);
+	Content.call(this, projectBase, title, idOrPath, ext);
+	
 	this.icon = 'icons/question.png';
 	this.type = 'question';
 	this.answerFile = new FileCache(this.path);
@@ -404,16 +428,37 @@ Question.prototype.save = function() {
 		this.answerFile.val = "{}";
 		this.answerFile.flush();
 	}
+	
+	
 };
 
 Question.prototype.render = function(div) {
 	div.append('<h6>Question</h6>');
 	Content.prototype.render.call(this, div);
 	createAnswers(this);
+	//var mediaDiv = $('<table></table>');
+	var mediaDiv = $('<div id="mediaDiv"></div>');
+	div.append(mediaDiv);
+	var add = $('<button class="small radius white button">Add media</button>');
+	var q = this;
+	
+	for (var idx = 0; idx < this.attachments.length; idx++){
+		var content = this.attachments[idx];
+		q.addMedia(mediaDiv, content, idx);
+	}
+	
+	add.click(function() {
+		chooseFile(function(e) {
+			var content = Content.FromImport(q._base, 'Untitled', e.target.url);
+			q.addMedia(mediaDiv, content);
+			return false;
+			});
+	});
+	div.append(add);
 	div.append(this._answerForm);
+	
 	var add = $('<button class="small radius white button">+ Add another answer</button>');
 
-	var q = this;
 	add.click(function() {
 		q.addAnswer();
 		return false;
@@ -421,6 +466,21 @@ Question.prototype.render = function(div) {
 	div.append(add);
 	return div;
 };
+
+Question.prototype.addMedia = function(mediaDiv, content, index){
+	var q = this;
+
+	if (index == null) {
+		q.attachments.push(content);
+		index = q.attachments.length -1;
+	}
+	mediaDiv.empty();
+	
+	var qManifest = new Manifest(q._base, q.title, this);
+	qManifest.render(mediaDiv);
+	return false;
+};
+
 
 Question.prototype.addAnswer = function(answer, correct, feedback) {
 	var a = $('<div class="answer"/>');
@@ -432,7 +492,7 @@ Question.prototype.addAnswer = function(answer, correct, feedback) {
 	);
 	a.append($('<label for="answer">Answer </label>'))
 	a.append(
-		$('<input type"text" size="35" name="answer" />')
+		$('<input type="text" size="35" name="answer" />')
 			.val(answer)
 	);
 	a.append(
@@ -523,8 +583,11 @@ Video.prototype.preview = function(div) {
 		Content.prototype.unrender.call(self);
 	};
 	div.append(playBtn);
-	var p = $('<p>');
-	p.html(this.descFile.val);
+	var p = $('<p/>');
+	var descContent = this.descFile.val;
+	if (descContent.trim() == "")
+		descContent = descContent.trim();
+	p.html(descContent);
 	div.append(p);
 	return div;
 }
@@ -557,7 +620,16 @@ Content.FromImport = function(projectBase, title, originalPath) {
 
 Content.FromMetadata = function(projectBase, md) {
 	var ctor = Content.TypeConstructor(md.type);
-	return new ctor(projectBase, md.title, md.id, md.extension);
+	var content = new ctor(projectBase, md.title, md.id, md.extension);
+	if (md.attachments != null) {
+		var attach = md.attachments;
+		for (var md in attach){
+			md = attach[md]
+			var attachment = Content.FromMetadata(projectBase, md);
+			content.attachments.push(attachment);
+		}
+	}
+	return content;
 };
 
 Content.TypeConstructor = function(type) {
@@ -566,3 +638,4 @@ Content.TypeConstructor = function(type) {
 	    "video": Video, "quiz": Quiz, "question": Question
 	}[type] || Content;
 };
+

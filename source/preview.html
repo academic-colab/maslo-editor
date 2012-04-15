@@ -81,7 +81,7 @@ $(document).ready(function() {
 	for(var c in items) {
 		c = items[c];
 		s.append("<option>" + c.title + "</option>");
-		var li = $('<li style="display:none"></li>');
+		var li = $('<li style="display:none"></li>');		
 		c.preview(li);
 		d.append(li);
 	}

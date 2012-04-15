@@ -1,12 +1,18 @@
 'use strict';
 
-function Manifest(path, name) {
+function Manifest(path, name, argObj) {
 	this.projectName = name;
 	this.path = path;
-	var f = new FileCache(path + air.File.separator + 'manifest');
-	var data = f.val ? JSON.parse(f.val) : [];
-	this.file = f;
-
+	this.obj = argObj;
+	var data = null;
+	if (this.obj != null) {
+		data = this.obj.attachments;
+	}
+	if (data == null) {
+		var f = new FileCache(path + air.File.separator + 'manifest');
+		data = f.val ? JSON.parse(f.val) : [];
+		this.file = f;
+	} 
 	this.tbl = $('\
 		<table>                                  \
 			<thead>                              \
@@ -30,8 +36,12 @@ function Manifest(path, name) {
 	);
 
 	for(var i in data) {
-		var content = Content.FromMetadata(path, data[i]);
-		this.addContent(content);
+		if (this.obj == null) {
+			var content = Content.FromMetadata(path, data[i]);		
+			this.addContent(content);
+		} else {
+			this.addContent(data[i]);
+		}
 	}
 }
 
@@ -54,7 +64,6 @@ Manifest.prototype.data = function(convert) {
 	var is = this.items();
 	for(var i in is) {		
 		ar.push(is[i].metadata(basePath))
-		//ar.push(is[i].metadata())
 	}
 	return ar;
 };
@@ -70,9 +79,17 @@ Manifest.prototype.items = function() {
 };
 
 Manifest.prototype.save = function() {
+	if (this.file != null) { 
 	this.file.val = JSON.stringify(this.data(true));
 	this.file.flush();
+	} else {
+		if (this.obj != null){
+			this.obj.attachments = this.items();
+		}
+	}
 };
+
+
 
 Manifest.prototype.addContent = function(content) {
 	var tr = $('<tr />');
