@@ -126,7 +126,8 @@ Manifest.prototype.addContent = function(content) {
 			manifest.edit.dialog({
 				autoOpen: true,
 				modal: true,
-				width: 540,
+				width: 550,
+				height:600,
 				position: 'top',
 				beforeClose: function(event) {
 					var result = true;

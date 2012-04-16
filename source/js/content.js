@@ -95,7 +95,7 @@ Content.prototype.save = function(title) {
 };
 
 Content.prototype.render = function(div) {
-	this._titleInput = $('<input type="text" size="55" class="title" />');
+	this._titleInput = $('<input type="text" size="69" class="title" />');
 	this._titleInput.val(this.title);
 	div.append(this._titleInput);
 	this._saved = false;
@@ -171,7 +171,12 @@ Image.prototype.preview = function(div) {
 Image.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
-		this.descFile.val = this._descInput.val();
+		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		newData = newData.replace(/&nbsp;/g, "");
+		if (newData.trim() == "")
+			this.descFile.val = newData;
+		else 
+			this.descFile.val = this._descInput.val();
 	}
 	this.descFile.flush();
 };
@@ -274,7 +279,12 @@ Audio.prototype.preview = function(div) {
 Audio.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
-		this.descFile.val = this._descInput.val();
+		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		newData = newData.replace(/&nbsp;/g, "");
+		if (newData.trim() == "")
+			this.descFile.val = newData;
+		else 
+			this.descFile.val = this._descInput.val();
 	}
 	this.descFile.flush();
 };
@@ -316,10 +326,14 @@ Quiz.prototype.preview = function(argDiv) {
 		var answers = answerFile.val ?
 			JSON.parse(answerFile.val) : [];
 		var idx = (index+1);
-		div.append('<p><b>Question '+idx+'/'+questions.length+'</b><br/><br/>' + questions[index].title +'</p>');
-		for (var att in questions[index].attachments) {
-			attach = questions[index].attachments[att];
-			attach = Content.FromMetadata(which.path, attach);
+		var qObj = Content.FromMetadata(which.path, questions[index]);
+		var questionDesc = qObj.descFile.val;
+		var questionTitle = qObj.title
+		if (questionDesc.trim() != "")
+			questionTitle = questionDesc;
+		div.append('<p><b>Question '+idx+'/'+questions.length+'</b><br/><br/>' + questionTitle +'</p>');
+		for (var att in qObj.attachments) { 
+			attach = qObj.attachments[att];
 			attach.preview(div);
 		}
 		div.append('<p><b>Answers</b></p>');
@@ -428,15 +442,28 @@ Question.prototype.save = function() {
 		this.answerFile.val = "{}";
 		this.answerFile.flush();
 	}
-	
+	if(this._descInput) {
+		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		newData = newData.replace(/&nbsp;/g, "");
+		if (newData.trim() == "")
+			this.descFile.val = newData;
+		else 
+			this.descFile.val = this._descInput.val();
+	}
+	this.descFile.flush();
 	
 };
 
 Question.prototype.render = function(div) {
-	div.append('<h6>Question</h6>');
+	div.append('<h6>Question Title</h6>');
 	Content.prototype.render.call(this, div);
+	div.append('<p/><h6>Question Text</h6>');	
+	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput.val(this.descFile.val);
+	this._descInput.addClass('description');
+	div.append(this._descInput);
 	createAnswers(this);
-	//var mediaDiv = $('<table></table>');
+	div.append('<hr/><p/><h6>Media</h6><br/>');
 	var mediaDiv = $('<div id="mediaDiv"></div>');
 	div.append(mediaDiv);
 	var add = $('<button class="small radius white button">Add media</button>');
@@ -455,6 +482,7 @@ Question.prototype.render = function(div) {
 			});
 	});
 	div.append(add);
+	div.append('<hr/><p/><h6>Answers</h6><br/>');
 	div.append(this._answerForm);
 	
 	var add = $('<button class="small radius white button">+ Add another answer</button>');
@@ -595,7 +623,12 @@ Video.prototype.preview = function(div) {
 Video.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
-		this.descFile.val = this._descInput.val();
+		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		newData = newData.replace(/&nbsp;/g, "");
+		if (newData.trim() == "")
+			this.descFile.val = newData;
+		else 
+			this.descFile.val = this._descInput.val();
 	}
 	this.descFile.flush();
 };
