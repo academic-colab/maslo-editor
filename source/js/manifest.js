@@ -85,6 +85,9 @@ Manifest.prototype.save = function() {
 	} else {
 		if (this.obj != null){
 			this.obj.attachments = this.items();
+			if (this.obj.attachments.length == 0){
+				this.tbl.hide();
+			}
 		}
 	}
 };
@@ -92,6 +95,7 @@ Manifest.prototype.save = function() {
 
 
 Manifest.prototype.addContent = function(content) {
+	this.tbl.show();
 	var tr = $('<tr />');
 	this.tbl.find('tbody').append(tr);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));

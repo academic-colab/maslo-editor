@@ -99,6 +99,7 @@ Content.prototype.render = function(div) {
 	this._titleInput.val(this.title);
 	div.append(this._titleInput);
 	this._saved = false;
+	$.cleditor.defaultOptions.height = 250;
 	return div;
 };
 
@@ -308,12 +309,11 @@ Quiz.prototype.constructor = Quiz;
 
 Quiz.prototype.render = function(div) {
 	window.location = 'quiz.html?' + $.param(
-		{id:this.id, proj:this._project, title:this.title}, true);
+		{id:this.id, proj:this._project, title:this.title}, true);		
 	return false;
 }
  
-Quiz.prototype.preview = function(argDiv) {
-	
+Quiz.prototype.preview = function(argDiv) {	
 	function doDisplay(which, div, argIndex){
 		div.empty();
 		var index = 0;
@@ -461,11 +461,12 @@ Question.prototype.render = function(div) {
 	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
+	$.cleditor.defaultOptions.height = 125;
 	div.append(this._descInput);
 	createAnswers(this);
 	div.append('<hr/><p/><h6>Media</h6><br/>');
 	var mediaDiv = $('<div id="mediaDiv"></div>');
-	div.append(mediaDiv);
+	div.append(mediaDiv);	
 	var add = $('<button class="small radius white button">Add media</button>');
 	var q = this;
 	
