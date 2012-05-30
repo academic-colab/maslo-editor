@@ -3,13 +3,14 @@
 	<link type="text/css" href="css/foundation.css" rel="stylesheet" />
 	<link type="text/css" href="css/screen.css" rel="stylesheet" />
 	<link type="text/css" href="css/jquery.selectBox.css" rel="stylesheet" />
+	<link type="text/css" href="css/maslo-theme/jquery-ui-1.8.16.custom.css" rel="stylesheet" /> 
 	<title>MASLO - Preview</title>
 </head>
 <body>
 	<header>
 	<h3><a href="index.html">My Content Packs</a> >
 		<a class="back" href="">hello</a> > Preview</h3>
-	<div class="extra"><a href="#" onclick="help()">Help</a><img src="icons/maslo_icon_logo.png" /></div>
+	<div class="extra"><a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;<a href="#" onclick="help()">Help</a><img src="icons/maslo_icon_logo.png" /></div>
 	</header>
 
 	<div id="focus">
@@ -39,22 +40,56 @@
 	</div>
 
 	<div class="action bottom">
-		<button class="nice small radius blue button" type="button">Publish</button>
+		<button class="nice small radius blue button" id="publish" type="button">Publish</button>
 		<button class="nice small radius blue button" id="back" type="button">Back</button>
 		<div class="clear"></div>
 	</div>
 
-
+	<div id="user-pass" style="display: none" title="Content Package Upload Details">
+		<form id="userPass" action="#">
+		<table>
+			<tbody>
+				<tr>
+					<td>User Name*</td>
+					<td><input type="text" size="55"  id="userName"/></td>
+				</tr>
+				<tr>
+					<td>Password*</td>
+					<td><input type="password" size="55"  id="userPassword"/></td>
+				</tr>
+				<tr>
+					<td colspan="2">&nbsp;</td>
+				</tr>
+				<tr>
+					<td>Content Pack Title</td>
+					<td><input type="text" size="55"  id="packTitle"/></td>
+				</tr>
+				<tr>
+					<td>Part of Course</td>
+					<td><input type="text" size="55"  id="courseId"/></td>
+				</tr>
+			</tbody>
+		</table>
+		</form>
+		*required
+	</div>
+	<div id="info-div"></div>
+	
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
 <script type="text/javascript" src="js/jquery.scroll.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"/>
+<script type="text/javascript" src="js/jquery.watermark.min.js"/>
 <script type="text/javascript" src="js/param.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
+<script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/filecache.js"></script>
 <script type="text/javascript" src="js/content.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
+<script type="application/x-shockwave-flash" src="flash/coltware_airxzip.swf" />
+<script type="text/javascript" src="js/upload.js"></script>
 <script type="text/javascript">
 
 // this will be called on page turn, and will be used to stop
@@ -69,10 +104,10 @@ $(document).ready(function() {
 	$('#back').click(function() {
 		window.location = 'proj.html?name=' + gPageParams.name;
 	});
-
+	
 	gPageParams.path = air.File.applicationStorageDirectory.nativePath +
 	                   air.File.separator + gPageParams.name;
-	var gManifest = new Manifest(gPageParams.path);
+	var gManifest = new Manifest(gPageParams.path, gPageParams.name);
 	// the visible TOC ui
 	var s = $('select');
 	// the hidden source of actual data
@@ -85,8 +120,22 @@ $(document).ready(function() {
 		c.preview(li);
 		d.append(li);
 	}
-
-
+	uploadPrefs();
+	
+	$("#publish").click(function(e) {
+		gManifest.zip();
+		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
+			air.File.separator + "contents.zip");
+		$("#instId").watermark("e.g. University of Wisconsin-Extension");
+		$("#serverURL").watermark("e.g. https://example.com/upload.php");
+		$("#packTitle").val(gManifest.projectName);
+		var res = passwordPrompt(numFiles, gManifest.projectName);
+		if (!res) {
+			configureUpload(true, true);
+		}	
+		return false;
+	});
+	
 // ----------------------- LOAD FIRST PAGE INTO PHONE ----------------------
 	$('div.canvas > ul li:eq(0)').toggle();
 	$("select option:first").attr('selected','selected');
@@ -128,54 +177,6 @@ $(document).ready(function() {
 		}
 		return false;
 	});
-
-
-	function presentQuestion(questions, index, canvas) {
-		canvas.empty();
-		canvas.append('<p>' + questions[index].question + '</p>');
-		for(var i in questions[index].answers) {
-			canvas.append('<input name="answer" value="' + i + '" type="radio" />');
-			canvas.append(questions[index].answers[i].text + '<br />');
-		}
-
-		// next is called both directly and in case of
-		// existing feedback in a click callback
-		var next = function() {
-			if(index+1 >= questions.length) {
-				canvas.empty();
-				canvas.append('<p>End of quiz.</p>');
-				var reset = $('<button class="nice small radius black button">Retry quiz</button>');
-				reset.click(function() {
-					presentQuestion(questions, 0, canvas);
-				});
-				canvas.append(reset);
-			} else {
-				presentQuestion(questions, index+1, canvas);
-			}
-		};
-		var submit = $('<button class="nice small radius black button" >Submit</button>');
-		submit.click(function() {
-			var i = $('input[name=answer]:checked').val();
-			// feedback is blank when no selection is made
-			// or when there simply is no feedback for a selection
-			var feedback = i === undefined
-				? '' : questions[index].answers[i].feedback;
-			if(feedback) {
-				canvas.empty();
-				canvas.append('<p>' + feedback + '</p>');
-
-				// We are reusing this button as the continue button
-				// for the feedback screen. The whole screen is erased
-				// next time so it will reset to Submit.
-				submit.click(next);
-				submit.text('Continue');
-				canvas.append(submit);
-			} else {
-				next();
-			}
-		});
-		canvas.append(submit);
-	}
 
 });
 </script>

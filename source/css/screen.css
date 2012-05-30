@@ -101,8 +101,16 @@ td.icon, th.icon {
 
 tbody tr {
   background-color: #ebf4f9;
+  /*background-color:#D7DBDD;*/
   border-bottom: 1px solid #444;
 }
+
+tbody td.fill {
+  border-top: 1px solid #AAA;
+  font-style: italic;
+  color: #666;
+}
+
 tbody tr:hover {
   background-color: white;
 }

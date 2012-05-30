@@ -1,10 +1,14 @@
 'use strict';
 
 function Manifest(path, name, argObj) {
+	/*this.parent = null
+	if (parPath != null)
+		this.parent = new Manifest(parPath);*/
 	this.projectName = name;
 	this.path = path;
 	this.obj = argObj;
 	var data = null;
+	this.versionData = null;
 	if (this.obj != null) {
 		data = this.obj.attachments;
 	}
@@ -12,36 +16,49 @@ function Manifest(path, name, argObj) {
 		var f = new FileCache(path + air.File.separator + 'manifest');
 		data = f.val ? JSON.parse(f.val) : [];
 		this.file = f;
+		var vFile = new FileCache(path + air.File.separator + 'version');
+		this.versionData = vFile.val ? JSON.parse(vFile.val) : {"version":"0", "status":"Unpublished"};
 	} 
-	this.tbl = $('\
-		<table>                                  \
+	//this.tbl = $('\
+	var tableString = '\
+		<table id="contentTable">                                  \
 			<thead>                              \
 				<tr>                             \
 					<th>Type</th>                \
-					<th class="big">Title</th>   \
-					<th class="big">Status</th>  \
-					<th>Remove</th>              \
+					<th class="big">Title</th>   ';
+					if (this.obj == null)
+						tableString += '<th class="big">Status</th>';
+	tableString += '<th>Remove</th>              \
 				</tr>                            \
 			</thead>                             \
 			<tbody class="proj">                 \
 			</tbody>                             \
-		</table>');
+		</table>';
+	this.tbl = $(tableString);
 	this.confirm = $('\
 		<div id="dialog-confirm" style="display: none" title="Delete Content"> \
 			<p>This content will be permanently deleted and cannot be          \
 			recovered. Are you sure?</p>                                       \
 		</div>');
 	this.edit = $(
-		'<div id="dialog-content" style="display: none" title="Edit Content"></div>'
-	);
-
+		'<div id="dialog-content" style="display: none" title="Edit Content"></div>');
+		
 	for(var i in data) {
 		if (this.obj == null) {
-			var content = Content.FromMetadata(path, data[i]);		
+			var content = Content.FromMetadata(path, data[i]);			
+			if (content.status == "Modified" || content.status == "Unpublished"){				
+				this.updateStatus(false);
+			}
 			this.addContent(content);
 		} else {
 			this.addContent(data[i]);
 		}
+	}
+	if (data.length == 0) {
+		this.tbl.show();
+		var tr = $('<tr id="fillRow"/>');
+		this.tbl.find('tbody').append(tr);
+		tr.append($('<td colspan="4" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
 	}
 }
 
@@ -78,10 +95,50 @@ Manifest.prototype.items = function() {
 	return ar;
 };
 
+Manifest.prototype.updateStatus = function(hitPublish){
+	if (this.obj == null) {
+	var versionModified = false;
+	if (this.versionData["status"] == "Published" && !hitPublish) {
+		this.versionData["status"] = "Modified";	
+		versionModified = true;
+	} else if (this.versionData["status"] == "Modified" || this.versionData["status"] == "Unpublished") {
+		if (hitPublish){
+			this.versionData["version"] = ""+(parseInt(this.versionData["version"])+1);
+			this.versionData["status"] = "Published";
+			versionModified = true;
+			var items = this.items();
+			for (var i = 0; i < items.length; i++){
+				var content = items[i];
+				if (content.type == "quiz"){
+					qManifest = new Manifest(content.path);
+					qManifest.updateStatus(true);
+					qManifest.save();
+				}
+				content.updateStatus(true);				
+			}
+		}
+	}
+	if (versionModified){
+		if (this.obj != null) {
+			this.versionData.version = "0";
+		}
+		var f = new FileCache(this.path + air.File.separator + 'version');
+		f.val = JSON.stringify(this.versionData);
+		f.flush();
+	}
+	}
+}
+
 Manifest.prototype.save = function() {
 	if (this.file != null) { 
-	this.file.val = JSON.stringify(this.data(true));
-	this.file.flush();
+		var data = this.data(true);
+		this.file.val = JSON.stringify(data);
+		this.file.flush();
+		if (data.length == 0){
+			var tr = $('<tr id="fillRow"/>');
+			this.tbl.find('tbody').append(tr);
+			tr.append($('<td colspan="4" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
+		}
 	} else {
 		if (this.obj != null){
 			this.obj.attachments = this.items();
@@ -95,12 +152,14 @@ Manifest.prototype.save = function() {
 
 
 Manifest.prototype.addContent = function(content) {
+	$("#fillRow").remove();
 	this.tbl.show();
 	var tr = $('<tr />');
 	this.tbl.find('tbody').append(tr);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
 	tr.append($('<td><a href="#">' + content.title + '</a></td>'));
-	tr.append($('<td>Unpublished</td>'));
+	if (this.obj == null)
+		tr.append($('<td><div>'+content.status+'</div></td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	tr.data('content', content);
 
@@ -114,6 +173,7 @@ Manifest.prototype.addContent = function(content) {
 				"Delete Content": function() {
 					tr.data('content').deleteFile();
 					tr.remove();
+					manifest.updateStatus(false);
 					manifest.save();
 					$( this ).dialog( "close" );
 				},
@@ -161,7 +221,10 @@ Manifest.prototype.addContent = function(content) {
 				 },
 				buttons: {
 					"Save": function() { 
+						c.updateStatus(false);
 						c.save();
+						tr.find('div').text(c.status);
+						manifest.updateStatus(false);
 						tr.find('a').text(c.title);
 						tr.data('content', c);
 						manifest.save();

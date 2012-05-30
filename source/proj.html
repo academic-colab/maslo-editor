@@ -9,24 +9,55 @@
 <body>
 	<header>
 	<h3><a href="index.html">My Content Packs</a> > <span id="proj"></span></h3>
-	<div class="extra"><a href="#" onclick="help()">Help</a><img src="icons/maslo_icon_logo.png" /></div>
+	<div class="extra"><a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;<a href="#" onclick="help()">Help</a><img src="icons/maslo_icon_logo.png" /></div>
 	</header>
 
 	<div id="toc"></div>
 
 	<div class="action">
-		<a class="alt nice small radius blue button" href="">+ Add Content</a>
+		<a class="alt nice small radius blue button" href="" id="addButton">+ Add Content</a>
 		<div class="alt">
 			<input type="text" length="10" />
 			<button type="button">OK</button>
 			<button type="button" class="cancel">Cancel</button>
 		</div>
-		<button type="button" class="nice small radius blue button">Publish</button>
+		<button type="button" class="nice small radius blue button" id="publish">Publish</button>
 		<button type="button" class="nice small radius blue button" id="preview">Preview</button>
 		<div class="clear"></div>
 	</div>
 
 <!------------------- DIALOGS --------------------- -->
+<div id="info-div" style="display: none" title="Info">
+</div>
+
+<div id="user-pass" style="display: none" title="Content Package Upload Details">
+	<form id="userPass" action="#">
+	<table>
+		<tbody>
+			<tr>
+				<td>User Name*</td>
+				<td><input type="text" size="55"  id="userName"/></td>
+			</tr>
+			<tr>
+				<td>Password*</td>
+				<td><input type="password" size="55"  id="userPassword"/></td>
+			</tr>
+			<tr>
+				<td colspan="2">&nbsp;</td>
+			</tr>
+			<tr>
+				<td>Content Pack Title</td>
+				<td><input type="text" size="55"  id="packTitle"/></td>
+			</tr>
+			<tr>
+				<td>Part of Course</td>
+				<td><input type="text" size="55"  id="courseId"/></td>
+			</tr>
+		</tbody>
+	</table>
+	</form>
+	*required
+</div>	
 
 <div id="dialog-add" style="display: none" title="Add Content">
 	<table>
@@ -42,7 +73,7 @@
 					<img src="icons/audio.png" height="16" width="16"/>
 					Audio:&nbsp;mp3,&nbsp;wav,&nbsp;aiff<br />
 					<img src="icons/video.png" height="16" width="16"/>
-					Video:&nbsp;mp4,&nbsp;avi,&nbsp;mov
+					Video:&nbsp;mp4
 				</td>
 			</tr>
 			<tr>
@@ -70,6 +101,7 @@
 </div>
 
 
+
 <script type="text/javascript" src="AIRAliases.js"/>
 <script type="text/javascript" src="js/json2.js"/>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"/>
@@ -81,12 +113,16 @@
 <script type="text/javascript" src="js/content.js"/>
 <script type="text/javascript" src="js/filecache.js"/>
 <script type="text/javascript" src="js/files.js"/>
+<script type="application/x-shockwave-flash" src="flash/coltware_airxzip.swf" />
 <script type="text/javascript" src="js/manifest.js"/>
 <script type="text/javascript" src="js/help.js"/>
+<script type="text/javascript" src="js/md5.js"/>
+<script type="text/javascript" src="js/sha256.js"/>
+<script type="text/javascript" src="js/upload.js"/>
+
 <script type="text/javascript">
 var gPageParams = queryParameters(document.location.search);
-gPageParams.path = air.File.applicationStorageDirectory.nativePath +
-	air.File.separator + gPageParams.name;
+gPageParams.path = getAppPath() + gPageParams.name;
 var gManifest;
 
 $(document).ready(function() {
@@ -103,9 +139,9 @@ $(document).ready(function() {
 	});
 
 	$('#preview').click(function() {
-		window.location = 'preview.html?name=' + gPageParams.name;
+		window.location = 'preview.html?name=' + gPageParams.name ;
 	});
-
+	uploadPrefs();
 	$('.action a.alt').click(function() {
 		$('#dialog-add').dialog({
 			autoOpen: true,
@@ -151,6 +187,22 @@ $(document).ready(function() {
 		$(this).find('input[name="proj"]').val(gPageParams.name);
 
 		return true;
+	});
+	
+	
+	$("#publish").click(function(e) {
+		gManifest.zip();
+		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
+			air.File.separator + "contents.zip");
+		$("#instId").watermark("e.g. University of Wisconsin-Extension");
+		$("#serverURL").watermark("e.g. https://example.com/upload.php");
+		$("#packTitle").val(gManifest.projectName);
+		var res = passwordPrompt(numFiles, gManifest.projectName, gManifest);
+		if (!res) {
+			configureUpload(true, true);
+		}
+		
+		return false;
 	});
 });
 </script>

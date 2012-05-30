@@ -45,12 +45,25 @@ function Content(projectBase, title, idOrPath, ext) {
 	// descriptions are associated by convention in an <id>.dsc file
 	this.descFile = new FileCache(this.path + '.dsc');	
 	this.icon     = 'icons/unknown.png';
+	this.status = "Unpublished";
 	this._saved = false;
 	this._confirm = $('\
 		<div id="dialog-confirm" style="display: none" title="Discard unsaved changes"> \
 			<p>You are about to close this edit window. \
 			Do you want to discard unsaved changes? \
 		</div>');
+}
+
+Content.prototype.updateStatus = function(didPublish){
+	if (didPublish){
+		if (this.status == "Unpublished" || this.status == "Modified") {
+			this.status = "Published";
+		}
+	} else {
+		if (this.status == "Published") { 
+			this.status = "Modified";
+		}
+	}
 }
 
 // Return this object but with members of only simple types
@@ -296,6 +309,7 @@ Audio.prototype.save = function() {
 
 function Quiz(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
+	this.status = status;
 	// create new quiz directory if existing id not specified
 	if(typeof idOrPath != 'number') {
 		var d = new air.File(this.path);
@@ -303,6 +317,15 @@ function Quiz(projectBase, title, idOrPath, ext) {
 	}
 	this.icon = 'icons/quiz.png';
 	this.type = 'quiz';
+	var quiz = new Manifest(this.path);
+	var questions = quiz.data();
+	this.status = quiz.versionData.status;
+	
+	for (var i = 0; i < questions.length; i++){
+		if (questions[i].status != this.status){
+			this.status = "Modified";
+		}
+	}
 }
 Quiz.prototype = new Content();
 Quiz.prototype.constructor = Quiz;
@@ -321,6 +344,11 @@ Quiz.prototype.preview = function(argDiv) {
 			index = argIndex;
 		var quiz = new Manifest(which.path);
 		var questions = quiz.data();
+		if (questions.length == 0 ){
+			var msg = "<p/><p/><p/><b>This quiz has no questions yet.</b>";
+			div.append(msg);
+			return;
+		}
 		var question = questions[index];
 		var answerFile = new FileCache(question.path); 
 		var answers = answerFile.val ?
@@ -389,13 +417,14 @@ Quiz.prototype.preview = function(argDiv) {
 				// next time so it will reset to Submit.
 				submit.click(next);
 				submit.text('Continue');
-				div.append(submit);
+				div.append(submit);				
 			}
 		});
 		div.append(submit);
+		div.append("<br/><br/><br/><br/>");
 	}
 	Content.prototype.preview.call(this, argDiv);
-	doDisplay(this, argDiv);
+	doDisplay(this, argDiv);	
 	return argDiv;
 }
 
@@ -449,8 +478,9 @@ Question.prototype.save = function() {
 			this.descFile.val = newData;
 		else 
 			this.descFile.val = this._descInput.val();
+		this.descFile.flush();
 	}
-	this.descFile.flush();
+	
 	
 };
 
@@ -654,7 +684,10 @@ Content.FromImport = function(projectBase, title, originalPath) {
 
 Content.FromMetadata = function(projectBase, md) {
 	var ctor = Content.TypeConstructor(md.type);
+	var status = ("status" in md) ? md.status : "Unpublished";
 	var content = new ctor(projectBase, md.title, md.id, md.extension);
+	if (content.status == "Unpublished")
+		content.status = status;
 	if (md.attachments != null) {
 		var attach = md.attachments;
 		for (var md in attach){

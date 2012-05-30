@@ -2,73 +2,31 @@
 function help() {
 	if ($("#dialog-help").length == 0) {
 	var divTag = $('<div id="dialog-help" title="About Maslo"></div>');
-	var text = "<h4>MASLO Frequently Asked Questions</h4>\
+	var text = "<h4>MASLO Help</h4><br/><br/>\
 	\
-	Q: What is MASLO?\
-	<br />\
-	A: MASLO stands for Mobile Access to Supplemental Learning Objects.\
-	It is an open source software system for authoring packages of\
-	supplemental learning materials and distributing them to mobile\
-	devices.\
-\
-	<br />\
-	<br />\
-	Q: What platforms does MASLO deliver content to?\
-	A: MASLO will publish to the iOS and Android platforms. As it is\
-	an open source project, developers are free to adapt the authoring\
-	software to publish to other platforms.\
-\
-	<br />\
-	<br />\
-	Q: Does MASLO publish to tablet devices?\
-	<br />\
-	A: MASLO is not designed to publish to tablet devices (i.e. iPad,\
-	Galaxy Tab, etc.) at this time.\
-\
-	<br />\
-	<br />\
-	Q: Is MASLO a learning management system (LMS)?\
-	<br />\
-	A: MASLO is not an LMS. It is designed to deliver supplemental\
-	materials for learners rather than hosting access to a full course.\
-	For this reason, the MASLO system does not support the delivery of\
-	traditional documents and presentations (i.e. .pdf, .doc, .ppt,\
-	etc.). Instead it is designed to deliver content in formats that\
-	are particularly well suited for smartphones and other handheld\
-	mobile devices.\
-\
-	<br />\
-	<br />\
-	Q: What kinds of supplemental learning materials does the MASLO\
-	system support?\
-	<br />\
-	A: Currently MASLO supports the creation and distribution of text,\
-	image, audio, video, and quiz items.\
-\
-	<br />\
-	<br />\
-	Q: What do I need in order to set up the MASLO system for teachers\
-	and learners in my organization or institution?\
-	<br />\
-	A: While the MASLO authoring tool only requires you to have Adobe\
-	AIR installed on your personal computer, in order to distribute\
-	content with the MASLO system you need to have the technical capacity\
-	to stand up your own instance of the iOS and Android applications\
-	in the iTunes App Store and Android Market, and establish an instance\
-	of the cloud distribution system. For more information on these\
-	technical requirements see insert link to appropriate section when\
-	available.\
-\
-	<br />\
-	<br />\
-	Q: Can MASLO be utilized to create learner generated content?\
-	<br />\
-	A: There are no technical features of MASLO designed to limit the\
-	production of learner generated content. However, because MASLO is\
-	designed to deliver content through in app purchasing your institution\
-	will need to develop a system that allows learners to populate\
-	content within your versions of the player apps if you want learner\
-	generated content in your system.";
+	<h5>Making new projects</h5><br/>\
+	In order to make a new project just click the +Add New Project button. Once you fill in the field with the name of your project click OK.\
+    <br/><br/>\
+	<h5>Navigation in MASLO</h5><br/>\
+	The 'breadcrumb' trail at the top of the screen can be used to navigate within the authoring tool. Any blue text will function as a link and will return you to the location indicated if you click on it. For instance, if you click on My Content Packs from inside a specific pack, you will be returned to the list of packs you have created.\
+	<br/><br/>\
+	Adding and deleting content\
+	In order to add a piece of content to the authoring tool just click the + Add Content button, and then select the content type you want to add. Upload allows you to upload Image, Audio, or Video files, Create Text allows you to author or paste in text content using a WYSIWYG editor, and Create Quiz allows you to create a quiz with multiple choice items. To delete content, just click the blue X on the far right of the list of items.\
+	<br/><br/>\
+	File types that work in MASLO</h5><br/>\
+	The MASLO system can accept the following file types:<br/>\
+	Image: .png, .jpg, .tiff, and .gif files including animated .gifs.<br/>\
+	Audio: .mp3, .wav, and .aiff<br/>\
+	Video: .mp4\
+	<br/><br/>\
+	<h5>Converting video files</h5><br/>\
+	If you have a non .mp4 video file that you want to include in a content pack you will need to convert the file to .mp4 before adding it to MASLO. File types other than .mp4 cannot be guaranteed to play on both iOS and Android devices. The VLC media player offers one freely accessible way to convert files to .mp4, but there are other options available.\
+	<br/><br/>\
+	Recommendations for video file size</h5><br/>\
+	Video files can rapidly expand the size of a content pack. In general larger files will eat up a users monthly data allowance if downloaded over a 3G connection, and if a pack exceeds 20MB, users will not be able to download it over 3G. Additionally, many videos are not shot with viewing on small screens in mind. For these reasons, it is advisable to minimize the use of video when possible and to use shorter smaller videos to ensure that learners will be able to access content packs.\
+	<br/><br/>\
+	<h5>Creating Math Content</h5><br/>\
+	The current version of MASLO does not support the use of MathML to create math content. Although iOS and Android will render MathML, Adobe AIR does not. Developers are looking into a work around for implementing MathML in the authoring tool. In the meantime, mathematical expressions can be included in a content pack by rendering them as image files.";
 	
 	divTag.append(text);
 	$("body").append(divTag);
@@ -85,3 +43,4 @@ function help() {
 	});	
 	return false;
 }
+

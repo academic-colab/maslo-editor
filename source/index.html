@@ -9,7 +9,7 @@
 	<div id="edit" class="ui-tabs-hide">
 		<header>
 		<h3>My Content Packs</h3>
-		<div class="extra"><a href="#" onclick="help();return false;">Help</a><img src="icons/maslo_icon_logo.png" /></div>
+		<div class="extra"><a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;<a href="#" onclick="help();return false;">Help</a><img src="icons/maslo_icon_logo.png" /></div>
 		</header>
 		<table>
 			<thead>
@@ -39,13 +39,16 @@
 		will be permanently deleted and cannot be recovered.
 		Are you sure?</p>
 	</div>
+	<div id="info-div"></div>
 </body>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cuteTime.min.js"></script>
 <script type="text/javascript" src="js/files.js"></script>
+<script type="text/javascript" src="js/filecache.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
+<script type="text/javascript" src="js/upload.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 
@@ -55,6 +58,9 @@ $(document).ready(function() {
 	var files = directory.getDirectoryListing();  
 	for (var f in files) {
 		if (files[f].isDirectory) {
+			var versionPath = files[f].nativePath + air.File.separator + 'version'
+			var version = new FileCache(versionPath);
+			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
 			var tr = $('<tr />');
 			tr.append($('<td><a href="proj.html?name='
 				+ escape(files[f].name) + '" name="'
@@ -64,11 +70,12 @@ $(document).ready(function() {
 			var d = new Date();
 			d.setTime(recursiveModified(files[f].nativePath));
 			tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) + '</td>'));
-			tr.append($('<td>Unpublished</td>'));
+			tr.append($('<td>'+versionData["status"]+'</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			$('tbody').append(tr);
 		}
 	}
+	uploadPrefs();
 	$('.action input').watermark('Name of Project');
 
 
