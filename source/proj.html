@@ -30,7 +30,7 @@
 <div id="info-div" style="display: none" title="Info">
 </div>
 
-<div id="user-pass" style="display: none" title="Content Package Upload Details">
+<div id="user-pass" style="display: none" title="Content Package Upload Login">
 	<form id="userPass" action="#">
 	<table>
 		<tbody>
@@ -43,21 +43,17 @@
 				<td><input type="password" size="55"  id="userPassword"/></td>
 			</tr>
 			<tr>
-				<td colspan="2">&nbsp;</td>
-			</tr>
-			<tr>
-				<td>Content Pack Title</td>
-				<td><input type="text" size="55"  id="packTitle"/></td>
-			</tr>
-			<tr>
-				<td>Part of Course</td>
-				<td><input type="text" size="55"  id="courseId"/></td>
+				<td colspan="2">&nbsp;<input type="hidden" id="packTitle"/></td>				
 			</tr>
 		</tbody>
 	</table>
 	</form>
 	*required
 </div>	
+
+<div id="confirm-div" style="display: none" title="Confirm Upload">
+	<b>This will upload the selected content pack. Are you sure you want to proceed?</b>	
+</div>
 
 <div id="dialog-add" style="display: none" title="Add Content">
 	<table>
@@ -197,10 +193,7 @@ $(document).ready(function() {
 		$("#instId").watermark("e.g. University of Wisconsin-Extension");
 		$("#serverURL").watermark("e.g. https://example.com/upload.php");
 		$("#packTitle").val(gManifest.projectName);
-		var res = passwordPrompt(numFiles, gManifest.projectName, gManifest);
-		if (!res) {
-			configureUpload(true, true);
-		}
+		confirmUpload(numFiles, gManifest.projectName, gManifest);
 		
 		return false;
 	});

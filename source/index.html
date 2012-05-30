@@ -21,7 +21,7 @@
 					<th>Remove</th>
 				</tr>
 			</thead>
-			<tbody></tbody>
+			<tbody id="contentBody"></tbody>
 		</table>
 
 		<div class="action">
@@ -40,6 +40,28 @@
 		Are you sure?</p>
 	</div>
 	<div id="info-div"></div>
+	<div id="user-pass" style="display: none" title="Maslo Authoring Tool Sign In">
+		<form id="userPass" action="#">
+		<table>
+			<tbody>
+				<tr>
+					<td>User Name*</td>
+					<td><input type="text" size="55"  id="userName"/></td>
+				</tr>
+				<tr>
+					<td>Password*</td>
+					<td><input type="password" size="55"  id="userPassword"/></td>
+				</tr>
+				<tr>
+					<td colspan="2">&nbsp;</td>
+				</tr>
+
+			</tbody>
+		</table>
+		</form>
+		*required
+	</div>
+	
 </body>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
@@ -54,6 +76,7 @@
 
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
+	
 	var directory = air.File.applicationStorageDirectory; 
 	var files = directory.getDirectoryListing();  
 	for (var f in files) {
@@ -72,12 +95,12 @@ $(document).ready(function() {
 			tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) + '</td>'));
 			tr.append($('<td>'+versionData["status"]+'</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
-			$('tbody').append(tr);
+			$('#contentBody').append(tr);
 		}
 	}
 	uploadPrefs();
 	$('.action input').watermark('Name of Project');
-
+	
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 	$('.action a.alt, .action .cancel').click(function() {

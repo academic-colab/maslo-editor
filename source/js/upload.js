@@ -2,7 +2,7 @@
 
 var uploadManifest = null;
 
-function postMessage(msg){
+function postMessage(msg, fun){
 	$("#info-div").html(msg);
 	$('#info-div').dialog({
 		autoOpen: true,
@@ -11,6 +11,9 @@ function postMessage(msg){
 		position: 'center',
 		buttons: {
 			"OK": function() {
+				if (fun != null) {
+					fun();
+				}
 				$(this).dialog("close");
 			}
 		}
@@ -83,7 +86,12 @@ function fileUploader(urlRequest, serial, totalNum){
 }
 
 
-
+function errorContact(event){
+	var msg = "Server URL configured in your settings ("+jsonData.serverURL+") cannot be contacted. \
+	Please check your configuration and network availability.";			
+	postMessage(msg);
+	return false;
+}
 
 function doUpload(numFiles,dirName,sessionId){
 	
@@ -95,11 +103,12 @@ function doUpload(numFiles,dirName,sessionId){
 		This functionality will soon be available together with the appropriate backend software."
 	postMessage(text);*/
 	var jsonData = JSON.parse(f.val);
-	var url = jsonData.serverURL;
+	var url = jsonData.serverURL + "/upload.php";
 	var instId = jsonData.instId;
 	
 	var urlRequest = new air.URLRequest(url); 
 	var urlVariables = new air.URLVariables();
+	var userData = getUser();
 	
 	if (sessionId == null){
 		urlVariables.handshake = "true";
@@ -111,7 +120,9 @@ function doUpload(numFiles,dirName,sessionId){
 		            //air.trace("completeHandlerHandshake: " + loader.data);
 					return doUpload(numFiles, dirName, loader.data);
 		}
+
 		loader.addEventListener(air.Event.COMPLETE, completeHandlerHandshake);
+		loader.addEventListener(air.IOErrorEvent.IO_ERROR, errorContact);
 		loader.load(urlRequest);
 	} else {
 	
@@ -120,10 +131,10 @@ function doUpload(numFiles,dirName,sessionId){
 	// string to be sent.
 	// It is still highly recommended to use proper SSL encryption, but at least this
 	// scheme will not make it completely obvious what the user's password is
-	var pw = CryptoJS.MD5($("#userPassword").val())+CryptoJS.SHA256(sessionId);
+	var pw = CryptoJS.MD5(userData[1])+CryptoJS.SHA256(sessionId);
 	pw = CryptoJS.SHA256(pw);
 	//air.trace(pw);
-	urlVariables.userName = $("#userName").val();
+	urlVariables.userName = userData[0];
 	urlVariables.password = pw;
 	urlVariables.institutionId = instId;
 	urlVariables.packTitle = $("#packTitle").val();
@@ -140,11 +151,13 @@ function doUpload(numFiles,dirName,sessionId){
 				if (loader.data == "OK.") {
 					fileUploader(urlRequest, 0, numFiles);
 				} else {
+					removeUser();
 					var msg = "Upload denied. Check your user name/password settings."
 					postMessage(msg);
 				}
 	}
 	loader.addEventListener(air.Event.COMPLETE, completeHandler);
+	loader.addEventListener(air.IOErrorEvent.IO_ERROR, errorContact);
 	loader.load(urlRequest);
 	
 	
@@ -203,29 +216,56 @@ function checkFormValues(uName, password){
 	return true;
 }
 
-function passwordPrompt(numFiles, dirName, gManifest){
-	uploadManifest = null;
-	uploadManifest = gManifest;
-	if (saveUploadSettings(false)) {
-	  $('#user-pass').dialog({
+function confirmUpload(numFiles, dirName, gManifest){
+	$('#confirm-div').dialog({
 		autoOpen: true,
 		modal: true,
 		width: 650,
-		position: 'top',
+		position: 'center',
 		buttons: {
-			"OK": function() {
-				if (checkFormValues($("#userName"),$("#userPassword"))) {
+			"Continue": function() {
 					$(this).dialog("close");
-					var result = doUpload(numFiles, dirName);
-				}
-				
+					var res = passwordPrompt(numFiles, gManifest.projectName, gManifest);
+					if (!res) {
+						configureUpload(true, true);
+					}
 			},
 			"Cancel": function() { 
 				$(this).dialog("close"); 
 			}
 		}
-	  });
-	  return true;
+	  });	
+}
+
+function passwordPrompt(numFiles, dirName, gManifest){
+	uploadManifest = null;
+	uploadManifest = gManifest;
+	var userData = getUser();
+	if (saveUploadSettings(false)) {
+		if (userData[0] == null) {
+			$('#user-pass').dialog({
+				autoOpen: true,
+				modal: true,
+				width: 650,
+				position: 'top',
+				buttons: {
+					"Upload": function() {
+						if (checkFormValues($("#userName"),$("#userPassword"))) {
+							addUser($("#userName").val(), $("#userPassword").val());
+							$(this).dialog("close");
+							var result = doUpload(numFiles, dirName);
+						}
+
+					},
+					"Cancel": function() { 
+						$(this).dialog("close"); 
+					}
+				}
+			  });
+		} else {			
+			var result = doUpload(numFiles, dirName);
+		}
+	 return true; 
 	}
 	return false;
 }
@@ -291,4 +331,123 @@ function splitZipFile(path){
 	zipFile = new air.File(path+".old");
 	zipFile.deleteFile();
 	return i;
+}
+
+function removeUser() { 
+	air.EncryptedLocalStore.removeItem( 'userName' ); 
+	air.EncryptedLocalStore.removeItem( 'password' );
+}
+
+function getUser(){
+	var userName = air.EncryptedLocalStore.getItem( 'userName' );
+	var pass = air.EncryptedLocalStore.getItem( 'password' );
+	var uName = null;
+	var uPass = null;
+	if (userName != null) {
+		uName = userName.readUTFBytes(userName.bytesAvailable);
+		uPass = pass.readUTFBytes(pass.bytesAvailable);
+	}
+	return [uName, uPass];
+}
+
+function addUser(userName, userPW){
+	var data = new air.ByteArray(); 
+	data.writeUTFBytes( userName ); 
+	air.EncryptedLocalStore.setItem( 'userName', data ); 
+	data = new air.ByteArray(); data.writeUTFBytes( userPW ); 
+	air.EncryptedLocalStore.setItem( 'password', data );
+	return false;
+}
+
+function verifyUserCred(sessionId){
+	var f = new FileCache(getAppPath() + air.File.separator + 'uploadSettings.config');
+	if (!f.val){
+		postMessage("Your upload server settings are not configured yet. Please login as 'guest' and then configure in 'Settings'.");
+		return false;
+	}
+
+	var jsonData = JSON.parse(f.val);
+	var url = jsonData.serverURL + "/login.php";
+
+	var urlRequest = new air.URLRequest(url); 
+	var urlVariables = new air.URLVariables();
+	var userData = getUser();
+
+	if (sessionId == null){
+		urlVariables.handshake = "true";
+		urlRequest.method = air.URLRequestMethod.POST; 		
+		urlRequest.data = urlVariables;
+		var loader = new air.URLLoader();
+		var completeHandlerHandshake = function(event) {
+		            var loader = air.URLLoader(event.target);
+					return verifyUserCred(loader.data);
+		}
+		var errorHandshake = function(event){
+			var msg = "Server URL configured in your settings ("+jsonData.serverURL+") cannot be contacted. \
+			Please check your configuration and network availability.\n\nYou will be logged in as 'guest'.";			
+			var arg = function(){document.location.href="index.html";}
+			postMessage(msg, arg);
+			removeUser();
+			return false;
+		}
+		loader.addEventListener(air.Event.COMPLETE, completeHandlerHandshake);
+		loader.addEventListener(air.IOErrorEvent.IO_ERROR, errorHandshake)
+		loader.load(urlRequest);
+	} else {
+		// pw will be MD5'ed , then concatenated with SHA256'ed sessionId.
+		// The end result will be SHA256'ed again and leads to the final
+		// string to be sent.
+		// It is still highly recommended to use proper SSL encryption, but at least this
+		// scheme will not make it completely obvious what the user's password is
+		var pw = CryptoJS.MD5(userData[1])+CryptoJS.SHA256(sessionId);
+		pw = CryptoJS.SHA256(pw);
+		urlVariables.userName = userData[0];
+		urlVariables.password = pw;
+		urlRequest.method = air.URLRequestMethod.POST; 		
+		urlRequest.data = urlVariables;	
+		var loader = new air.URLLoader();
+		var completeHandler = function(event) {
+		            var loader = air.URLLoader(event.target);
+		            air.trace("completeHandler: " + loader.data);
+					if (loader.data == "OK.") {
+						document.location.href="index.html";
+					} else {
+						removeUser();
+						initUser();
+						var msg = "Login failed. Check your user name/password or log in as 'guest'.";
+						postMessage(msg);
+					}
+		}
+		loader.addEventListener(air.Event.COMPLETE, completeHandler);
+		loader.load(urlRequest);
+	}
+	return false;
+}
+
+function initUser(){
+	var data = getUser();
+	if (data[0] != null)
+		return false;
+	$('#user-pass').dialog({
+		autoOpen: true,
+		modal: true,
+		width: 650,
+		position: 'center',
+		buttons: {
+			"Login": function() {
+				if (checkFormValues($("#userName"),$("#userPassword"))) {
+					var userName = $("#userName").val();
+					var userPW = $("#userPassword").val();
+					addUser(userName, userPW);
+					verifyUserCred();
+					$(this).dialog("close");
+				}
+			},
+			"Login as guest": function() { 
+				$(this).dialog("close"); 
+				document.location.href="index.html";
+			}
+		}
+	  });
+	return false;	
 }

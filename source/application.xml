@@ -3,7 +3,7 @@
   <version>0.1</version>
   <filename>MASLO</filename>
   <initialWindow>
-    <content>index.html</content>
+    <content>start.html</content>
     <visible>true</visible>
     <width>1000</width>
     <height>750</height>
