@@ -1,6 +1,7 @@
 'use strict';
 
 var uploadManifest = null;
+var currentUrl = null;
 
 function postMessage(msg, fun){
 	$("#info-div").html(msg);
@@ -87,7 +88,7 @@ function fileUploader(urlRequest, serial, totalNum){
 
 
 function errorContact(event){
-	var msg = "Server URL configured in your settings ("+jsonData.serverURL+") cannot be contacted. \
+	var msg = "Server URL configured in your settings ("+currentUrl+") cannot be contacted. \
 	Please check your configuration and network availability.";			
 	postMessage(msg);
 	return false;
@@ -105,7 +106,7 @@ function doUpload(numFiles,dirName,sessionId){
 	var jsonData = JSON.parse(f.val);
 	var url = jsonData.serverURL + "/upload.php";
 	var instId = jsonData.instId;
-	
+	currentUrl = jsonData.serverURL;
 	var urlRequest = new air.URLRequest(url); 
 	var urlVariables = new air.URLVariables();
 	var userData = getUser();
@@ -117,7 +118,7 @@ function doUpload(numFiles,dirName,sessionId){
 		var loader = new air.URLLoader();
 		var completeHandlerHandshake = function(event) {
 		            var loader = air.URLLoader(event.target);
-		            //air.trace("completeHandlerHandshake: " + loader.data);
+		            air.trace("completeHandlerHandshake: " + loader.data);
 					return doUpload(numFiles, dirName, loader.data);
 		}
 

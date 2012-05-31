@@ -191,7 +191,7 @@ $(document).ready(function() {
 		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
 			air.File.separator + "contents.zip");
 		$("#instId").watermark("e.g. University of Wisconsin-Extension");
-		$("#serverURL").watermark("e.g. https://example.com/upload.php");
+		$("#serverURL").watermark("e.g. https://example.com/");
 		$("#packTitle").val(gManifest.projectName);
 		confirmUpload(numFiles, gManifest.projectName, gManifest);
 		
