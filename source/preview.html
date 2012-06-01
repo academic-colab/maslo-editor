@@ -74,6 +74,9 @@
 		*required
 	</div>
 	<div id="info-div"></div>
+	<div id="confirm-div" style="display: none" title="Confirm Upload">
+		<b>This will upload the selected content pack. Are you sure you want to proceed?</b>	
+	</div>
 	
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
@@ -87,9 +90,14 @@
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/filecache.js"></script>
 <script type="text/javascript" src="js/content.js"></script>
-<script type="text/javascript" src="js/manifest.js"></script>
+
 <script type="application/x-shockwave-flash" src="flash/coltware_airxzip.swf" />
-<script type="text/javascript" src="js/upload.js"></script>
+<script type="text/javascript" src="js/manifest.js"/>
+<script type="text/javascript" src="js/help.js"/>
+<script type="text/javascript" src="js/md5.js"/>
+<script type="text/javascript" src="js/sha256.js"/>
+<script type="text/javascript" src="js/upload.js"/>
+
 <script type="text/javascript">
 
 // this will be called on page turn, and will be used to stop
@@ -122,7 +130,7 @@ $(document).ready(function() {
 	}
 	uploadPrefs();
 	
-	$("#publish").click(function(e) {
+	/*$("#publish").click(function(e) {
 		gManifest.zip();
 		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
 			air.File.separator + "contents.zip");
@@ -133,6 +141,19 @@ $(document).ready(function() {
 		if (!res) {
 			configureUpload(true, true);
 		}	
+		return false;
+	});*/
+	
+	$("#publish").click(function(e) {
+		gManifest.zip();
+		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
+			air.File.separator + "contents.zip");
+		air.trace("here");
+		$("#instId").watermark("e.g. University of Wisconsin-Extension");
+		$("#serverURL").watermark("e.g. https://example.com/");
+		$("#packTitle").val(gManifest.projectName);
+		confirmUpload(numFiles, gManifest.projectName, gManifest);
+		
 		return false;
 	});
 	

@@ -363,7 +363,10 @@ function addUser(userName, userPW){
 function verifyUserCred(sessionId){
 	var f = new FileCache(getAppPath() + air.File.separator + 'uploadSettings.config');
 	if (!f.val){
-		postMessage("Your upload server settings are not configured yet. Please login as 'guest' and then configure in 'Settings'.");
+		var  msg = "Your upload server settings are not configured yet. \nYou will be logged in as 'guest'\
+		and then be able to create your server configurations in 'Settings'.";
+		var arg = function(){document.location.href="index.html";}
+		postMessage(msg, arg);
 		return false;
 	}
 
