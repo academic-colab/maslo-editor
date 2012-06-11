@@ -26,6 +26,17 @@ img.remove {
   cursor: pointer;
 }
 
+div.renameDiv {
+	font-size:14px;
+	display: none;
+	float: right;
+}
+
+div#rename {
+	display:none;
+	z-index:4;  
+}
+
 div.action, header {
 	background-image: linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
 	background-image: -o-linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);

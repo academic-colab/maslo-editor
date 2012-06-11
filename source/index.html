@@ -33,7 +33,14 @@
 			</div>
 			<div class="clear"></div>
 		</div>
+		
+		<div id="rename">
+			<input type="text" id="projectName" length="10" />
+			<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
+			<button type="button" class="cancel nice small radius white button" onClick="$('#rename').hide();">Cancel</button>
+		</div>
 	</div>
+	
 	<div id="dialog-confirm" style="display: none" title="Delete Content">
 		<p>The content pack "<span id="condemned"></span>"
 		will be permanently deleted and cannot be recovered.
@@ -87,7 +94,7 @@ $(document).ready(function() {
 			var tr = $('<tr />');
 			tr.append($('<td><a href="proj.html?name='
 				+ escape(files[f].name) + '" name="'
-				+ files[f].name + '"">' + files[f].name + '</a></td>'));
+				+ files[f].name + '"">' + files[f].name + '</a><div class="renameDiv"><a href="#">rename</a></div></td>'));
 			tr.append($('<td>'
 				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
@@ -95,6 +102,8 @@ $(document).ready(function() {
 			tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) +'<input type="hidden" class="timeSeconds" value="'+d.getTime()+'"/></td>'));
 			tr.append($('<td>'+versionData["status"]+'</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
+			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
+			tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
 			$('#contentBody').append(tr);
 		}
 	}
@@ -103,6 +112,40 @@ $(document).ready(function() {
 	
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
+
+	$('.renameDiv a').click(function(e){
+		var td = $(this).parent().parent().find("a:first");
+		var oldTd = $(this).parent().parent().parent().find("td:first").find("a:first");
+		var projectName = td.html();
+		$("#projectName").val(projectName);
+		
+		$('#rename').css({'top':e.pageY,'left':e.pageX}).show();
+		$('#rename button.ok').attr('disabled', $("#projectName").val() == '');
+		$('#rename button.ok').unbind('click');
+		$('#rename button.ok').click(function(e){
+			var newdir = air.File.applicationStorageDirectory.resolvePath(
+				$("#projectName").val());
+			if (newdir.exists){
+				alert("Cannot rename to an already existing project.");
+				$('#rename').hide();
+				return false;
+			}
+			newdir.createDirectory();
+			var olddir = air.File.applicationStorageDirectory.resolvePath(
+				projectName);
+			olddir.moveTo(newdir, true);
+			var newHref = 'proj.html?name='+ escape($("#projectName").val());
+			oldTd.attr('href', newHref);
+			oldTd.attr('name', $("#projectName").val());
+			oldTd.html($("#projectName").val());
+			$('#rename').hide();
+			return false;
+			
+		});
+	});
+	
+	
+
 	$('.action a.alt, .action .cancel').click(function() {
 		// both the Add Project link and the creation form have the class
 		// "alt" meaning alternate, and they switch
