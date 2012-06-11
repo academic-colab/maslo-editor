@@ -92,7 +92,7 @@ $(document).ready(function() {
 				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
 			d.setTime(recursiveModified(files[f].nativePath));
-			tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) + '</td>'));
+			tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) +'<input type="hidden" class="timeSeconds" value="'+d.getTime()+'"/></td>'));
 			tr.append($('<td>'+versionData["status"]+'</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			$('#contentBody').append(tr);
