@@ -11,13 +11,13 @@
 		<h3>My Content Packs</h3>
 		<div class="extra"><a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;<a href="#" onclick="help();return false;">Help</a><img src="icons/maslo_icon_logo.png" /></div>
 		</header>
-		<table>
+		<table class="sortable">
 			<thead>
 				<tr>
-					<th class="big">Title</th>
-					<th class="big">Size</th>
-					<th class="big">Last Modified</th>
-					<th class="big">Status</th>
+					<th class="big"><span style="cursor: pointer;">Titles</span></th>
+					<th class="big"><span style="cursor: pointer;">Size</span></th>
+					<th class="big"><span style="cursor: pointer;">Last Modified</span></th>
+					<th class="big"><span style="cursor: pointer;">Status</span></th>
 					<th>Remove</th>
 				</tr>
 			</thead>
@@ -78,6 +78,7 @@
 <script type="text/javascript" src="js/filecache.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript" src="js/upload.js"></script>
+<script type="text/javascript" src="js/sorttable.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript">
 
@@ -103,7 +104,7 @@ $(document).ready(function() {
 				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
 			d.setTime(recursiveModified(files[f].nativePath));
-			tr.append($('<td>' + $.cuteTime({}, d.toUTCString()) +'<input type="hidden" class="timeSeconds" value="'+d.getTime()+'"/></td>'));
+			tr.append($('<td name="'+ d.getTime() +'">'  + $.cuteTime({}, d.toUTCString()) + '</td>'));
 			tr.append($('<td>'+versionData["status"]+'</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
