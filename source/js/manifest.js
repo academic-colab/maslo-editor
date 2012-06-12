@@ -156,8 +156,14 @@ Manifest.prototype.addContent = function(content) {
 	this.tbl.show();
 	var tr = $('<tr />');
 	this.tbl.find('tbody').append(tr);
+	var cTitle = content.title;
+	var aTitle = "";
+	if (cTitle.length > 60 ) {
+		cTitle = cTitle.substr(0,59) + "...";
+		aTitle = 'title=" - '+content.title+'"';
+	}
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
-	tr.append($('<td><a href="#">' + content.title + '</a></td>'));
+	tr.append($('<td><a class="title" href="#" '+aTitle+'>' + cTitle + '</a></td>'));
 	if (this.obj == null)
 		tr.append($('<td><div>'+content.status+'</div></td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
@@ -225,7 +231,11 @@ Manifest.prototype.addContent = function(content) {
 						c.save();
 						tr.find('div').text(c.status);
 						manifest.updateStatus(false);
-						tr.find('a').text(c.title);
+						var cTitle = c.title;
+						if (cTitle.length > 60){
+							cTitle = cTitle.substr(0,59) + "...";
+						}
+						tr.find('a').text(cTitle);
 						tr.data('content', c);
 						manifest.save();
 						$(this).dialog("close"); 

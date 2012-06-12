@@ -31,6 +31,7 @@
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.selectBox.min.js"></script>
+<script type="text/javascript" src="js/jquery.tooltip.min.js"></script>
 <script type="text/javascript" src="js/jquery.cleditor.js"></script>
 <script type="text/javascript" src="js/urldecode.js"></script>
 <script type="text/javascript" src="js/param.js"></script>
@@ -52,8 +53,33 @@ $(document).ready(function() {
 	               gProj, gPageParams.id].join(air.File.separator);
 
 	$('a.back').attr('href', 'proj.html?name=' + gProj);
-	$('a.back').text(gProj.toString());
-	$('span.current').text(gName.toString());
+	var pName = gProj.toString();
+	if (pName.length > 40) {
+		pName = pName.substr(0,39) + "...";
+		$('a.back').attr("title", " - "+gProj.toString());
+	}
+	$('a.back').text(pName);
+	var qName = gName.toString();
+	if (qName.length > 40) {
+		qName = qName.substr(0,39) + "...";
+		$('span.current').attr("title", " - "+gName.toString());
+	}
+	$('span.current').text(qName);
+	$('span.current').tooltip({ 
+	    positionLeft:true,
+	    delay: 0, 
+	    showURL: false, 
+	    showBody: " - ", 
+	    fade: 250 
+	});
+	$('a.back').tooltip({ 
+	    positionLeft:true,
+	    delay: 0, 
+	    showURL: false, 
+	    showBody: " - ", 
+	    fade: 250 
+	});	
+	
 	$('#back').click(function() {
 		window.location = 'proj.html?name=' + gProj;
 	});
@@ -66,6 +92,14 @@ $(document).ready(function() {
 		gManifest.addContent(content);
 		content.save();
 		return false;
+	});
+	
+	$('a.title').tooltip({ 
+	    positionLeft:true,
+	    delay: 0, 
+	    showURL: false, 
+	    showBody: " - ", 
+	    fade: 250 
 	});
 
 });

@@ -326,4 +326,15 @@ fieldset {
 	border: none;
 }
 
+/*--------------*/
 
+#tooltip {
+	position: absolute;
+	z-index: 3000;
+	border: 1px solid #111;
+	background-color: #eee;
+	padding: 5px;
+	opacity: 0.85;
+	font-size:12px;
+}
+#tooltip h3, #tooltip div { margin: 0; }
