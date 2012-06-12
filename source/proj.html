@@ -123,7 +123,10 @@ var gManifest;
 
 $(document).ready(function() {
 	// set project name in breadcrumb
-	$('#proj').text(gPageParams.name.toString());
+	var pName = gPageParams.name.toString();
+	if (pName.length > 60)
+		pName = pName.substr(0,59) + "...";
+	$('#proj').text(pName);
 
 	// load manifest, render table of contents
 	gManifest = new Manifest(gPageParams.path, gPageParams.name);

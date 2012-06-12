@@ -35,9 +35,9 @@
 		</div>
 		
 		<div id="rename">
-			<input type="text" id="projectName" length="10" />
-			<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
-			<button type="button" class="cancel nice small radius white button" onClick="$('#rename').hide();">Cancel</button>
+			<input type="text" id="projectName" size="50" />
+			<button type="button" class="ok nice mini radius blue button" disabled="disabled">OK</button>
+			<button type="button" class="cancel nice mini radius white button" onClick="$('#rename').hide();">Cancel</button>
 		</div>
 	</div>
 	
@@ -92,9 +92,13 @@ $(document).ready(function() {
 			var version = new FileCache(versionPath);
 			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
 			var tr = $('<tr />');
-			tr.append($('<td><a href="proj.html?name='
+			var fname = files[f].name;
+			if (fname.length > 60){
+				fname = fname.substr(0,59) + "...";
+			}
+			tr.append($('<td><div class="wrapper"><div class="fullName">'+files[f].name+'</div><a href="proj.html?name='
 				+ escape(files[f].name) + '" name="'
-				+ files[f].name + '"">' + files[f].name + '</a><div class="renameDiv"><a href="#">rename</a></div></td>'));
+				+ files[f].name + '"">' + fname + '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
 			tr.append($('<td>'
 				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
@@ -113,13 +117,14 @@ $(document).ready(function() {
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 
-	$('.renameDiv a').click(function(e){
-		var td = $(this).parent().parent().find("a:first");
-		var oldTd = $(this).parent().parent().parent().find("td:first").find("a:first");
+	$('.renameDiv button').click(function(e){
+		var td = $(this).parent().parent().parent().find("div.fullName");
+		var oldTd = $(this).parent().parent().parent().parent().find("td:first").find("a:first");
 		var projectName = td.html();
 		$("#projectName").val(projectName);
-		
-		$('#rename').css({'top':e.pageY,'left':e.pageX}).show();
+		var tr = $(this).parent().parent().parent().parent();
+		var width = tr.find("td:first").width();
+		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width}).show();
 		$('#rename button.ok').attr('disabled', $("#projectName").val() == '');
 		$('#rename button.ok').unbind('click');
 		$('#rename button.ok').click(function(e){
@@ -137,7 +142,11 @@ $(document).ready(function() {
 			var newHref = 'proj.html?name='+ escape($("#projectName").val());
 			oldTd.attr('href', newHref);
 			oldTd.attr('name', $("#projectName").val());
-			oldTd.html($("#projectName").val());
+			var pName = $("#projectName").val();
+			if (pName.length > 60)
+				pName = pName.substr(0,59) + "...";
+			oldTd.html(pName);
+			td.html($("#projectName").val());
 			$('#rename').hide();
 			return false;
 			

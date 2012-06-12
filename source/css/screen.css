@@ -26,14 +26,24 @@ img.remove {
   cursor: pointer;
 }
 
+div.fullName{
+	display:none;
+}
+
+div.wrapper {
+	position:relative;
+}
+
 div.renameDiv {
-	font-size:14px;
 	display: none;
-	float: right;
+	position:absolute;
+	left: 85%;  bottom:10%; 
 }
 
 div#rename {
 	display:none;
+	position:absolute;
+	background-color:#ebf4f9;	
 	z-index:4;  
 }
 
