@@ -33,8 +33,8 @@ function Content(projectBase, title, idOrPath, ext) {
 	if(typeof idOrPath == 'string' && idOrPath != '') {
 		var src = new air.File(idOrPath);
 		if (src.extension) {
-			this.path = this.path + "." + src.extension;
-			this.extension = src.extension;
+			this.path = this.path + "." + src.extension.toLowerCase();
+			this.extension = src.extension.toLowerCase();
 		}
 		var dst = new air.File(this.path);
 		src.copyTo(dst, true);
@@ -673,11 +673,12 @@ Video.prototype.save = function() {
 // appropriate subclass of Content
 Content.FromImport = function(projectBase, title, originalPath) {
 	var extension = originalPath.match(/\.(\w+)$/);
+	extension = extension[1].toLowerCase();	
   	var type      = {
   		'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
 		'jpg':'image', 'jpeg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video',
 		'avi':'video', 'flv':'video', 'mp3':'audio', 'mp4':'video', 'wav':'audio', 'aiff':'audio'
-	}[extension[1]] || 'unknown';
+	}[extension] || 'unknown';
 	var ctor = Content.TypeConstructor(type);
 	return new ctor(projectBase, title, originalPath);
 };
