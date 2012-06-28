@@ -19,6 +19,17 @@ FileCache.prototype.flush = function() {
 	this._saveData(this.path, this._val);
 };
 
+FileCache.prototype.deleteData = function(){
+	var f = new air.File(this.path);
+	if (f.exists) {	
+		if (f.isDirectory){
+			f.deleteDirectory(true);
+		} else {
+			f.deleteFile();
+		}
+	}
+};
+
 FileCache.prototype._saveData = function(path, data) {
 	var f = new air.File(path);
 	var fs = new air.FileStream();
@@ -39,3 +50,5 @@ FileCache.prototype._loadData = function(path) {
 	}
 	return ret;
 };
+
+

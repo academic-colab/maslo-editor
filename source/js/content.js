@@ -123,8 +123,9 @@ Content.prototype.deleteFile = function() {
 	if(condemned.isDirectory) {
 		condemned.deleteDirectory(true);
 	} else {
-		condemned.deleteFile();
+		condemned.deleteFile();		
 	}
+	this.descFile.deleteData();
 };
 
 Content.prototype.unrender = function() { 
@@ -250,7 +251,7 @@ Audio.prototype.constructor = Audio;
 
 Audio.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
-	div = this.preview(div);
+	div = this.preview(div, true);
 	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
@@ -258,7 +259,7 @@ Audio.prototype.render = function(div) {
 	return div;
 };
 
-Audio.prototype.preview = function(div) {
+Audio.prototype.preview = function(div, isEdit) {
 	Content.prototype.preview.call(this, div);
 	var mp3         = new air.Sound(new air.URLRequest('file://' + this.path));
 	var channel     = null;
@@ -284,9 +285,14 @@ Audio.prototype.preview = function(div) {
 			channel = null;
 		}
 	};
-	var p = $('<p>');
-	p.html(this.descFile.val);
-	div.append(p);
+	if (!isEdit) {
+		var p = $('<p/>');
+		var descContent = this.descFile.val;
+		if (descContent.trim() == "")
+			descContent = descContent.trim();
+		p.html(descContent);
+		div.append(p);
+	}
 	return div;
 }
 
@@ -595,7 +601,7 @@ Video.prototype.constructor = Video;
 
 Video.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
-	div = this.preview(div);
+	div = this.preview(div, true);
 	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
@@ -603,7 +609,7 @@ Video.prototype.render = function(div) {
 	return div;
 };
 
-Video.prototype.preview = function(div) {
+Video.prototype.preview = function(div, isEdit) {
 	Content.prototype.preview.call(this, div);
 	var playBtn = $('<button>Preview Video</button>');
 	var self = this;
@@ -642,12 +648,14 @@ Video.prototype.preview = function(div) {
 		Content.prototype.unrender.call(self);
 	};
 	div.append(playBtn);
-	var p = $('<p/>');
-	var descContent = this.descFile.val;
-	if (descContent.trim() == "")
-		descContent = descContent.trim();
-	p.html(descContent);
-	div.append(p);
+	if (!isEdit) {
+		var p = $('<p/>');
+		var descContent = this.descFile.val;
+		if (descContent.trim() == "")
+			descContent = descContent.trim();
+		p.html(descContent);
+		div.append(p);
+	}
 	return div;
 }
 
