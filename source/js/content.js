@@ -11,17 +11,19 @@ function Content(projectBase, title, idOrPath, ext) {
 	}
 	this.type  = 'content'; // used in saving/loading object
 	this._base = projectBase;
-	this.extension = ext;
-	if (air.File.separator != "/"){
+    this.extension = ext;
+    this._tmpObj = null;
+    if (air.File.separator != "/"){
 		this._base = this._base.replace(/\//g, air.File.separator);
 	}
 	this._project = projectBase.split(air.File.separator);
 	this._project = this._project[this._project.length - 1];
 	
-	idOrPath   = idOrPath || '';
-	if(typeof idOrPath == 'number') {
+    idOrPath   = idOrPath || '';
+	if(typeof idOrPath == 'number') {                  
 		this.id = idOrPath;
-	} else {
+	}
+    else {
 		// prepare a new place within this project
 		this.id = this._uniqueId();
 	}
@@ -98,13 +100,25 @@ Content.prototype.metadata = function(basePath) {
 
 Content.prototype.save = function(title) {
 	this._saved = true;
-	// render creates the text input _titleInput
-	if (this._titleInput){
-		this.title = this._titleInput.val() || this.title;
-		return;
+	
+	if (this._descInput && this._tmpObj){
+		this._tmpObj._descInput = this._descInput;
 	}
-	if (title != null)
+	// render creates the text input _titleInput		
+	if (this._titleInput){
+		this.title = this._titleInput.val() || this.title;		
+		if (this._tmpObj){
+			this._tmpObj.title = this.title;
+		}
+		return;
+	}	
+	if (title != null) {
 		this.title = title
+		if (this._tmpObj){
+			this._tmpObj.title = this.title;
+		}
+	}
+	
 };
 
 Content.prototype.render = function(div) {
@@ -128,6 +142,28 @@ Content.prototype.deleteFile = function() {
 	this.descFile.deleteData();
 };
 
+/*
+ * Replaces the media file associatied with the content element
+ * Keeps track of the original file as well as the new one
+ * in case the user decides to 'discard' the changes
+ *
+ * TODO: Make the function more general (other media types than img)
+ */
+Content.prototype.replaceMedia = function(replacement) {
+    if(this._tmpObj) {
+        var delFile = new air.File(this._tmpObj.path);
+        delFile.deleteFile();
+    }
+	this._tmpObj = Content.FromImport(this._base, this.title, replacement);
+	this._tmpObj.descFile.val = this.descFile.val;
+    if(this.type == "image") {
+    	$('#imgWrapper').empty();
+    	var img = $('<img />');
+    	img.attr('src', 'file://' + this._tmpObj.path);
+    	$('#imgWrapper').append(img); 
+    }
+};
+
 Content.prototype.unrender = function() { 
 	// technically this is not true, but if we get to 
 	// this function, then we sure don't want to save the
@@ -144,6 +180,13 @@ Content.prototype._uniqueId = function() {
 	return id;
 };
 
+Content.prototype.wasModified = function(){
+	var result = ( this._tmpObj || (this._titleInput && (this._titleInput.val() != this.title)) );
+	result = result || (this._descInput && (this._descInput.val() != this.descFile.val));
+	return result;
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -153,15 +196,34 @@ function Image(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/image.png';
 	this.type = 'image'; // used in saving/loading object
+    
 }
 Image.prototype = new Content();
 Image.prototype.constructor = Image;
 
 Image.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
+    var wrapperDiv = $('<div id="imgWrapper"></div>');
 	var img = $('<img />');
 	img.attr('src', 'file://' + this.path);
-	div.append(img);
+    wrapperDiv.append(img);
+	div.append(wrapperDiv);
+    
+    /*
+    * replaceable image  
+    */ 
+   
+    var self = this;  
+    var imageBtn = $('<button>Replace Image</button>');
+    imageBtn.click(function() {
+        replaceMediaFile(function(e) {
+            Content.prototype.replaceMedia.call(self, e.target.url);
+            return false;
+        },self.type);
+        return false;
+    });
+    div.append(imageBtn);
+      
 	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
@@ -193,7 +255,7 @@ Image.prototype.save = function() {
 		else 
 			this.descFile.val = this._descInput.val();
 	}
-	this.descFile.flush();
+	this.descFile.flush();	
 };
 
 
@@ -277,6 +339,22 @@ Audio.prototype.preview = function(div, isEdit) {
 	};
 	btn.click('click', toggleSound);
 	div.append(btn);
+	
+	/*
+    * Replaceable button  
+    */ 
+   
+    var self = this;  
+    var audioBtn = $('<button>Replace Audio</button>');
+    audioBtn.click(function() {
+        replaceMediaFile(function(e) {
+            Content.prototype.replaceMedia.call(self, e.target.url);
+            return false;
+        },self.type);
+        return false;
+    });
+    div.append(audioBtn);
+	
 	// unrender in this case will be sure the audio has stopped playing
 	this.unrender = function() {
 		Content.prototype.unrender.call(this);
@@ -648,6 +726,20 @@ Video.prototype.preview = function(div, isEdit) {
 		Content.prototype.unrender.call(self);
 	};
 	div.append(playBtn);
+	/*
+    * Replaceable video 
+    */ 
+    var self = this;  
+    var videoBtn = $('<button>Replace Video</button>');
+    videoBtn.click(function() {
+        replaceMediaFile(function(e) {
+            Content.prototype.replaceMedia.call(self, e.target.url);
+            return false;
+        },self.type);
+        return false;
+    });
+    div.append(videoBtn);
+    
 	if (!isEdit) {
 		var p = $('<p/>');
 		var descContent = this.descFile.val;

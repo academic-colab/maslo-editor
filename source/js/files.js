@@ -15,6 +15,21 @@ function chooseFile(action) {
 					   [fltr_img, fltr_aud, fltr_vid, fltr_doc]);
 }
 
+/*
+ * Called when we want to replace an image. Essentially the same as chooseFile()
+ * but it filters out everything but image files.
+ *
+ */
+function replaceMediaFile(action, type) {
+    file = new window.runtime.flash.filesystem.File();
+	file.addEventListener(air.Event.SELECT, action);
+    fltr = (type == "image") ? new air.FileFilter("image", "*.png;*.gif;*.jpg;*.jpeg") :  
+           (type == "video") ? new air.FileFilter("video", "*.mp4") : 
+    	   (type == "audio") ? new air.FileFilter("audio", "*.mp3;*.wav;*.aiff") :
+    						   new air.FileFilter("text", "*.txt;*.html;*.htm");
+	file.browseForOpen("Please select a file...", [fltr]);
+}
+
 function relativize(path) {
 	// regex to match final /(project/file)
 	// using an absolute url would prevent exporting projects to another computer

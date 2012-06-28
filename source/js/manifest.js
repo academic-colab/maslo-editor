@@ -149,9 +149,8 @@ Manifest.prototype.save = function() {
 	}
 };
 
-
-
 Manifest.prototype.addContent = function(content) {
+	var self = this;
 	$("#fillRow").remove();
 	this.tbl.show();
 	var tr = $('<tr />');
@@ -201,12 +200,20 @@ Manifest.prototype.addContent = function(content) {
 				position: 'top',
 				beforeClose: function(event) {
 					var result = true;
-					if (!c._saved){ 
+					if (!c._saved && (c.wasModified())){ 
 				     	c._confirm.dialog({
 							height:240,
 							modal: true,
 							buttons: {
 								"Discard changes": function(event) {
+                                
+                                    //Check if the image was replaced
+                                    //If so, delete the temp media object and 
+                                    //set c_tmpObj back to null
+                                    if(c._tmpObj) {
+										  c._tmpObj.deleteFile();
+                                          c._tmpObj = null;
+                                    }
 									c.unrender();
 									$( this ).dialog( "close" );
 									manifest.edit.dialog("close");
@@ -226,9 +233,18 @@ Manifest.prototype.addContent = function(content) {
 					return false;
 				 },
 				buttons: {
-					"Save": function() { 
-						c.updateStatus(false);
+					"Save": function() {
+                        //If the image was replaced. Replace the old file
+                        //with the new one
 						c.save();
+                        if(c._tmpObj) {							
+                        	c.deleteFile();
+							c._tmpObj.status = c.status;
+                            c = c._tmpObj;
+                            c._tmpObj = null;
+							c.save();
+                        } 
+						c.updateStatus(false);						
 						tr.find('div').text(c.status);
 						manifest.updateStatus(false);
 						var cTitle = c.title;

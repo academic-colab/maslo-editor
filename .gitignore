@@ -1,3 +1,4 @@
 *.swp
 *.dmg
-
+*.DS_Store
+.DS_Store* 
