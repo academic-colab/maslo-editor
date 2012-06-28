@@ -35,7 +35,7 @@
 		</div>
 		
 		<div id="rename">
-			<input type="text" id="projectName" size="50" />
+			<input type="text" id="projectName" width="50%" />
 			<button type="button" class="ok nice mini radius blue button" disabled="disabled">OK</button>
 			<button type="button" class="cancel nice mini radius white button" onClick="$('#rename').hide();">Cancel</button>
 		</div>
@@ -134,8 +134,10 @@ $(document).ready(function() {
 		var tr = $(this).parent().parent().parent().parent();
 		var projectName = td.attr("name");
 		$("#projectName").val(projectName);		
-		var width = tr.find("td:first").width();
-		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width}).show();
+		var width = tr.find("td:first").width()+10;
+		var height = tr.height()-10;
+		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width, 'height':height}).show();
+		$('#rename').find('input').css({'width':'60%'});
 		$('#rename button.ok').attr('disabled', $("#projectName").val() == '');
 		$('#rename button.ok').unbind('click');
 		$('#rename button.ok').click(function(e){

@@ -134,7 +134,6 @@ function doUpload(numFiles,dirName,sessionId){
 	// scheme will not make it completely obvious what the user's password is
 	var pw = CryptoJS.MD5(userData[1])+CryptoJS.SHA256(sessionId);
 	pw = CryptoJS.SHA256(pw);
-	//air.trace(pw);
 	urlVariables.userName = userData[0];
 	urlVariables.password = pw;
 	urlVariables.institutionId = instId;
@@ -382,20 +381,28 @@ function verifyUserCred(sessionId){
 		urlRequest.method = air.URLRequestMethod.POST; 		
 		urlRequest.data = urlVariables;
 		var loader = new air.URLLoader();
+		var timedOut = true;
+		
 		var completeHandlerHandshake = function(event) {
+					timedOut = false;
 		            var loader = air.URLLoader(event.target);
 					return verifyUserCred(loader.data);
 		}
 		var errorHandshake = function(event){
-			var msg = "Server URL configured in your settings ("+jsonData.serverURL+") cannot be contacted. \
-			Please check your configuration and network availability.\n\nYou will be logged in as 'guest'.";			
-			var arg = function(){document.location.href="index.html";}
-			postMessage(msg, arg);
-			removeUser();
+			if (timedOut){
+				timedOut = false;
+				$("#loadingDiv").dialog("close");
+				var msg = "Server URL configured in your settings ("+jsonData.serverURL+") cannot be contacted. \
+				Please check your configuration and network availability.\n\nYou will be logged in as 'guest'.";			
+				var arg = function(){document.location.href="index.html";}
+				postMessage(msg, arg);
+				removeUser();
+			}
 			return false;
-		}
+		}		
 		loader.addEventListener(air.Event.COMPLETE, completeHandlerHandshake);
 		loader.addEventListener(air.IOErrorEvent.IO_ERROR, errorHandshake)
+		setTimeout(function(){errorHandshake(null);}, 10000);
 		loader.load(urlRequest);
 	} else {
 		// pw will be MD5'ed , then concatenated with SHA256'ed sessionId.
@@ -409,23 +416,35 @@ function verifyUserCred(sessionId){
 		urlVariables.password = pw;
 		urlRequest.method = air.URLRequestMethod.POST; 		
 		urlRequest.data = urlVariables;	
-		var loader = new air.URLLoader();
+		var loader = new air.URLLoader();		
 		var completeHandler = function(event) {
+					timedOut = false;
 		            var loader = air.URLLoader(event.target);
 		            air.trace("completeHandler: " + loader.data);
+					$("#loadingDiv").dialog("close");
 					if (loader.data == "OK.") {
 						document.location.href="index.html";
 					} else {
 						removeUser();
-						initUser();
+						var callback = function() {initUser();}
+						$("#loadingDiv").dialog("close");
 						var msg = "Login failed. Check your user name/password or log in as 'guest'.";
-						postMessage(msg);
+						postMessage(msg, callback);
 					}
 		}
 		loader.addEventListener(air.Event.COMPLETE, completeHandler);
 		loader.load(urlRequest);
 	}
 	return false;
+}
+
+function showLoading(){
+	$("#loadingDiv").dialog({
+		autoOpen: true,
+		modal: true,
+		width: 650,
+		position: 'center'
+	});
 }
 
 function initUser(){
@@ -439,10 +458,11 @@ function initUser(){
 		position: 'center',
 		buttons: {
 			"Login": function() {
-				if (checkFormValues($("#userName"),$("#userPassword"))) {
+				if (checkFormValues($("#userName"),$("#userPassword"))) {					
 					var userName = $("#userName").val();
 					var userPW = $("#userPassword").val();
 					addUser(userName, userPW);
+					showLoading();
 					verifyUserCred();
 					$(this).dialog("close");
 				}
