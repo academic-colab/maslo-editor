@@ -773,11 +773,14 @@ Video.prototype.save = function() {
 // appropriate subclass of Content
 Content.FromImport = function(projectBase, title, originalPath) {
 	var extension = originalPath.match(/\.(\w+)$/);
-	extension = extension[1].toLowerCase();	
+	if (extension)
+		extension = extension[1].toLowerCase();	
+	else 
+		extension = "";
   	var type      = {
   		'png':'image', 'gif':'image', 'txt':'text', 'html':'text',
-		'jpg':'image', 'jpeg':'image', 'swf':'video', 'mpeg':'video', 'mpg':'video',
-		'avi':'video', 'flv':'video', 'mp3':'audio', 'mp4':'video', 'wav':'audio', 'aiff':'audio'
+		'jpg':'image', 'jpeg':'image',
+		'avi':'video', 'mp3':'audio', 'mp4':'video', 'wav':'audio', 'aiff':'audio'
 	}[extension] || 'unknown';
 	var ctor = Content.TypeConstructor(type);
 	return new ctor(projectBase, title, originalPath);

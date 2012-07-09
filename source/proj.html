@@ -6,7 +6,7 @@
 	<link type="text/css" href="css/screen.css" rel="stylesheet" />
 	<title>MASLO - Edit Project</title>
 </head>
-<body>
+<body id="dropzone">
 	<header>
 	<h3><a href="index.html">My Content Packs</a> > <span id="proj"></span></h3>
 	<div class="extra"><a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;<a href="#" onclick="help()">Help</a><img src="icons/maslo_icon_logo.png" /></div>
@@ -219,6 +219,56 @@ $(document).ready(function() {
 		
 		return false;
 	});
+	//Dropable
+	
+    var dropbox = document.getElementById("dropzone");
+    dropbox.addEventListener("dragenter", dragenter, false);
+    dropbox.addEventListener("dragover", dragover, false); 
+    dropbox.addEventListener("drop", drop, false); 
+    function dragenter(e) {  
+  		e.stopPropagation();  
+  		e.preventDefault();  
+	}  
+  	function dragover(e) {  
+ 		e.stopPropagation();  
+		e.preventDefault();  
+	}  
+	function drop(e) {  
+		e.stopPropagation();  
+		e.preventDefault();  
+		var bad = false;
+		var name;		
+		var files = e.dataTransfer.getData("application/x-vnd.adobe.air.file-list"); 
+		for (var i = 0; i < files.length; i++) {
+			name = files[i].name;
+			var ext = files[i].extension;
+			if (ext)
+				name = name.replace("." + ext, "");
+				
+ 			var content = Content.FromImport(gPageParams.path, name, files[i].nativePath);
+ 			if (content.type != "content")
+ 				gManifest.addContent(content);
+ 			else
+ 				bad = true;	
+ 		}
+ 		var warning = $('\
+		<div id="dialog-confirm" style="display: none" title="Warning"> \
+			<p>One or more of the selected files were not added to the project because of \
+			invalid extension(s). See the help menu for acceptable files types.</p> \
+		</div>');
+		if(bad) {
+ 			warning.dialog({
+				height:240,
+				modal: true,
+				buttons: {
+					"Ok": function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			}); 
+ 		}
+ 	}	
 });
+
 </script>
 </html>
