@@ -322,15 +322,21 @@ Audio.prototype.render = function(div) {
 };
 
 Audio.prototype.preview = function(div, isEdit) {
-	Content.prototype.preview.call(this, div);
+	Content.prototype.preview.call(this, div);	
 	var mp3         = new air.Sound(new air.URLRequest('file://' + this.path));
 	var channel     = null;
 	var btn         = $('<input type="button" value="Play" />');
+	var self = this; 
+	var currentPath = this.path 
 	var toggleSound = function() {
 		if(channel) {
 			channel.stop();
 			channel = null;
 		} else {
+			if (self._tmpObj && self._tmpObj.path != currentPath){
+				currentPath = self._tmpObj.path		
+				mp3 = new air.Sound(new air.URLRequest('file://' + currentPath));
+			}
 			channel = mp3.play();
 			channel.addEventListener(air.Event.SOUND_COMPLETE,
 			function(e) { channel = null; btn.attr('value', 'Play'); }); 
@@ -343,17 +349,18 @@ Audio.prototype.preview = function(div, isEdit) {
 	/*
     * Replaceable button  
     */ 
-   
-    var self = this;  
+       
     var audioBtn = $('<button>Replace Audio</button>');
     audioBtn.click(function() {
+		if(channel) {
+			toggleSound();
+		}
         replaceMediaFile(function(e) {
             Content.prototype.replaceMedia.call(self, e.target.url);
             return false;
-        },self.type);
+        },self.type);		
         return false;
-    });
-    div.append(audioBtn);
+    });    
 	
 	// unrender in this case will be sure the audio has stopped playing
 	this.unrender = function() {
@@ -370,6 +377,8 @@ Audio.prototype.preview = function(div, isEdit) {
 			descContent = descContent.trim();
 		p.html(descContent);
 		div.append(p);
+	} else {
+		div.append(audioBtn);
 	}
 	return div;
 }
@@ -692,8 +701,17 @@ Video.prototype.preview = function(div, isEdit) {
 	var playBtn = $('<button>Preview Video</button>');
 	var self = this;
 	var nc, ns, vid, newWindow;
-	playBtn.click(function() {
+	var currentPath = this.path;
+	var process = null;
+	var playVideo = function() {
+		if (process) {
+			process.exit();
+			process = null;
+		}
 		if(air.NativeProcess.isSupported){
+			if (self._tmpObj && self._tmpObj.path != currentPath){
+				currentPath = self._tmpObj.path						
+			}
 			var dir = air.File.applicationDirectory;
 			var opsys = air.Capabilities.os;
 			var file = null;
@@ -708,38 +726,47 @@ Video.prototype.preview = function(div, isEdit) {
 			if (file != null) {
 		    	var nativeProcessStartupInfo = new air.NativeProcessStartupInfo();
 		    	nativeProcessStartupInfo.executable = file;
-		    	var process = new air.NativeProcess();
+		    	process = new air.NativeProcess();
 				var processArgs = new air.Vector["<String>"]();
 				processArgs.push("--video-on-top");
 				processArgs.push("--play-and-exit");
 
-				processArgs.push(self.path); 
+				processArgs.push(currentPath); 
 				nativeProcessStartupInfo.arguments = processArgs;
 		    	process.start(nativeProcessStartupInfo);
 			} else {
 				alert("Video preview is not supported on this platform. (Platform string: "+opsys+")");
-				
+
 			}
-		}
-	});
+		}				
+	};
+	playBtn.click(playVideo);
+	
 	this.unrender = function() {
 		Content.prototype.unrender.call(self);
+		if (process){
+			process.exit();
+			process = null;
+		}
 	};
 	div.append(playBtn);
 	/*
     * Replaceable video 
     */ 
-    var self = this;  
+    var self = this;  	
     var videoBtn = $('<button>Replace Video</button>');
     videoBtn.click(function() {
+		if (process){
+			process.exit();
+			process = null;
+		}
         replaceMediaFile(function(e) {
             Content.prototype.replaceMedia.call(self, e.target.url);
             return false;
         },self.type);
         return false;
     });
-    div.append(videoBtn);
-    
+    	    
 	if (!isEdit) {
 		var p = $('<p/>');
 		var descContent = this.descFile.val;
@@ -747,6 +774,8 @@ Video.prototype.preview = function(div, isEdit) {
 			descContent = descContent.trim();
 		p.html(descContent);
 		div.append(p);
+	} else {
+		div.append(videoBtn);
 	}
 	return div;
 }

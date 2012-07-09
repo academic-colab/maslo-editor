@@ -237,6 +237,7 @@ Manifest.prototype.addContent = function(content) {
                         //If the image was replaced. Replace the old file
                         //with the new one
 						c.save();
+						c.unrender();
                         if(c._tmpObj) {							
                         	c.deleteFile();
 							c._tmpObj.status = c.status;
