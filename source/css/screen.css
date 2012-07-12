@@ -120,10 +120,22 @@ td.icon, th.icon {
   text-align: center;
 }
 
+.order {
+	text-align: left;
+	width: 60px;
+}
+
+.tablespace {
+	height: 47px;
+	line-height: 30px;
+}
+
+
 tbody tr {
   background-color: #ebf4f9;
   /*background-color:#D7DBDD;*/
   border-bottom: 1px solid #444;
+
 }
 
 tbody td.fill {

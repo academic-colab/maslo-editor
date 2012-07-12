@@ -8,9 +8,16 @@ function Manifest(path, name, argObj) {
 	this.path = path;
 	this.obj = argObj;
 	var data = null;
+	this.ordernum = 0;
+	this.orderArray = new Array();
+	this.tmpOrder = new Array();
+	
+	
+	
 	this.versionData = null;
 	if (this.obj != null) {
 		data = this.obj.attachments;
+		this.type = "quiz";
 	}
 	if (data == null) {
 		var f = new FileCache(path + air.File.separator + 'manifest');
@@ -21,14 +28,15 @@ function Manifest(path, name, argObj) {
 	} 
 	//this.tbl = $('\
 	var tableString = '\
-		<table id="contentTable">                                  \
+		<table id="contentTable">                \
 			<thead>                              \
 				<tr>                             \
+				    <th class="order">Order</th> \
 					<th>Type</th>                \
 					<th class="big">Title</th>   ';
-					if (this.obj == null)
-						tableString += '<th class="big">Status</th>';
-	tableString += '<th>Remove</th>              \
+				if (this.obj == null)
+					tableString += '<th class="big">Status</th>';
+				tableString += '<th>Remove</th>              \
 				</tr>                            \
 			</thead>                             \
 			<tbody class="proj">                 \
@@ -58,18 +66,42 @@ function Manifest(path, name, argObj) {
 		this.tbl.show();
 		var tr = $('<tr id="fillRow"/>');
 		this.tbl.find('tbody').append(tr);
-		tr.append($('<td colspan="4" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
+		tr.append($('<td colspan="5" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
 	}
+}
+
+
+/*
+ * Setup the dragable table rows
+ */
+ 
+var fixHelper = function(e, ui) {
+	ui.children().each(function() {
+		$(this).width($(this).width());
+	});
+	return ui;
+};
+function updateIndexes(quiz){
+	var input = quiz ? $('#mediaDiv table tbody input') : $('#contentTable tbody input');
+	input.each(function(i){
+		$(this).val(i+1);
+	});
 }
 
 Manifest.prototype.render = function(div) {
 	div.append(this.tbl);
 	var manifest = this;
 	this.tbl.find('tbody').sortable({
-		items: 'tr', axis: 'y',
-        update: function(event, ui) { manifest.save(); }
+		items: 'tr', axis: 'y', helper: fixHelper, 
+		forceHelperSize: true,
+		placeholder: 'tablespace',
+        update: function(event, ui) { 
+        	manifest.save();
+        	updateIndexes(manifest.obj); 
+        }
 	});
 };
+
 
 Manifest.prototype.data = function(convert) {
 	var basePath = null;
@@ -149,8 +181,17 @@ Manifest.prototype.save = function() {
 	}
 };
 
+
 Manifest.prototype.addContent = function(content) {
-	var self = this;
+	this.ordernum++;
+	this.orderArray[this.ordernum] = content;
+	
+	var quiz = this.obj;
+	var on = this.ordernum;
+	var tempoArray = this.tmpOrder;
+	var originalArray = this.orderArray;
+	
+	var manifest = this;
 	$("#fillRow").remove();
 	this.tbl.show();
 	var tr = $('<tr />');
@@ -161,6 +202,14 @@ Manifest.prototype.addContent = function(content) {
 		cTitle = cTitle.substr(0,59) + "...";
 		aTitle = 'title=" - '+content.title+'"';
 	}
+	var rowid = "row" + this.ordernum; 
+	var td = $('<td class ="order" ><input maxlength="3" id="' + rowid + '"\
+	  class="numbering" type="text" name="number" size="2.5" value="'+ this.ordernum +'"/><br</td>'); 
+	$("#" + rowid).live('blur', function() {
+		tempoArray[content.id] = $(this).val();
+	});
+	
+	tr.append(td);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
 	tr.append($('<td><a class="title" href="#" '+aTitle+'>' + cTitle + '</a></td>'));
 	if (this.obj == null)
@@ -169,7 +218,46 @@ Manifest.prototype.addContent = function(content) {
 	tr.data('content', content);
 
 	var manifest = this;
-
+	var cont = content;
+	var sort = false;
+	tr.find('input.numbering').keyup(
+		function(e) {
+			if(e.keyCode == '13') {		
+				e.preventDefault();
+				tempoArray[cont.id] = $(this).val();
+				//Rearrange the orderArray
+				var tempCont;
+				for(var id in tempoArray) {
+					var newIndex = tempoArray[id];
+					//Check if the index is in the range
+					if(newIndex > 0 && newIndex < originalArray.length && !isNaN(newIndex)) { 
+						//Get old index
+						for(var oldIndex = 1; oldIndex < originalArray.length; oldIndex++) {
+							if(originalArray[oldIndex].id == id) {
+								tempCont = originalArray[oldIndex]; 
+								break;
+							}
+						}
+						//Now we have a new index (newIndex) and an old (oldIndex)
+						//content should now be inserted in originalArray at newIndex and removed from oldIndex
+						originalArray.splice(oldIndex, 1); 				//Remove
+						originalArray.splice(newIndex, 0, tempCont); 	//Add
+					}
+				}
+				//Need to repopulate the page with the order of originalArray
+				var table = quiz ? $('#mediaDiv table')[0] : $('#contentTable')[0];
+				for(var j = table.rows.length - 1; j > 0; j--) {
+					table.deleteRow(j);
+				}
+				manifest.ordernum = 0;
+				for(var p = 1; p < originalArray.length; p++)  {
+					manifest.addContent(originalArray[p]);
+				}	
+				manifest.orderArray = [];
+				manifest.tmpOrder = [];
+			}
+		}	
+	);
 	tr.find('img.remove').click(function() {
 		manifest.confirm.dialog({
 			height:240,
@@ -177,12 +265,19 @@ Manifest.prototype.addContent = function(content) {
 			buttons: {
 				"Delete Content": function() {
 					tr.data('content').deleteFile();
+					// update numbers displayed below row to be deleted.
+					var rowIndex = tr[0].sectionRowIndex;
+					var rows = tr.parent().children();
+					for (var i = rowIndex+1; i < rows.length; i++){
+						var tRow = rows[i];
+						$(tRow).find('input.numbering').val(parseInt($(tRow).find('input.numbering').val())-1);
+					}
 					tr.remove();
 					manifest.updateStatus(false);
 					manifest.save();
 					$( this ).dialog( "close" );
 				},
-				Cancel: function() {
+				Cancel: function() {					
 					$( this ).dialog( "close" );
 				}
 			}
