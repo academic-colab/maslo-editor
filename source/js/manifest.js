@@ -9,7 +9,6 @@ function Manifest(path, name, argObj) {
 	this.obj = argObj;
 	var data = null;
 	this.ordernum = 0;
-	this.orderArray = new Array();
 	this.tmpOrder = new Array();
 	
 	
@@ -81,8 +80,8 @@ var fixHelper = function(e, ui) {
 	});
 	return ui;
 };
-function updateIndexes(quiz){
-	var input = quiz ? $('#mediaDiv table tbody input') : $('#contentTable tbody input');
+function updateIndexes(manifest){
+	var input = manifest.obj ? $('#mediaDiv table tbody input') : $('#contentTable tbody input');
 	input.each(function(i){
 		$(this).val(i+1);
 	});
@@ -97,7 +96,7 @@ Manifest.prototype.render = function(div) {
 		placeholder: 'tablespace',
         update: function(event, ui) { 
         	manifest.save();
-        	updateIndexes(manifest.obj); 
+        	updateIndexes(manifest); 
         }
 	});
 };
@@ -181,15 +180,12 @@ Manifest.prototype.save = function() {
 	}
 };
 
-
 Manifest.prototype.addContent = function(content) {
 	this.ordernum++;
-	this.orderArray[this.ordernum] = content;
 	
 	var quiz = this.obj;
 	var on = this.ordernum;
 	var tempoArray = this.tmpOrder;
-	var originalArray = this.orderArray;
 	
 	var manifest = this;
 	$("#fillRow").remove();
@@ -226,35 +222,43 @@ Manifest.prototype.addContent = function(content) {
 			if(e.keyCode == '13') {		
 				e.preventDefault();
 				tempoArray[cont.id] = $(this).val();
+				//Get the order array:
+				var orderArray = [];
+				orderArray.push("");
+				//Get the order array
+				var row = manifest.obj ? $('#mediaDiv table tbody tr') : $('#contentTable tbody tr');
+				row.each(function(){
+					if($(this).data('content'))
+						orderArray.push($(this).data('content'));
+				});
 				//Rearrange the orderArray
 				var tempCont;
 				for(var id in tempoArray) {
 					var newIndex = tempoArray[id];
 					//Check if the index is in the range
-					if(newIndex > 0 && newIndex < originalArray.length && !isNaN(newIndex)) { 
+					if(newIndex > 0 && newIndex < orderArray.length && !isNaN(newIndex)) { 
 						//Get old index
-						for(var oldIndex = 1; oldIndex < originalArray.length; oldIndex++) {
-							if(originalArray[oldIndex].id == id) {
-								tempCont = originalArray[oldIndex]; 
+						for(var oldIndex = 1; oldIndex < orderArray.length; oldIndex++) {
+							if(orderArray[oldIndex].id == id) {
+								tempCont = orderArray[oldIndex]; 
 								break;
 							}
 						}
 						//Now we have a new index (newIndex) and an old (oldIndex)
-						//content should now be inserted in originalArray at newIndex and removed from oldIndex
-						originalArray.splice(oldIndex, 1); 				//Remove
-						originalArray.splice(newIndex, 0, tempCont); 	//Add
+						//content should now be inserted in orderArray at newIndex and removed from oldIndex
+						orderArray.splice(oldIndex, 1); 				//Remove
+						orderArray.splice(newIndex, 0, tempCont); 	//Add
 					}
 				}
-				//Need to repopulate the page with the order of originalArray
+				//Need to repopulate the page with the order of orderArray
 				var table = quiz ? $('#mediaDiv table')[0] : $('#contentTable')[0];
 				for(var j = table.rows.length - 1; j > 0; j--) {
 					table.deleteRow(j);
 				}
 				manifest.ordernum = 0;
-				for(var p = 1; p < originalArray.length; p++)  {
-					manifest.addContent(originalArray[p]);
+				for(var p = 1; p < orderArray.length; p++)  {
+					manifest.addContent(orderArray[p]);
 				}	
-				manifest.orderArray = [];
 				manifest.tmpOrder = [];
 			}
 		}	
@@ -266,6 +270,10 @@ Manifest.prototype.addContent = function(content) {
 			buttons: {
 				"Delete Content": function() {
 					tr.data('content').deleteFile();
+					var id;
+					if(manifest.tmpOrder[id]) {
+						manifest.tmpOrder.splice(id, 1);
+					}
 					// update numbers displayed below row to be deleted.
 					var rowIndex = tr[0].sectionRowIndex;
 					var rows = tr.parent().children();

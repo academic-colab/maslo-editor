@@ -243,11 +243,11 @@ $(document).ready(function() {
 			name = files[i].name;
 			var ext = files[i].extension;
 			if (ext)
-				name = name.replace("." + ext, "");
-				
+				name = name.replace("." + ext, "");	
  			var content = Content.FromImport(gPageParams.path, name, files[i].nativePath);
- 			if (content && content.type != "content")
+ 			if (content != null && content.type != "content") {
  				gManifest.addContent(content);
+ 			}
  			else
  				bad = true;	
  		}

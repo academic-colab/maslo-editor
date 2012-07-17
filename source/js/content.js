@@ -814,6 +814,8 @@ Content.FromImport = function(projectBase, title, originalPath) {
 		'jpg':'image', 'jpeg':'image',
 		'avi':'video', 'mp3':'audio', 'mp4':'video', 'wav':'audio', 'aiff':'audio'
 	}[extension] || 'unknown';
+	if(type == "unknown") 
+		return null;
 	var ctor = Content.TypeConstructor(type);
 	return new ctor(projectBase, title, originalPath);
 };
