@@ -126,7 +126,7 @@ Content.prototype.render = function(div) {
 	this._titleInput.val(this.title);
 	div.append(this._titleInput);
 	this._saved = false;
-	$.cleditor.defaultOptions.height = 250;
+	//$.cleditor.defaultOptions.height = 250;
 	return div;
 };
 
@@ -181,8 +181,11 @@ Content.prototype._uniqueId = function() {
 };
 
 Content.prototype.wasModified = function(){
+	var inputInst = CKEDITOR.instances.editor1 ? CKEDITOR.instances.editor1 : CKEDITOR.instances.editor2;
+	var descInputCK = inputInst.getData();
+	var oldText = this.docFile ? this.docFile.val : this.descFile.val;
 	var result = ( this._tmpObj || (this._titleInput && (this._titleInput.val() != this.title)) );
-	result = result || (this._descInput && (this._descInput.val() != this.descFile.val));
+	result = result || (descInputCK != oldText);
 	return result;
 }
 
@@ -224,7 +227,7 @@ Image.prototype.render = function(div) {
     });
     div.append(imageBtn);
       
-	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
 	div.append(this._descInput);	
@@ -248,12 +251,12 @@ Image.prototype.preview = function(div) {
 Image.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
-		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		var newData = CKEDITOR.instances.editor1.getData().replace(/\<br\>/g, "");
 		newData = newData.replace(/&nbsp;/g, "");
 		if (newData.trim() == "")
 			this.descFile.val = newData;
 		else 
-			this.descFile.val = this._descInput.val();
+			this.descFile.val = CKEDITOR.instances.editor1.getData();
 	}
 	this.descFile.flush();	
 };
@@ -275,7 +278,7 @@ Text.prototype.constructor = Text;
 
 Text.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
-	this._textInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._textInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
 	this._textInput.val(this.docFile.val);
 	this._textInput.addClass('description');
 	div.append(this._textInput);	
@@ -293,7 +296,7 @@ Text.prototype.preview = function(div) {
 Text.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._textInput) {
-		this.docFile.val = this._textInput.val();
+		this.docFile.val = CKEDITOR.instances.editor1.getData();
 	}
 	this.docFile.flush();
 };
@@ -314,7 +317,7 @@ Audio.prototype.constructor = Audio;
 Audio.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	div = this.preview(div, true);
-	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
 	div.append(this._descInput);
@@ -386,12 +389,12 @@ Audio.prototype.preview = function(div, isEdit) {
 Audio.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
-		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		var newData = CKEDITOR.instances.editor1.getData().replace(/\<br\>/g, "");
 		newData = newData.replace(/&nbsp;/g, "");
 		if (newData.trim() == "")
 			this.descFile.val = newData;
 		else 
-			this.descFile.val = this._descInput.val();
+			this.descFile.val = CKEDITOR.instances.editor1.getData();
 	}
 	this.descFile.flush();
 };
@@ -565,12 +568,12 @@ Question.prototype.save = function() {
 		this.answerFile.flush();
 	}
 	if(this._descInput) {
-		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		var newData = CKEDITOR.instances.editor2.getData().replace(/\<br\>/g, "");
 		newData = newData.replace(/&nbsp;/g, "");
 		if (newData.trim() == "")
 			this.descFile.val = newData;
 		else 
-			this.descFile.val = this._descInput.val();
+			this.descFile.val = CKEDITOR.instances.editor2.getData();
 		this.descFile.flush();
 	}
 	
@@ -581,10 +584,10 @@ Question.prototype.render = function(div) {
 	div.append('<h6>Question Title</h6>');
 	Content.prototype.render.call(this, div);
 	div.append('<p/><h6>Question Text</h6>');	
-	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput = $('<textarea id="editor2" rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
-	$.cleditor.defaultOptions.height = 125;
+	//$.cleditor.defaultOptions.height = 125;
 	div.append(this._descInput);
 	createAnswers(this);
 	div.append('<hr/><p/><h6>Media</h6><br/>');
@@ -689,7 +692,7 @@ Video.prototype.constructor = Video;
 Video.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	div = this.preview(div, true);
-	this._descInput = $('<textarea rows="3" cols="50"></textarea>');
+	this._descInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
 	this._descInput.val(this.descFile.val);
 	this._descInput.addClass('description');
 	div.append(this._descInput);
@@ -783,12 +786,12 @@ Video.prototype.preview = function(div, isEdit) {
 Video.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
-		var newData = this._descInput.val().replace(/\<br\>/g, "");
+		var newData = CKEDITOR.instances.editor1.getData().replace(/\<br\>/g, "");
 		newData = newData.replace(/&nbsp;/g, "");
 		if (newData.trim() == "")
 			this.descFile.val = newData;
 		else 
-			this.descFile.val = this._descInput.val();
+			this.descFile.val = CKEDITOR.instances.editor1.getData();
 	}
 	this.descFile.flush();
 };

@@ -327,8 +327,8 @@ sorttable = {
   },
   
   sort_alpha: function(a,b) {
-    var aa = a[0].toLowerCase();
-    var bb = b[0].toLowerCase();
+    var aa = a[0].toLowerCase().substr(0, a[0].length - 6);
+    var bb = b[0].toLowerCase().substr(0, b[0].length - 6);
     if (aa==bb) return 0;
     if (aa<bb) return -1;
     return 1;

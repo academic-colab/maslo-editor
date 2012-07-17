@@ -194,7 +194,7 @@ Manifest.prototype.addContent = function(content) {
 	var manifest = this;
 	$("#fillRow").remove();
 	this.tbl.show();
-	var tr = $('<tr />');
+	var tr = $('<tr class="fixheight" />');
 	this.tbl.find('tbody').append(tr);
 	var cTitle = content.title;
 	var aTitle = "";
@@ -202,13 +202,14 @@ Manifest.prototype.addContent = function(content) {
 		cTitle = cTitle.substr(0,59) + "...";
 		aTitle = 'title=" - '+content.title+'"';
 	}
+
 	var rowid = "row" + this.ordernum; 
-	var td = $('<td class ="order" ><input maxlength="3" id="' + rowid + '"\
+	var td = $('<td><input maxlength="3" id="' + rowid + '"\
 	  class="numbering" type="text" name="number" size="2.5" value="'+ this.ordernum +'"/><br</td>'); 
 	$("#" + rowid).live('blur', function() {
 		tempoArray[content.id] = $(this).val();
 	});
-	
+
 	tr.append(td);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
 	tr.append($('<td><a class="title" href="#" '+aTitle+'>' + cTitle + '</a></td>'));
@@ -329,7 +330,7 @@ Manifest.prototype.addContent = function(content) {
 				 },
 				buttons: {
 					"Save": function() {
-                        //If the image was replaced. Replace the old file
+                        //If the media file was replaced. Replace the old file
                         //with the new one
 						c.save();
 						c.unrender();
@@ -339,6 +340,7 @@ Manifest.prototype.addContent = function(content) {
                             c = c._tmpObj;
                             c._tmpObj = null;
 							c.save();
+							
                         } 
 						c.updateStatus(false);						
 						tr.find('div').text(c.status);
@@ -355,9 +357,30 @@ Manifest.prototype.addContent = function(content) {
 					} 
 				}
 			});
-			manifest.edit.find('textarea').cleditor({
-				controls: "bold italic underline bullets numbering alignleft " +
-						  "center alignright justify undo redo cut copy paste"});
+			    var myToolbar = [ { name: 'basicstyles', items : [ 'Bold','Italic','Underline' ] },
+								  { name: 'paragraph', items : [ 'NumberedList','BulletedList','-', 
+								   'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
+							 	   { name: 'clipboard', items : [ 'Undo','Redo'] },
+							 	   { name: 'basicstyles', items: ['RemoveFormat'] }];
+				if(c.type != "question") {
+					if(CKEDITOR.instances.editor1) 
+						CKEDITOR.instances.editor1.destroy(true);
+					CKEDITOR.replace( 'editor1', {
+						toolbar: myToolbar
+					});
+				}
+				else {
+					if(CKEDITOR.instances.editor2) 
+						CKEDITOR.instances.editor2.destroy(true);
+					CKEDITOR.replace( 'editor2', {
+						toolbar: myToolbar,
+						resize_enabled: false,
+						width: 513,
+						height: 150,
+						enableTabKeyTools: false,
+						tabSpaces: 4
+					});
+				}
 		}
 		return false;
 	});

@@ -103,7 +103,7 @@
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"/>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"/>
 <script type="text/javascript" src="js/jquery.watermark.min.js"/>
-<script type="text/javascript" src="js/jquery.cleditor.js"/>
+<script type="text/javascript" src="ckeditor/ckeditor.js"/>
 <script type="text/javascript" src="js/jquery.tooltip.min.js"/>
 <script type="text/javascript" src="js/param.js"/>
 <script type="text/javascript" src="js/urldecode.js"/>
@@ -246,7 +246,7 @@ $(document).ready(function() {
 				name = name.replace("." + ext, "");
 				
  			var content = Content.FromImport(gPageParams.path, name, files[i].nativePath);
- 			if (content.type != "content")
+ 			if (content && content.type != "content")
  				gManifest.addContent(content);
  			else
  				bad = true;	

@@ -68,8 +68,15 @@ div.action, header {
 div.action button {
   float: right;
 }
+
+.replace {
+/* 	float:right; */
+	margin-right: 10px;
+	font-weight: normal;
+	clear: right;
+}
 div.action a {
-  font-weight: bold;
+/*   font-weight: bold; */
   display: block;
   float: left;
 }
@@ -135,7 +142,10 @@ tbody tr {
   background-color: #ebf4f9;
   /*background-color:#D7DBDD;*/
   border-bottom: 1px solid #444;
+}
 
+.fixheight {
+	height: 51px;
 }
 
 tbody td.fill {
@@ -144,7 +154,7 @@ tbody td.fill {
   color: #666;
 }
 
-tbody tr:hover {
+.proj tr:hover, .index tr:hover {
   background-color: white;
 }
 
