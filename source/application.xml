@@ -1,6 +1,6 @@
 <application xmlns="http://ns.adobe.com/air/application/2.0">
   <id>org.academiccolab.maslo</id>
-  <version>0.1</version>
+  <version>0.2</version>
   <filename>MASLO</filename>
   <initialWindow>
     <content>start.html</content>

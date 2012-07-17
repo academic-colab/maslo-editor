@@ -328,7 +328,7 @@ Audio.prototype.preview = function(div, isEdit) {
 	Content.prototype.preview.call(this, div);	
 	var mp3         = new air.Sound(new air.URLRequest('file://' + this.path));
 	var channel     = null;
-	var btn         = $('<input type="button" value="Play" />');
+	var btn         = $('<button>Play</button>');
 	var self = this; 
 	var currentPath = this.path 
 	var toggleSound = function() {
@@ -344,7 +344,8 @@ Audio.prototype.preview = function(div, isEdit) {
 			channel.addEventListener(air.Event.SOUND_COMPLETE,
 			function(e) { channel = null; btn.attr('value', 'Play'); }); 
 		}
-		btn.attr('value', channel ? 'Stop' : 'Play');
+		var btnHtml = channel ? 'Stop' : 'Play';
+		btn.html(btnHtml);
 	};
 	btn.click('click', toggleSound);
 	div.append(btn);
