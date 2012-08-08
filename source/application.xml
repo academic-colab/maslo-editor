@@ -1,13 +1,13 @@
 <application xmlns="http://ns.adobe.com/air/application/2.0">
   <id>org.academiccolab.maslo</id>
-  <version>0.2</version>
+  <version>0.3</version>
   <filename>MASLO</filename>
   <initialWindow>
     <content>start.html</content>
     <visible>true</visible>
-    <width>1000</width>
-    <height>750</height>
-    <minSize>650 750</minSize>
+    <width>800</width>
+    <height>600</height>
+    <minSize>650 450</minSize>
   </initialWindow>
   <icon>
     <image16x16>icons/logo16.png</image16x16>

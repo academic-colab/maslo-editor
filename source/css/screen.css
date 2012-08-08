@@ -191,7 +191,7 @@ div.phone.horizontal div.viewport {
 }
 
 div.phone div.viewport {
-    height:365px;
+    height:335px;
     width: 250px;
     overflow: auto;
     padding-right: 65px;
@@ -224,7 +224,7 @@ div.phone.horizontal div.viewport {
 }
 div.phone div.canvas img {
     max-width: 255px;
-    margin-bottom: 10px;
+    margin-bottom: 10px; 
 }
 div.phone.horizontal div.canvas img {
     max-width: 360px;
