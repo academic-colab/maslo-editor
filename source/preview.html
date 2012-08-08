@@ -58,15 +58,7 @@
 					<td><input type="password" size="55"  id="userPassword"/></td>
 				</tr>
 				<tr>
-					<td colspan="2">&nbsp;</td>
-				</tr>
-				<tr>
-					<td>Content Pack Title</td>
-					<td><input type="text" size="55"  id="packTitle"/></td>
-				</tr>
-				<tr>
-					<td>Part of Course</td>
-					<td><input type="text" size="55"  id="courseId"/></td>
+					<td colspan="2">&nbsp;<input type="hidden" id="packTitle"/></td>
 				</tr>
 			</tbody>
 		</table>
@@ -130,25 +122,12 @@ $(document).ready(function() {
 	}
 	uploadPrefs();
 	
-	/*$("#publish").click(function(e) {
-		gManifest.zip();
-		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
-			air.File.separator + "contents.zip");
-		$("#instId").watermark("e.g. University of Wisconsin-Extension");
-		$("#serverURL").watermark("e.g. https://example.com/upload.php");
-		$("#packTitle").val(gManifest.projectName);
-		var res = passwordPrompt(numFiles, gManifest.projectName);
-		if (!res) {
-			configureUpload(true, true);
-		}	
-		return false;
-	});*/
+	
 	
 	$("#publish").click(function(e) {
 		gManifest.zip();
 		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
 			air.File.separator + "contents.zip");
-		air.trace("here");
 		$("#instId").watermark("e.g. University of Wisconsin-Extension");
 		$("#serverURL").watermark("e.g. https://example.com/");
 		$("#packTitle").val(gManifest.projectName);

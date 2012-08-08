@@ -132,7 +132,7 @@ function doUpload(numFiles,dirName,sessionId){
 	// string to be sent.
 	// It is still highly recommended to use proper SSL encryption, but at least this
 	// scheme will not make it completely obvious what the user's password is
-	var pw = CryptoJS.MD5(userData[1])+CryptoJS.SHA256(sessionId);
+	var pw = userData[1]+CryptoJS.SHA256(sessionId);
 	pw = CryptoJS.SHA256(pw);
 	urlVariables.userName = userData[0];
 	urlVariables.password = pw;
@@ -252,7 +252,7 @@ function passwordPrompt(numFiles, dirName, gManifest){
 					"Upload": function() {
 						if (checkFormValues($("#userName"),$("#userPassword"))) {
 							addUser($("#userName").val(), $("#userPassword").val());
-							$(this).dialog("close");
+							$(this).dialog("close");							
 							var result = doUpload(numFiles, dirName);
 						}
 
@@ -334,28 +334,31 @@ function splitZipFile(path){
 }
 
 function removeUser() { 
-	air.EncryptedLocalStore.removeItem( 'userName' ); 
-	air.EncryptedLocalStore.removeItem( 'password' );
+	var fc = new FileCache(getAppPath()+"login");
+	fc.deleteData();
 }
 
 function getUser(){
-	var userName = air.EncryptedLocalStore.getItem( 'userName' );
-	var pass = air.EncryptedLocalStore.getItem( 'password' );
+	var fc = new FileCache(getAppPath()+"login");	
 	var uName = null;
 	var uPass = null;
-	if (userName != null) {
-		uName = userName.readUTFBytes(userName.bytesAvailable);
-		uPass = pass.readUTFBytes(pass.bytesAvailable);
+	if (fc.val){
+		var data = JSON.parse(fc.val);
+		if ("name" in data) {
+			uName = data.name;
+			uPass = data.pw;
+		}
+		
 	}
 	return [uName, uPass];
 }
 
 function addUser(userName, userPW){
-	var data = new air.ByteArray(); 
-	data.writeUTFBytes( userName ); 
-	air.EncryptedLocalStore.setItem( 'userName', data ); 
-	data = new air.ByteArray(); data.writeUTFBytes( userPW ); 
-	air.EncryptedLocalStore.setItem( 'password', data );
+	var fc = new FileCache(getAppPath()+"login");
+	var pw = CryptoJS.MD5(userPW) + "";
+	var map = {"name":userName, "pw":pw};
+	fc.val =  JSON.stringify(map);
+	fc.flush();
 	return false;
 }
 
@@ -410,7 +413,7 @@ function verifyUserCred(sessionId){
 		// string to be sent.
 		// It is still highly recommended to use proper SSL encryption, but at least this
 		// scheme will not make it completely obvious what the user's password is
-		var pw = CryptoJS.MD5(userData[1])+CryptoJS.SHA256(sessionId);
+		var pw = userData[1]+CryptoJS.SHA256(sessionId);
 		pw = CryptoJS.SHA256(pw);
 		urlVariables.userName = userData[0];
 		urlVariables.password = pw;
@@ -461,8 +464,9 @@ function initUser(){
 				if (checkFormValues($("#userName"),$("#userPassword"))) {					
 					var userName = $("#userName").val();
 					var userPW = $("#userPassword").val();
-					addUser(userName, userPW);
 					showLoading();
+					addUser(userName, userPW);
+					
 					verifyUserCred();
 					$(this).dialog("close");
 				}
