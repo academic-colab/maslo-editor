@@ -1,8 +1,19 @@
 'use strict';
 
-// If idOrPath is a path, then the constructor will import the file
-// into the projectBase and give it a new unique name. If idOrPath is
-// a number, the constructed content will refer to an existing import.
+
+/**
+ * Creates a new content object
+ * If idOrPath is a path, then the constructor will import the 
+ * file into the projectBase and give it a new unique name. 
+ * If idOrPath is a number, the constructed content will refer 
+ * to an existing import.
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id (number) or path to file
+ * @param ext The extension of the file. Questions and Text
+ * do not have extensions.
+ */
 function Content(projectBase, title, idOrPath, ext) {
 	if(!projectBase) {
 		// when Content is used in prototypal inherience, these
@@ -56,6 +67,10 @@ function Content(projectBase, title, idOrPath, ext) {
 		</div>');
 }
 
+/**
+ * Sets the status of this content
+ * @param didPublish Boolean value
+ */
 Content.prototype.updateStatus = function(didPublish){
 	if (didPublish){
 		if (this.status == "Unpublished" || this.status == "Modified") {
@@ -68,9 +83,14 @@ Content.prototype.updateStatus = function(didPublish){
 	}
 }
 
-// Return this object but with members of only simple types
-// (strings, numbers). Exclude members beginning with '_'
-// because they are considered "private."
+/**
+ * Returns this object but with members of only simple 
+ * types (strings, numbers). Exclude members beginning
+ * with '_' because they are considered "private."
+ * 
+ * @param basePath Path to project
+ * @return ret A list of metadata associated with this object
+ */
 Content.prototype.metadata = function(basePath) {
 	var ret = {};
 	for(var m in this) {
@@ -98,6 +118,10 @@ Content.prototype.metadata = function(basePath) {
 	return ret; // wouldn't it be nice to have filter() in JS?
 }
 
+/**
+ * Saves this content by updating title and description file
+ * @param title The title
+ */
 Content.prototype.save = function(title) {
 	this._saved = true;
 	
@@ -121,6 +145,11 @@ Content.prototype.save = function(title) {
 	
 };
 
+/**
+ * Renders the content title
+ * @param div The content div
+ * @return div Updated content div
+ */
 Content.prototype.render = function(div) {
 	this._titleInput = $('<input type="text" size="69" class="title" />');
 	this._titleInput.val(this.title);
@@ -132,6 +161,9 @@ Content.prototype.render = function(div) {
 
 Content.prototype.preview = function(div) { }
 
+/**
+ * Deletes this content along with its description
+ */
 Content.prototype.deleteFile = function() {
 	var condemned = new air.File(this.path);
 	if(condemned.isDirectory) {
@@ -142,12 +174,11 @@ Content.prototype.deleteFile = function() {
 	this.descFile.deleteData();
 };
 
-/*
+/**
  * Replaces the media file associatied with the content element
  * Keeps track of the original file as well as the new one
  * in case the user decides to 'discard' the changes
- *
- * TODO: Make the function more general (other media types than img)
+ * @param replacement The path to the replacement file
  */
 Content.prototype.replaceMedia = function(replacement) {
     if(this._tmpObj) {
@@ -171,6 +202,10 @@ Content.prototype.unrender = function() {
 	this._saved = true;
 };
 
+/**
+ * Generates a unique id for this content
+ * @return id The id
+ */
 Content.prototype._uniqueId = function() {
 	var f, id;
 	do {
@@ -180,6 +215,10 @@ Content.prototype._uniqueId = function() {
 	return id;
 };
 
+/**
+ * Checks if the content was modified
+ * @return result Boolean value
+ */
 Content.prototype.wasModified = function(){
 	var inputInst = CKEDITOR.instances.editor1 ? CKEDITOR.instances.editor1 : CKEDITOR.instances.editor2;
 	var descInputCK = inputInst.getData();
@@ -194,7 +233,14 @@ Content.prototype.wasModified = function(){
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+ * Creates a new image object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ * @param ext The extension of the file
+ */
 function Image(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/image.png';
@@ -204,6 +250,11 @@ function Image(projectBase, title, idOrPath, ext) {
 Image.prototype = new Content();
 Image.prototype.constructor = Image;
 
+/**
+ * Renders the image edit content window
+ * @param div The content div
+ * @return div Updated content div
+ */
 Image.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
     var wrapperDiv = $('<div id="imgWrapper"></div>');
@@ -212,10 +263,6 @@ Image.prototype.render = function(div) {
     wrapperDiv.append(img);
 	div.append(wrapperDiv);
     
-    /*
-    * replaceable image  
-    */ 
-   
     var self = this;  
     var imageBtn = $('<button>Replace Image</button>');
     imageBtn.click(function() {
@@ -234,6 +281,11 @@ Image.prototype.render = function(div) {
 	return div;
 };
 
+/**
+ * Renders the preview window for images
+ * @param div The content div
+ * @return div Updated content div
+ */
 Image.prototype.preview = function(div) {
 	Content.prototype.preview.call(this, div);
 	var img = $('<img />');
@@ -248,6 +300,9 @@ Image.prototype.preview = function(div) {
 	return div;
 }
 
+/**
+ * Saves this image by updating its description file
+ */
 Image.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
@@ -266,6 +321,13 @@ Image.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
+/**
+ * Creates a new text object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ */
 function Text(projectBase, title, idOrPath) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.docFile = new FileCache(this.path);
@@ -276,6 +338,11 @@ function Text(projectBase, title, idOrPath) {
 Text.prototype = new Content();
 Text.prototype.constructor = Text;
 
+/**
+ * Renders the text edit window
+ * @param div The content div
+ * @return div Updated content div
+ */
 Text.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	this._textInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
@@ -285,6 +352,11 @@ Text.prototype.render = function(div) {
 	return div;
 } 
 
+/**
+ * Renders the preview window for text
+ * @param div The content div
+ * @return div Updated content div
+ */
 Text.prototype.preview = function(div) {
 	Content.prototype.preview.call(this, div);
 	var p = $('<p>');
@@ -293,6 +365,9 @@ Text.prototype.preview = function(div) {
 	return div;
 }
 
+/**
+ * Saves this text by retrieving the editor content
+ */
 Text.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._textInput) {
@@ -305,7 +380,14 @@ Text.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+ * Creates a new audio object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ * @param ext The extension of the file
+ */
 function Audio(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/audio.png';
@@ -314,6 +396,11 @@ function Audio(projectBase, title, idOrPath, ext) {
 Audio.prototype = new Content();
 Audio.prototype.constructor = Audio;
 
+/**
+ * Renders the audio edit window
+ * @param div The content div
+ * @return div Updated content div
+ */
 Audio.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	div = this.preview(div, true);
@@ -324,6 +411,13 @@ Audio.prototype.render = function(div) {
 	return div;
 };
 
+/**
+ * Renders the preview window for audio
+ * This method is also used for the edit content window for audio
+ * @param div The content div
+ * @param isEdit Whether this is the edit content window or preview
+ * @return div Updated content div
+ */
 Audio.prototype.preview = function(div, isEdit) {
 	Content.prototype.preview.call(this, div);	
 	var mp3         = new air.Sound(new air.URLRequest('file://' + this.path));
@@ -349,10 +443,6 @@ Audio.prototype.preview = function(div, isEdit) {
 	};
 	btn.click('click', toggleSound);
 	div.append(btn);
-	
-	/*
-    * Replaceable button  
-    */ 
        
     var audioBtn = $('<button>Replace Audio</button>');
     audioBtn.click(function() {
@@ -387,6 +477,9 @@ Audio.prototype.preview = function(div, isEdit) {
 	return div;
 }
 
+/**
+ * Saves this audio by updating its description file
+ */
 Audio.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
@@ -403,7 +496,14 @@ Audio.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+ * Creates a new quiz object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ * @param ext The extension of the file
+ */
 function Quiz(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath);
 	this.status = status;
@@ -427,12 +527,25 @@ function Quiz(projectBase, title, idOrPath, ext) {
 Quiz.prototype = new Content();
 Quiz.prototype.constructor = Quiz;
 
+/**
+ * Loads the quiz location
+ * @param div The content div
+ * @return false
+ */
 Quiz.prototype.render = function(div) {
 	window.location = 'quiz.html?' + $.param(
 		{id:this.id, proj:this._project, title:this.title}, true);		
 	return false;
 }
  
+/**
+ * Renders the preview window for audio.
+ * Recursively populates the page with question objects
+ * Each question has a attachments holding media files and 
+ * answers
+ * @param argDiv The content div
+ * @return argDiv Updated content div
+ */
 Quiz.prototype.preview = function(argDiv) {	
 	function doDisplay(which, div, argIndex){
 		div.empty();
@@ -528,6 +641,10 @@ Quiz.prototype.preview = function(argDiv) {
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Adds answers to the question by looking up the answerFile
+ * associated with the question
+ */
 function createAnswers(question){
 	question._answerForm = $('<form class="answers"><fieldset /></form>').find('fieldset');
 	question._answerForm.empty();
@@ -539,6 +656,14 @@ function createAnswers(question){
 	}
 }
 
+/**
+ * Creates a new question object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ * @param ext The extension of the file
+ */
 function Question(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath, ext);
 	
@@ -550,6 +675,10 @@ function Question(projectBase, title, idOrPath, ext) {
 Question.prototype = new Content();
 Question.prototype.constructor = Question;
 
+/**
+ * Saves this question by updating the answers,feedback
+ * and description
+ */
 Question.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._answerForm) {
@@ -581,6 +710,11 @@ Question.prototype.save = function() {
 	
 };
 
+/**
+ * Renders the edit content window for a question
+ * @param div The content div
+ * @return div Updated content div
+ */
 Question.prototype.render = function(div) {
 	div.append('<h6>Question Title</h6>');
 	Content.prototype.render.call(this, div);
@@ -623,6 +757,15 @@ Question.prototype.render = function(div) {
 	return div;
 };
 
+/**
+ * Add media to the question object's attachements
+ * 
+ * @param mediaDiv The div holding the media content
+ * @param content The content that is to be added
+ * @param index If the content is to be added to a specific place
+ * in the attachements (not used)
+ * @return false
+ */
 Question.prototype.addMedia = function(mediaDiv, content, index){
 	var q = this;
 
@@ -637,7 +780,14 @@ Question.prototype.addMedia = function(mediaDiv, content, index){
 	return false;
 };
 
-
+/**
+ * Add answer to a question
+ * 
+ * @param answer The answer text
+ * @param correct Whether or not it is correct
+ * @param feedback Feedback with the answer
+ * @return false
+ */
 Question.prototype.addAnswer = function(answer, correct, feedback) {
 	var a = $('<div class="answer"/>');
 	a.append(
@@ -680,7 +830,14 @@ Question.prototype.addAnswer = function(answer, correct, feedback) {
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+ * Creates a new video object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ * @param ext The extension of the file
+ */
 function Video(projectBase, title, idOrPath, ext) {
 	Content.call(this, projectBase, title, idOrPath, ext);
 	this.icon = 'icons/video.png';
@@ -690,6 +847,11 @@ function Video(projectBase, title, idOrPath, ext) {
 Video.prototype = new Content();
 Video.prototype.constructor = Video;
 
+/**
+ * Renders the video edit window
+ * @param div The content div
+ * @return div Updated content div
+ */
 Video.prototype.render = function(div) {
 	Content.prototype.render.call(this, div);
 	div = this.preview(div, true);
@@ -700,6 +862,13 @@ Video.prototype.render = function(div) {
 	return div;
 };
 
+/**
+ * Renders the preview window for videos
+ * It links to VLC media player in order to display videos
+ * @param isEdit Whether or not it is the edit content window
+ * @param div The content div
+ * @return div Updated content div
+ */
 Video.prototype.preview = function(div, isEdit) {
 	Content.prototype.preview.call(this, div);
 	var playBtn = $('<button>Preview Video</button>');
@@ -784,6 +953,9 @@ Video.prototype.preview = function(div, isEdit) {
 	return div;
 }
 
+/**
+ * Saves this video by updating its description file
+ */
 Video.prototype.save = function() {
 	Content.prototype.save.call(this);
 	if(this._descInput) {
@@ -802,8 +974,14 @@ Video.prototype.save = function() {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-// "Static" factory method deduces file types and instantiates the
-// appropriate subclass of Content
+/**
+ * "Static" factory method deduces file types and instantiates the
+ * appropriate subclass of Content
+ * @param projectBase The base path of the project
+ * @param title The title of the content
+ * @param originalPath
+ * @return A new content object
+ */
 Content.FromImport = function(projectBase, title, originalPath) {
 	var extension = originalPath.match(/\.(\w+)$/);
 	if (extension)
@@ -821,6 +999,12 @@ Content.FromImport = function(projectBase, title, originalPath) {
 	return new ctor(projectBase, title, originalPath);
 };
 
+/**
+ * Creates new content from metadata
+ * @param projectBase The base path of the project
+ * @param md Metadata 
+ * @return the new content
+ */
 Content.FromMetadata = function(projectBase, md) {
 	var ctor = Content.TypeConstructor(md.type);
 	var status = ("status" in md) ? md.status : "Unpublished";
@@ -837,7 +1021,11 @@ Content.FromMetadata = function(projectBase, md) {
 	}
 	return content;
 };
-
+/**
+ * Determines the kind of constructor to call on the content
+ * @param type The type of content
+ * @return The type of constructor
+ */
 Content.TypeConstructor = function(type) {
 	return {
 		"image": Image, "text": Text, "audio": Audio,

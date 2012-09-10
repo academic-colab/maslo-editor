@@ -40,6 +40,7 @@
 <script type="text/javascript" src="js/content.js"></script>
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript">
 
 var gManifest, gPageParams, gPath, gProj, gName;
@@ -91,6 +92,7 @@ $(document).ready(function() {
 		var content = new Question(gPath, 'Unwritten Question');
 		gManifest.addContent(content);
 		content.save();
+		bottomBar($('#contentTable').height() - 34, $(window).height());
 		return false;
 	});
 	
@@ -101,6 +103,10 @@ $(document).ready(function() {
 	    showBody: " - ", 
 	    fade: 250 
 	});
+	 bottomBar($('#contentTable').height() - 34, $(window).height());
+ 	 $(window).resize(function() {
+ 		bottomBar($('#contentTable').height() - 34, $(window).height());
+ 	});	
 
 });
 

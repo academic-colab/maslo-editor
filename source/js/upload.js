@@ -3,6 +3,11 @@
 var uploadManifest = null;
 var currentUrl = null;
 
+/**
+ * Creates a dialog message
+ * @param msg The text
+ * @param fun
+ */
 function postMessage(msg, fun){
 	$("#info-div").html(msg);
 	$('#info-div').dialog({
@@ -24,6 +29,10 @@ function postMessage(msg, fun){
 function uploadProgress(data){
 }
 
+/**
+ * The dialog displaying upload complete
+ * @param event
+ */
 function completeHandler(event){
 	uploadManifest.updateStatus(true);
 	uploadManifest.save();
@@ -42,6 +51,10 @@ function completeHandler(event){
 	  });
 }
 
+/**
+ * The dialog displaying upload error
+ * @param event
+ */
 function uploadError(event){
 	$("#info-div").html("Upload failed.<br/><p/>Detailed error message:<br/>"+event.toString());
 	$('#info-div').dialog({
@@ -60,6 +73,12 @@ function uploadError(event){
 function uploadComplete(event){
 }
 
+/**
+ *
+ * @param urlRequest
+ * @param serial
+ * @param totalNum
+ */
 function fileUploader(urlRequest, serial, totalNum){
 	air.trace("file uploader "+serial);
 	var fPath = getAppPath()+"contents.zip";

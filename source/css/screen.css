@@ -47,6 +47,12 @@ div#rename {
 	z-index:4;  
 }
 
+
+div.action {
+	height: 32px;
+}
+
+
 div.action, header {
 	background-image: linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
 	background-image: -o-linear-gradient(bottom, rgb(159,159,159) 20%, rgb(195,195,195) 55%, rgb(220,220,220) 100%);
@@ -187,7 +193,7 @@ div.phone.horizontal {
 
 div.phone.horizontal div.viewport {
     height: 250px;
-    width: 365px;
+    width: 360px;
 }
 
 div.phone div.viewport {
@@ -196,6 +202,7 @@ div.phone div.viewport {
     overflow: auto;
     padding-right: 65px;
 }
+
 /* Scroll bar style */
 div.phone ::-webkit-scrollbar {
     width: 12px;

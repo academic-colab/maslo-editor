@@ -1,5 +1,13 @@
 'use strict';
 
+/**
+ * Constructor for the manifest class
+ * Creates a table representing all the content in 
+ * the manifest
+ * @param path The path to the manifest
+ * @param name Name of the project
+ * @param argObj Wheter the manifest is a quiz or project
+ */
 function Manifest(path, name, argObj) {
 	/*this.parent = null
 	if (parPath != null)
@@ -10,9 +18,6 @@ function Manifest(path, name, argObj) {
 	var data = null;
 	this.ordernum = 0;
 	this.tmpOrder = new Array();
-	
-	
-	
 	this.versionData = null;
 	if (this.obj != null) {
 		data = this.obj.attachments;
@@ -70,10 +75,10 @@ function Manifest(path, name, argObj) {
 }
 
 
-/*
- * Setup the dragable table rows
+/**
+ * Sets up the dragable table rows
+ * updateIndexes() makes sure the input fields get updated on drop
  */
- 
 var fixHelper = function(e, ui) {
 	ui.children().each(function() {
 		$(this).width($(this).width());
@@ -86,7 +91,10 @@ function updateIndexes(manifest){
 		$(this).val(i+1);
 	});
 }
-
+/**
+ * Renders the table and makes it sortable
+ * @param div The manifest div
+ */
 Manifest.prototype.render = function(div) {
 	div.append(this.tbl);
 	var manifest = this;
@@ -101,7 +109,10 @@ Manifest.prototype.render = function(div) {
 	});
 };
 
-
+/**
+ * Gets the a list of all the metadata in the manifest.
+ * @param convert Boolean value
+ */
 Manifest.prototype.data = function(convert) {
 	var basePath = null;
 	if (convert) {
@@ -116,6 +127,10 @@ Manifest.prototype.data = function(convert) {
 	return ar;
 };
 
+/**
+ * Gets all a list of all the content objects in the manifest
+ * @return ar List of all the content objects in the manifest 
+ */
 Manifest.prototype.items = function() {
 	var ar = [];
 	this.tbl.find('tr').each(function(k, v) {
@@ -126,6 +141,10 @@ Manifest.prototype.items = function() {
 	return ar;
 };
 
+/**
+ * Updates the status of the project.
+ * @param hitPublish Whether the project was just published
+ */
 Manifest.prototype.updateStatus = function(hitPublish){
 	if (this.obj == null) {
 	var versionModified = false;
@@ -160,6 +179,9 @@ Manifest.prototype.updateStatus = function(hitPublish){
 	}
 }
 
+/**
+ * Saves the manifest
+ */
 Manifest.prototype.save = function() {
 	if (this.file != null) { 
 		var data = this.data(true);
@@ -180,6 +202,13 @@ Manifest.prototype.save = function() {
 	}
 };
 
+/**
+ * Adds content to the manifest
+ * Handles all the functionality that comes with the content such as
+ * order, type, title, status and the remove button. The event handlers
+ * and dialogs are declared as the content is added. 
+ * @param content The content that is to be added to the manifest
+ */
 Manifest.prototype.addContent = function(content) {
 	this.ordernum++;
 	
@@ -284,6 +313,7 @@ Manifest.prototype.addContent = function(content) {
 					tr.remove();
 					manifest.updateStatus(false);
 					manifest.save();
+					bottomBar($('#contentTable').height() - 34, $(window).height());
 					$( this ).dialog( "close" );
 				},
 				Cancel: function() {					
@@ -395,6 +425,9 @@ Manifest.prototype.addContent = function(content) {
 	this.save();
 };
 
+/**
+ * Creates a zip file of the manifest
+ */
 Manifest.prototype.zip = function() {
 	var zipName = air.File.applicationStorageDirectory.nativePath +
 		air.File.separator + "contents.zip";
@@ -425,5 +458,3 @@ Manifest.prototype.zip = function() {
 	var res = addData(this.projectName, currentFolder);
 	writer.close();
 };
-
-

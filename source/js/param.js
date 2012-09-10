@@ -1,3 +1,8 @@
+/**
+ * 
+ * @param query The query parameter to be parsed
+ * @return params The parsed query parameter
+ */
 function queryParameters(query) {
   var keyValuePairs = query.split(/[&?]/g);
   var params = {};

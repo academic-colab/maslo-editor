@@ -1,9 +1,16 @@
+/**
+ * Gets the path to the application
+ */
 function getAppPath(){
 	var path = air.File.applicationStorageDirectory.nativePath +
 		air.File.separator;
 	return path;
 }
 
+/**
+ * Open the file browser window on the local machine and filters
+ * for all the acceptable file types in MASLO
+ */
 function chooseFile(action) {
 	file = new window.runtime.flash.filesystem.File();
 	file.addEventListener(air.Event.SELECT, action);
@@ -16,9 +23,8 @@ function chooseFile(action) {
 }
 
 /*
- * Called when we want to replace an image. Essentially the same as chooseFile()
- * but it filters out everything but image files.
- *
+ * Called when we want to replace a media file. Essentially the same as chooseFile()
+ * but it filters depending on the type of media.
  */
 function replaceMediaFile(action, type) {
     file = new window.runtime.flash.filesystem.File();
@@ -29,7 +35,12 @@ function replaceMediaFile(action, type) {
     						   new air.FileFilter("text", "*.txt;*.html;*.htm");
 	file.browseForOpen("Please select a file...", [fltr]);
 }
-
+    
+/**
+ * 
+ * @param path
+ * @return 
+ */
 function relativize(path) {
 	// regex to match final /(project/file)
 	// using an absolute url would prevent exporting projects to another computer

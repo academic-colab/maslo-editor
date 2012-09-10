@@ -80,12 +80,16 @@
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript" src="js/upload.js"></script>
 <script type="text/javascript" src="js/sorttable.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="AIRAliases.js"></script>
+
 <script type="text/javascript">
 
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
-	
+	/**
+ 	 * Populate the list of projects. 
+ 	 */
 	var directory = air.File.applicationStorageDirectory; 
 	var files = directory.getDirectoryListing();  
 	for (var f in files) {
@@ -212,6 +216,11 @@ $(document).ready(function() {
 			}
 		});
 	});
+	bottomBar($('#contentBody').height(), $(window).height());
+	$(window).resize(function() {
+		bottomBar($('#contentBody').height(), $(window).height());
+	});
+	
 });
 </script>
 </html>

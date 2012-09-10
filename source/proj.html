@@ -115,6 +115,7 @@
 <script type="text/javascript" src="js/help.js"/>
 <script type="text/javascript" src="js/md5.js"/>
 <script type="text/javascript" src="js/sha256.js"/>
+<script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/upload.js"/>
 
 <script type="text/javascript">
@@ -179,6 +180,7 @@ $(document).ready(function() {
 			var content = Content.FromImport(gPageParams.path, 'Untitled', e.target.url);
 			gManifest.addContent(content);
 			// the upload button is inside #dialog-add
+			bottomBar($('#contentTable').height() - 34, $(window).height());
 			$('#dialog-add').dialog("close");
 		});
 	});
@@ -247,27 +249,23 @@ $(document).ready(function() {
  			var content = Content.FromImport(gPageParams.path, name, files[i].nativePath);
  			if (content != null && content.type != "content") {
  				gManifest.addContent(content);
- 			}
- 			else
+				bottomBar($('#contentTable').height() - 34, $(window).height());
+ 			} else {
  				bad = true;	
+			}
  		}
- 		var warning = $('\
-		<div id="dialog-confirm" style="display: none" title="Warning"> \
-			<p>One or more of the selected files were not added to the project because of \
-			invalid extension(s). See the help menu for acceptable files types.</p> \
-		</div>');
-		if(bad) {
- 			warning.dialog({
-				height:240,
-				modal: true,
-				buttons: {
-					"Ok": function() {
-						$( this ).dialog( "close" );
-					}
-				}
-			}); 
- 		}
- 	}	
+ 		var warning = "One or more of the selected files were not added to the project because of \
+			invalid extension(s). See the help menu for acceptable files types.";
+		if(bad)	{
+			postMessage(warning);	
+		}
+ 	}
+
+ 	bottomBar($('#contentTable').height() - 34, $(window).height());
+ 	 $(window).resize(function() {
+ 		bottomBar($('#contentTable').height() - 34, $(window).height());
+ 	});	
+
 });
 
 </script>
