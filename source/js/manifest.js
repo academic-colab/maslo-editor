@@ -238,11 +238,11 @@ Manifest.prototype.addContent = function(content) {
 	tr.append(td);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
 	tr.append($('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="'+cTitle+'">' + cTitle + '</a><div class="renameDiv" id="' + content.id + '"><button type="button" class="nice mini radius blue button">Rename</button></div></div></td>'));
-        tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
-        tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
-
+	tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
+	tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
+		
 	if (this.obj == null)
-		tr.append($('<td><div>'+content.status+'</div></td>'));
+		tr.append($('<td><div class="contentStatus">'+content.status+'</div></td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 	tr.data('content', content);
 
@@ -384,7 +384,7 @@ Manifest.prototype.addContent = function(content) {
 							
                         } 
 						c.updateStatus(false);						
-						tr.find('div').text(c.status);
+						tr.find('.updateStatus').text(c.status);
 						manifest.updateStatus(false);
 						var cTitle = c.title;
 						if (cTitle.length > 60){
