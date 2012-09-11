@@ -26,6 +26,13 @@
 		<div class="clear"></div>
 	</div>
 
+	<div id="rename">
+	  <input type="text" id="contentName" width="50%" />
+	  <button type="button" class="ok nice mini radius blue button" disabled="disabled">OK</button>
+	  <button type="button" class="cancel nice mini radius white button" onClick="$('#rename').hide();">Cancel</button>
+	</div>
+
+
 <!------------------- DIALOGS --------------------- -->
 <div id="info-div" style="display: none" title="Info">
 </div>
@@ -221,6 +228,39 @@ $(document).ready(function() {
 		
 		return false;
 	});
+
+
+	$('.renameDiv button').click(function(e){
+		var tr = $(this).parent().parent().parent().parent();
+		var td = $(this).parent().parent().parent().find("a:first");
+		var contentName = td.attr("name");
+		$("#contentName").val(contentName);		
+
+		var width = tr.find("td:eq(2)").width()+10;
+		var height = tr.height()-10;
+		$('#rename').css({'top':tr.position().top+12,'left':tr.find("td:eq(2)").position().left+3, 'width':width, 'height':height}).show();
+		$('#rename').find('input').css({'width':'60%'});
+		$('#rename button.ok').attr('disabled', $("#contentName").val() == '');
+		$('#rename button.ok').unbind('click');
+		$('#rename button.ok').click(function(e){
+                        // Update the data structures
+                        tr.data('content').title = $("#contentName").val();
+                        gManifest.save();
+
+                        // Update the display with the new name
+			td.attr('name', $("#contentName").val());
+			td.attr('title', $("#contentName").val());
+			var pName = $("#contentName").val();
+			if (pName.length > 60)
+				pName = pName.substr(0,59) + "...";
+			td.html(pName);
+			$('#rename').hide();
+
+			return false;
+		});
+	});
+
+
 	//Dropable
 	
     var dropbox = document.getElementById("dropzone");
