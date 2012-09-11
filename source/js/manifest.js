@@ -6,7 +6,7 @@
  * the manifest
  * @param path The path to the manifest
  * @param name Name of the project
- * @param argObj Whether the manifest is a quiz or project
+ * @param argObj Wheter the manifest is a quiz or project
  */
 function Manifest(path, name, argObj) {
 	/*this.parent = null
