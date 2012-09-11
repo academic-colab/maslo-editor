@@ -6,7 +6,7 @@
  * the manifest
  * @param path The path to the manifest
  * @param name Name of the project
- * @param argObj Whether the manifest is a quiz or project
+ * @param argObj Wheter the manifest is a quiz or project
  */
 function Manifest(path, name, argObj) {
 	/*this.parent = null
@@ -237,10 +237,7 @@ Manifest.prototype.addContent = function(content) {
 
 	tr.append(td);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
-	tr.append($('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="'+cTitle+'">' + cTitle + '</a><div class="renameDiv" id="' + content.id + '"><button type="button" class="nice mini radius blue button">Rename</button></div></div></td>'));
-        tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
-        tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
-
+	tr.append($('<td><a class="title" href="#" '+aTitle+'>' + cTitle + '</a></td>'));
 	if (this.obj == null)
 		tr.append($('<td><div>'+content.status+'</div></td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
