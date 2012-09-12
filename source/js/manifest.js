@@ -146,7 +146,7 @@ Manifest.prototype.items = function() {
  * @param hitPublish Whether the project was just published
  */
 Manifest.prototype.updateStatus = function(hitPublish){
-	if (this.obj == null) {
+    if (this.obj == null) {
 	var versionModified = false;
 	if (this.versionData["status"] == "Published" && !hitPublish) {
 		this.versionData["status"] = "Modified";	
@@ -176,7 +176,7 @@ Manifest.prototype.updateStatus = function(hitPublish){
 		f.val = JSON.stringify(this.versionData);
 		f.flush();
 	}
-	}
+    }
 }
 
 /**
@@ -211,7 +211,7 @@ Manifest.prototype.save = function() {
  */
 Manifest.prototype.addContent = function(content) {
 	this.ordernum++;
-	
+
 	var quiz = this.obj;
 	var on = this.ordernum;
 	var tempoArray = this.tmpOrder;
@@ -228,19 +228,88 @@ Manifest.prototype.addContent = function(content) {
 		aTitle = 'title=" - '+content.title+'"';
 	}
 
+        // The order number (the order which the fields are displayed in) and the icon
 	var rowid = "row" + this.ordernum; 
 	var td = $('<td><input maxlength="3" id="' + rowid + '"\
 	  class="numbering" type="text" name="number" size="2.5" value="'+ this.ordernum +'"/><br</td>'); 
 	$("#" + rowid).live('blur', function() {
 		tempoArray[content.id] = $(this).val();
 	});
-
 	tr.append(td);
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
-	tr.append($('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="'+cTitle+'">' + cTitle + '</a><div class="renameDiv" id="' + content.id + '"><button type="button" class="nice mini radius blue button">Rename</button></div></div></td>'));
-	tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
-	tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
-		
+
+        // This is the function that allows renaming of content within a project
+        button = $('<button type="button" class="nice mini radius blue button">Rename</button>');
+        button.click(function(e){
+		var tr = $(this).parent().parent().parent().parent();
+		var td = $(this).parent().parent().parent().find("a:first");
+		var contentName = td.attr("name");
+		$("#contentName").val(contentName);		
+
+		var width = tr.find("td:eq(2)").width()+10;
+		var height = tr.height()-10;
+		$('#rename').css({'top':tr.position().top+10,'left':tr.find("td:eq(2)").position().left+3, 'width':width, 'height':height}).show();
+		$('#rename').find('input').css({'width':'60%'});
+                
+                // This is the function that saves state once they click OK
+                var func = function(e){
+                        // Don't let the user supply a blank name or all whitespace.
+                        // if they do that then there will be no link to click on!
+                        if(/^\s*$/.test($("#contentName").val())) {
+                            if($("#contentName").val()) {
+                                alert("You cannot name your content with all whitespace.");
+                            }
+                            else {
+                                alert("You must supply a name.");
+                            }
+                            $('#rename').hide();
+                            return false;
+                        }
+ 
+                        // Update the data structures and save it back to disk
+                        tr.data('content').title = $("#contentName").val();
+
+                        if(tr.data('content').status == "Published") {
+                            tr.data('content').updateStatus(false);
+                            tr.find('.contentStatus').text(tr.data('content').status);
+                            gManifest.updateStatus(false);
+                        }
+
+                        gManifest.save();
+
+                        // Update the display with the new name
+			td.attr('name', $("#contentName").val());
+			td.attr('title', $("#contentName").val());
+			var pName = $("#contentName").val();
+			if (pName.length > 60)
+				pName = pName.substr(0,59) + "...";
+			td.html(pName);
+			$('#rename').hide();
+
+			return false;
+		};
+
+                // Assign the handler to the button
+		$('#rename button.ok').attr('disabled', $("#contentName").val() == '');
+		$('#rename button.ok').unbind('click');
+                $('#rename button.ok').click(func);
+
+                // Assign the handler when the user presses Enter in the box
+                $('#contentName').unbind('keyup');
+                $('#contentName').keyup(function(e) {
+                        if(e.keyCode == '13') {
+                            func(e);
+                        }
+                    });
+	});
+
+        // Add the title, including the (sometimes visible) rename button
+        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="'+cTitle+'">' + cTitle + '</a><div class="renameDiv"></div></div></td>');
+        tmp_td.find('div').find('div.renameDiv').append(button);
+        tr.append(tmp_td);
+        tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
+        tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
+
 	if (this.obj == null)
 		tr.append($('<td><div class="contentStatus">'+content.status+'</div></td>'));
 	tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
@@ -384,7 +453,7 @@ Manifest.prototype.addContent = function(content) {
 							
                         } 
 						c.updateStatus(false);						
-						tr.find('.updateStatus').text(c.status);
+						tr.find('.contentStatus').text(c.status);
 						manifest.updateStatus(false);
 						var cTitle = c.title;
 						if (cTitle.length > 60){

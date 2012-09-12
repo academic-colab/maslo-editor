@@ -36,7 +36,7 @@ function uploadProgress(data){
 function completeHandler(event){
 	uploadManifest.updateStatus(true);
 	uploadManifest.save();
-	$("#contentTable").find("div").text("Published");
+	$("#contentTable").find(".contentStatus").text("Published");
 	$("#info-div").html("Upload completed successfully.<br/><p/>");
 	$('#info-div').dialog({
 		autoOpen: true,
