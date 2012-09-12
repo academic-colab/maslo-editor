@@ -142,14 +142,12 @@ $(document).ready(function() {
 		var height = tr.height()-10;
 		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width, 'height':height}).show();
 		$('#rename').find('input').css({'width':'60%'});
-		$('#rename button.ok').attr('disabled', $("#projectName").val() == '');
-		$('#rename button.ok').unbind('click');
-		$('#rename button.ok').click(function(e){
+
+                func = function(e){
 			var newdir = air.File.applicationStorageDirectory.resolvePath(
 				$("#projectName").val());
 			if (newdir.exists){
 				alert("Cannot rename to an already existing project.");
-				$('#rename').hide();
 				return false;
 			}
 			newdir.createDirectory();
@@ -166,8 +164,20 @@ $(document).ready(function() {
 			td.html(pName);
 			$('#rename').hide();
 			return false;
-			
-		});
+		};
+
+                // Assign the handler to the OK button
+		$('#rename button.ok').attr('disabled', $("#projectName").val() == '');
+		$('#rename button.ok').unbind('click');
+		$('#rename button.ok').click(func);
+
+                // Assign the handler when the user presses Enter in the box
+                $('#projectName').unbind('keyup');
+                $('#projectName').keyup(function(e) {
+                        if(e.keyCode == '13') {
+                            func(e);
+                        }
+                    });
 	});
 	
 	
