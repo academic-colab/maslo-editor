@@ -187,6 +187,11 @@ $(document).ready(function() {
 	$('.action .ok').click(function() {
 		var newdir = air.File.applicationStorageDirectory.resolvePath(
 			$('.action input').val());
+                if (newdir.exists){
+                        alert("That name is already used by an existing project.  Delete that one first if you want to overwrite it.");
+                        $('.action input').focus();
+                        return false;
+                }
 		newdir.createDirectory();
 		var f = new air.File(
 			[air.File.applicationStorageDirectory.nativePath,
