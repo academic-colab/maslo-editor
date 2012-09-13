@@ -136,7 +136,7 @@ $(document).ready(function() {
 	$('.renameDiv button').click(function(e){
 		var td = $(this).parent().parent().parent().find("a:first");
 		var tr = $(this).parent().parent().parent().parent();
-		var projectName = td.attr("name");
+		var projectName = td.text();
 		$("#projectName").val(projectName);		
 		var width = tr.find("td:first").width()+10;
 		var height = tr.height()-10;

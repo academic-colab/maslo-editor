@@ -243,8 +243,8 @@ Manifest.prototype.addContent = function(content) {
         button.click(function(e){
 		var tr = $(this).parent().parent().parent().parent();
 		var td = $(this).parent().parent().parent().find("a:first");
-		var contentName = td.attr("name");
-		$("#contentName").val(contentName);		
+		var contentName = td.text();
+		$("#contentName").val(contentName);
 
 		var width = tr.find("td:eq(2)").width()+10;
 		var height = tr.height()-10;
