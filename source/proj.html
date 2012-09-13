@@ -95,7 +95,7 @@
 			</tr>
 		</tbody>
 	</table>
-	<form class="quiz" style="display:none" action="quiz.html" method="GET">
+	<form class="quiz" style="display:none" action="quiz.html" method="GET" accept-charset="UTF-8">
 		<input type="text" name="title" />
 		<input type="hidden" name="id" />
 		<input type="hidden" name="proj" />
@@ -165,7 +165,7 @@ $(document).ready(function() {
 	});
 
 	$('#preview').click(function() {
-		window.location = 'preview.html?name=' + gPageParams.name ;
+		window.location = 'preview.html?name=' + encodeURIComponent(gPageParams.name) ;
 	});
 	uploadPrefs();
 	$('.action a.alt').click(function() {

@@ -99,10 +99,10 @@ var gSwitchHandler = function() {};
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	var gPageParams = queryParameters(document.location.search);
-	$('a.back').attr('href', 'proj.html?name=' + gPageParams.name);
+	$('a.back').attr('href', 'proj.html?name=' + encodeURIComponent(gPageParams.name));
 	$('a.back').text(gPageParams.name.toString());
 	$('#back').click(function() {
-		window.location = 'proj.html?name=' + gPageParams.name;
+		window.location = 'proj.html?name=' + encodeURIComponent(gPageParams.name);
 	});
 	
 	gPageParams.path = air.File.applicationStorageDirectory.nativePath +

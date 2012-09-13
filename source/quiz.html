@@ -53,7 +53,7 @@ $(document).ready(function() {
 	gPath       = [air.File.applicationStorageDirectory.nativePath,
 	               gProj, gPageParams.id].join(air.File.separator);
 
-	$('a.back').attr('href', 'proj.html?name=' + gProj);
+	$('a.back').attr('href', 'proj.html?name=' + encodeURIComponent(gProj));
 	var pName = gProj.toString();
 	if (pName.length > 40) {
 		pName = pName.substr(0,39) + "...";
@@ -82,7 +82,7 @@ $(document).ready(function() {
 	});	
 	
 	$('#back').click(function() {
-		window.location = 'proj.html?name=' + gProj;
+		window.location = 'proj.html?name=' + encodeURIComponent(gProj);
 	});
 
 	gManifest = new Manifest(gPath);
