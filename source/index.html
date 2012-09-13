@@ -105,7 +105,7 @@ $(document).ready(function() {
 				title =  ' title=" - '+files[f].name+'"';
 			}
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='
-				+ escape(files[f].name) + '" name="'
+				+ encodeURIComponent(files[f].name) + '" name="'
 				+ files[f].name+ '" '+ title +'>' + fname + '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
 			tr.append($('<td>'
 				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
@@ -164,7 +164,7 @@ $(document).ready(function() {
 			olddir.moveTo(newdir, true);
 
                         // Update the display and link to use the new name
-			var newHref = 'proj.html?name='+ escape($("#projectName").val());
+			var newHref = 'proj.html?name='+ encodeURIComponent($("#projectName").val());
 			td.attr('href', newHref);
 			td.attr('name', $("#projectName").val());
 			td.attr('title', $("#projectName").val());
@@ -219,7 +219,7 @@ $(document).ready(function() {
 		var fs = new air.FileStream();
 		fs.open(f, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
-		window.location = 'proj.html?name=' + escape($('.action input').val());
+		window.location = 'proj.html?name=' + encodeURIComponent($('.action input').val());
 	});
 	$('img.remove').click(function(e) {
 		var elt = $(this).parent().parent();
