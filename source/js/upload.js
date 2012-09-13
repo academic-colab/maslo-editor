@@ -404,7 +404,7 @@ function addUser(userName, userPW){
 function verifyUserCred(sessionId){
 	var f = new FileCache(getAppPath() + air.File.separator + 'uploadSettings.config');
 	if (!f.val){
-		var  msg = "Your upload server settings are not configured yet. \nYou will be logged in as 'guest'\
+		var  msg = "Your upload server settings are not configured yet. \nYou will work offline now\
 		and then be able to create your server configurations in 'Settings'.";
 		var arg = function(){document.location.href="index.html";}
 		postMessage(msg, arg);
@@ -435,7 +435,7 @@ function verifyUserCred(sessionId){
 				timedOut = false;
 				$("#loadingDiv").dialog("close");
 				var msg = "Server URL configured in your settings ("+jsonData.serverURL+") cannot be contacted. \
-				Please check your configuration and network availability.\n\nYou will be logged in as 'guest'.";			
+				Please check your configuration and network availability.\n\nYou will now work offline.";			
 				var arg = function(){document.location.href="index.html";}
 				postMessage(msg, arg);
 				removeUser();
@@ -470,7 +470,7 @@ function verifyUserCred(sessionId){
 						removeUser();
 						var callback = function() {initUser();}
 						$("#loadingDiv").dialog("close");
-						var msg = "Login failed. Check your user name/password or log in as 'guest'.";
+						var msg = "Login failed. Check your user name/password or work offline.";
 						postMessage(msg, callback);
 					}
 		}
