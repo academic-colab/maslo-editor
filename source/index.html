@@ -144,16 +144,26 @@ $(document).ready(function() {
 		$('#rename').find('input').css({'width':'60%'});
 
                 func = function(e){
+                        // If the original project name is the same after they click OK just treat it like a cancel
+                        if(projectName == $("#projectName").val()) {
+                                $('#rename').hide();
+				return false;
+                        }
+
 			var newdir = air.File.applicationStorageDirectory.resolvePath(
 				$("#projectName").val());
-			if (newdir.exists){
+			if(newdir.exists) {
 				alert("Cannot rename to an already existing project.");
 				return false;
 			}
+       
+                        // Take care of the back end data storage
 			newdir.createDirectory();
 			var olddir = air.File.applicationStorageDirectory.resolvePath(
 				projectName);
 			olddir.moveTo(newdir, true);
+
+                        // Update the display and link to use the new name
 			var newHref = 'proj.html?name='+ escape($("#projectName").val());
 			td.attr('href', newHref);
 			td.attr('name', $("#projectName").val());
