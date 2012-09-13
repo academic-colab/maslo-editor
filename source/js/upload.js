@@ -260,6 +260,33 @@ function passwordPrompt(numFiles, dirName, gManifest){
 	uploadManifest = null;
 	uploadManifest = gManifest;
 	var userData = getUser();
+
+        login_func = function(e) {
+            if (checkFormValues($("#userName"),$("#userPassword"))) {
+                addUser($("#userName").val(), $("#userPassword").val());
+                $('#user-pass').dialog("close"); // TODO - this isn't working since it was moved
+                var result = doUpload(numFiles, dirName);
+            }
+        };
+
+        // Assign the handler when the user presses Enter in the username box
+        user_field = $('#user-pass').find('#userName');
+        user_field.unbind('keyup');
+        user_field.keyup(function(e) {
+                if(e.keyCode == '13') {
+                    login_func(e);
+                }
+            });
+
+        // Assign the handler when the user presses Enter in the password box
+        pw_field = $('#user-pass').find('#userPassword');
+        pw_field.unbind('keyup');
+        pw_field.keyup(function(e) {
+                if(e.keyCode == '13') {
+                    login_func(e);
+                }
+            });
+
 	if (saveUploadSettings(false)) {
 		if (userData[0] == null) {
 			$('#user-pass').dialog({
@@ -268,14 +295,7 @@ function passwordPrompt(numFiles, dirName, gManifest){
 				width: 650,
 				position: 'top',
 				buttons: {
-					"Upload": function() {
-						if (checkFormValues($("#userName"),$("#userPassword"))) {
-							addUser($("#userName").val(), $("#userPassword").val());
-							$(this).dialog("close");							
-							var result = doUpload(numFiles, dirName);
-						}
-
-					},
+					"Upload": login_func,
 					"Cancel": function() { 
 						$(this).dialog("close"); 
 					}
@@ -473,24 +493,45 @@ function initUser(){
 	var data = getUser();
 	if (data[0] != null)
 		return false;
+
+        login_func = function() {
+            if (checkFormValues($("#userName"),$("#userPassword"))) {					
+                var userName = $("#userName").val();
+                var userPW = $("#userPassword").val();
+                showLoading();
+                addUser(userName, userPW);
+		
+                verifyUserCred();
+                $('#user-pass').dialog("close");
+            }
+        };
+
+        // Assign the handler when the user presses Enter in the username box
+        user_field = $('#user-pass').find('#userName');
+        user_field.unbind('keyup');
+        user_field.keyup(function(e) {
+                if(e.keyCode == '13') {
+                    login_func(e);
+                }
+            });
+
+        // Assign the handler when the user presses Enter in the password box
+        pw_field = $('#user-pass').find('#userPassword');
+        pw_field.unbind('keyup');
+        pw_field.keyup(function(e) {
+                if(e.keyCode == '13') {
+                    login_func(e);
+                }
+            });
+
 	$('#user-pass').dialog({
 		autoOpen: true,
 		modal: true,
 		width: 650,
 		position: 'center',
 		buttons: {
-			"Login": function() {
-				if (checkFormValues($("#userName"),$("#userPassword"))) {					
-					var userName = $("#userName").val();
-					var userPW = $("#userPassword").val();
-					showLoading();
-					addUser(userName, userPW);
-					
-					verifyUserCred();
-					$(this).dialog("close");
-				}
-			},
-			"Login as guest": function() { 
+                        "Login": login_func,
+			"Work Offline": function() { 
 				$(this).dialog("close"); 
 				document.location.href="index.html";
 			}
