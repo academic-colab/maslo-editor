@@ -99,14 +99,15 @@ $(document).ready(function() {
 			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
 			var tr = $('<tr />');
 			var fname = files[f].name;
+                        var fname_quoted = fname.replace(/"/g, "&quot;");
 			var title = '';
 			if (fname.length > 60){
 				fname = fname.substr(0,59) + "...";
-				title =  ' title=" - '+files[f].name+'"';
+				title =  ' title=" - ' + fname_quoted + '"';
 			}
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='
 				+ encodeURIComponent(files[f].name) + '" name="'
-				+ files[f].name+ '" '+ title +'>' + fname + '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
+				+ fname_quoted + '" '+ title +'>' + fname + '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
 			tr.append($('<td>'
 				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
