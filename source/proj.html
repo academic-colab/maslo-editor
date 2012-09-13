@@ -218,6 +218,10 @@ $(document).ready(function() {
 	
 	
 	$("#publish").click(function(e) {
+                if(!($('.proj').find('tr:first').data('content'))) {
+                        alert('There is no content in this project to publish.  Add content by clicking the "+ Add Content" button');
+                        return false;
+                }
 		gManifest.zip();
 		var numFiles = splitZipFile(air.File.applicationStorageDirectory.nativePath +
 			air.File.separator + "contents.zip");
