@@ -190,7 +190,7 @@ Manifest.prototype.save = function() {
 		if (data.length == 0){
 			var tr = $('<tr id="fillRow"/>');
 			this.tbl.find('tbody').append(tr);
-			tr.append($('<td colspan="4" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
+			tr.append($('<td colspan="5" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
 		}
 	} else {
 		if (this.obj != null){
