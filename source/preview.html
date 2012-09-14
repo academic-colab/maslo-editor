@@ -113,9 +113,14 @@ $(document).ready(function() {
 	// the hidden source of actual data
 	var d = $('ul.data');
 	var items = gManifest.items();
+        // The index is important for more than display purposes.  If multiple content pieces
+        // have the same title then they need this index number to differentiate them or
+        // jquery won't handle scrolling through content correctly.
+        var index = 0;
 	for(var c in items) {
+                index++;
 		c = items[c];
-		s.append("<option>" + c.title + "</option>");
+		s.append("<option>" + index + ". " + c.title + "</option>");
 		var li = $('<li style="display:none"></li>');		
 		c.preview(li);
 		d.append(li);
