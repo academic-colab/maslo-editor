@@ -37,7 +37,7 @@ function Manifest(path, name, argObj) {
 				<tr>                             \
 				    <th class="order">Order</th> \
 					<th>Type</th>                \
-					<th class="big">Title</th>   ';
+					<th class="big title">Title</th>   ';
 				if (this.obj == null)
 					tableString += '<th class="big">Status</th>';
 				tableString += '<th>Remove</th>              \

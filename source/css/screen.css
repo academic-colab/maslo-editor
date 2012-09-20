@@ -117,6 +117,9 @@ thead {
 thead th.big {
   text-align: left;
 }
+thead th.title {
+  min-width: 150px;
+}
 tbody {
   background: white;
 }
