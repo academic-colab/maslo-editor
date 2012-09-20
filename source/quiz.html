@@ -14,6 +14,7 @@
 			<span class="current"></span>
 		</h3>
 		<div class="extra">
+		  <a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;
 			<a href="#" onclick="help(); return false;">Help</a>
 			<img src="icons/maslo_icon_logo.png" />
 		</div>
@@ -48,6 +49,7 @@
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/upload.js"/>
 <script type="text/javascript">
 
 var gManifest, gPageParams, gPath, gProj, gName;
@@ -94,6 +96,8 @@ $(document).ready(function() {
 
 	gManifest = new Manifest(gPath);
 	gManifest.render($('#toc'));
+
+	uploadPrefs();
 
 	$('.action a.alt').click(function() {
 		var content = new Question(gPath, 'Unwritten Question');
