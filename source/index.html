@@ -187,8 +187,12 @@ $(document).ready(function() {
                 $('#projectName').unbind('keyup');
                 $('#projectName').keyup(function(e) {
                         if(e.keyCode == '13') {
-                            func(e);
+                            return func(e);
                         }
+                        else if(e.keyCode == '27') {
+                            $('#rename').hide();
+                            return false;
+                        }   
                     });
 	});
 	

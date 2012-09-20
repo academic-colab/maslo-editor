@@ -299,7 +299,11 @@ Manifest.prototype.addContent = function(content) {
                 $('#contentName').unbind('keyup');
                 $('#contentName').keyup(function(e) {
                         if(e.keyCode == '13') {
-                            func(e);
+                            return func(e);
+                        }
+                        else if(e.keyCode == '27') { // escape key
+                            $('#rename').hide();
+                            return false;                            
                         }
                     });
 	});
