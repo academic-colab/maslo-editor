@@ -143,6 +143,7 @@ $(document).ready(function() {
 		var height = tr.height()-10;
 		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width, 'height':height}).show();
 		$('#rename').find('input').css({'width':'60%'});
+                $('#rename').find('#projectName').focus();
 
                 func = function(e){
                         // If the original project name is the same after they click OK just treat it like a cancel

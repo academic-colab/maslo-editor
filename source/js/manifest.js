@@ -250,7 +250,8 @@ Manifest.prototype.addContent = function(content) {
 		var height = tr.height()-10;
 		$('#rename').css({'top':tr.position().top+10,'left':tr.find("td:eq(2)").position().left+3, 'width':width, 'height':height}).show();
 		$('#rename').find('input').css({'width':'60%'});
-                
+                $('#rename').find('#contentName').focus();
+
                 // This is the function that saves state once they click OK
                 var func = function(e){
                         // Don't let the user supply a blank name or all whitespace.
