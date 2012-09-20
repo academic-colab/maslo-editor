@@ -211,6 +211,17 @@ $(document).ready(function() {
 		$('button.ok').attr('disabled', $(this).val() == '');
 	});
 	$('.action .ok').click(function() {
+                if(/^\s*$/.test($(".action input").val())) {
+                    if($(".action input").val()) {
+                        alert("You cannot name your project with all whitespace.");
+                    }
+                    else {
+                        alert("You must supply a name.");
+                    }
+                    $('.action input').focus();
+                    return false;
+                }
+
 		var newdir = air.File.applicationStorageDirectory.resolvePath(
 			$('.action input').val());
                 if (newdir.exists){
