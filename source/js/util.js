@@ -18,6 +18,10 @@ function bottomBar(tableSize, windowSize){
 }
 
 
+/*
+  Test if a name is valid and popup errors to the user.  
+  Return true if the name is valid and false otherwise.
+*/
 function is_valid_name(name) {
     // Don't let the user supply a blank name or all whitespace.
     // If they do that then there will be no link to click on in the breadcrumb.
@@ -38,6 +42,10 @@ function is_valid_name(name) {
     return true;
 }
 
+
+/* 
+  Given a string, if it is longer than the specified 'length' shorten it and tack on '...'.
+*/
 function shorten_long_name(name, length) {
     if (name.length > length) {
         return name.substr(0,length-1) + "...";
