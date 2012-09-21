@@ -64,31 +64,12 @@ $(document).ready(function() {
 
 	$('a.back').attr('href', 'proj.html?name=' + encodeURIComponent(gProj));
 	var pName = gProj.toString();
-	if (pName.length > 30) {
-		pName = shorten_long_name(pName, 30);
-		$('a.back').attr("title", " - "+gProj.toString());
-	}
-	$('a.back').text(pName);
+	$('a.back').text(shorten_long_name(pName, 30));
+        apply_tooltip($('a.back'), pName, 30);
+
 	var qName = gName.toString();
-	if (qName.length > 30) {
-                qName = shorten_long_name(qName, 30);
-		$('span.current').attr("title", " - "+gName.toString());
-	}
-	$('span.current').text(qName);
-	$('span.current').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-	$('a.back').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});	
+	$('span.current').text(shorten_long_name(qName, 30));
+        apply_tooltip($('span.current'), qName, 30);
 	
 	$('#back').click(function() {
 		window.location = 'proj.html?name=' + encodeURIComponent(gProj);
@@ -106,19 +87,11 @@ $(document).ready(function() {
 		bottomBar($('#contentTable').height() - 34, $(window).height());
 		return false;
 	});
-	
-	$('a.title').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-	 bottomBar($('#contentTable').height() - 34, $(window).height());
- 	 $(window).resize(function() {
+
+	bottomBar($('#contentTable').height() - 34, $(window).height());
+ 	$(window).resize(function() {
  		bottomBar($('#contentTable').height() - 34, $(window).height());
  	});	
-
 });
 
 </script>

@@ -99,15 +99,12 @@ $(document).ready(function() {
 			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
 			var tr = $('<tr />');
 			var fname = files[f].name;
-                        var fname_quoted = fname.replace(/"/g, "&quot;"); // quote to fix browser highlighting --> " 
-			var title = '';
-			if (fname.length > 50){
-                                fname = shorten_long_name(fname, 50);
-				title =  ' title=" - ' + fname_quoted + '"';
-			}
-			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '" ' + 
-                                    'name="' + fname_quoted + '" ' + title +'>' + fname + 
+			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '">' + 
+                                    shorten_long_name(fname, 50) + 
                                     '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
+                        tr.find('a:first').attr('name', fname);
+			apply_tooltip(tr.find('a:first'), fname, 50);
+
 			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
 			d.setTime(recursiveModified(files[f].nativePath));
@@ -121,22 +118,14 @@ $(document).ready(function() {
 	}
 	uploadPrefs();
 	$('.action input').watermark('Name of Project');
-	$('.wrapper a').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-	
 	
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 
 	$('.renameDiv button').click(function(e){
-		var td = $(this).parent().parent().parent().find("a:first");
+		var anchor = $(this).parent().parent().parent().find("a:first");
 		var tr = $(this).parent().parent().parent().parent();
-		var projectName = td.attr('name');
+		var projectName = anchor.attr('name');
 		$("#projectName").val(projectName);		
 		var width = tr.find("td:first").width()+10;
 		var height = tr.height()-10;
@@ -172,10 +161,10 @@ $(document).ready(function() {
 
                         // Update the display and link to use the new name
 			var newHref = 'proj.html?name=' + encodeURIComponent(name);
-			td.attr('href', newHref);
-			td.attr('name', name);
-			td.attr('title', name);
-			td.html(shorten_long_name(name, 50));
+			anchor.attr('href', newHref);
+			anchor.attr('name', name);
+                        apply_tooltip(anchor, name, 50);
+			anchor.html(shorten_long_name(name, 50));
 			$('#rename').hide();
 			return false;
 		};

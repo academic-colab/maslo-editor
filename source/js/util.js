@@ -44,3 +44,26 @@ function shorten_long_name(name, length) {
     }
     return name;
 }
+
+/*
+  element - a DOM element
+  tip     - OPTIONAL: the text of the tooltip
+  length  - OPTIONAL: this is only used if 'tip' is specified.  If this is also supplied the
+            tooltip will only be applied if tip.length is greater than the supplied length
+*/
+function apply_tooltip(element, tip, length) {
+    if(tip) {
+        if(tip.length < length) {
+            return false;
+        }
+        element.attr("title", " - " + tip);
+    }
+
+    element.tooltip({ 
+	    positionLeft:true,
+	    delay: 0, 
+	    showURL: false, 
+	    showBody: " - ", 
+	    fade: 250 
+	});
+}

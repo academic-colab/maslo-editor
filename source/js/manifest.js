@@ -221,12 +221,6 @@ Manifest.prototype.addContent = function(content) {
 	this.tbl.show();
 	var tr = $('<tr class="fixheight" />');
 	this.tbl.find('tbody').append(tr);
-	var cTitle = content.title;
-	var aTitle = "";
-	if(cTitle.length > 50) {
-            cTitle = shorten_long_name(cTitle, 50);
-            aTitle = 'title=" - '+content.title+'"';
-	}
 
         // The order number (the order which the fields are displayed in) and the icon
 	var rowid = "row" + this.ordernum; 
@@ -242,8 +236,8 @@ Manifest.prototype.addContent = function(content) {
         button = $('<button type="button" class="nice mini radius blue button">Rename</button>');
         button.click(function(e){
 		var tr = $(this).parent().parent().parent().parent();
-		var td = $(this).parent().parent().parent().find("a:first");
-		var contentName = td.attr('name');
+		var anchor = $(this).parent().parent().parent().find("a:first");
+		var contentName = anchor.attr('name');
 		$("#contentName").val(contentName);
 
 		var width = tr.find("td:eq(2)").width()+10;
@@ -273,9 +267,9 @@ Manifest.prototype.addContent = function(content) {
                     gManifest.save();
                     
                     // Update the display with the new name
-                    td.attr('name', name);
-                    td.attr('title', name);
-                    td.html(shorten_long_name(name, 50));
+                    anchor.attr('name', name);
+                    apply_tooltip(anchor, name, 50);
+                    anchor.html(shorten_long_name(name, 50));
                     $('#rename').hide();
                     return false;
 		};
@@ -299,8 +293,9 @@ Manifest.prototype.addContent = function(content) {
 	});
 
         // Add the title, including the (sometimes visible) rename button
-        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="' + content.title + '">' + cTitle + '</a><div class="renameDiv"></div></div></td>');
+        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" name="' + content.title + '">' + shorten_long_name(content.title, 50) + '</a><div class="renameDiv"></div></div></td>');
         tmp_td.find('div').find('div.renameDiv').append(button);
+        apply_tooltip(tmp_td.find('a:first'), content.title, 50);
         tr.append(tmp_td);
         tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
         tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
