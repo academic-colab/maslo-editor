@@ -16,3 +16,31 @@ function bottomBar(tableSize, windowSize){
 		$('table').css('margin', '0 0 0 0');
 	}	
 }
+
+
+function is_valid_name(name) {
+    // Don't let the user supply a blank name or all whitespace.
+    // If they do that then there will be no link to click on in the breadcrumb.
+    if(/^\s*$/.test(name)) {
+        if(name) {
+            alert("Your name cannot be all whitespace.");
+        }
+        else {
+            alert("You must supply a name.");
+        }
+        return false;
+    }
+    else if(/^\s+/.test(name)) {
+        alert("Your name cannot begin with whitespace");
+        return false;
+    }
+
+    return true;
+}
+
+function shorten_long_names(name) {
+    if (name.length > 60) {
+        return name.substr(0,59) + "...";
+    }
+    return name;
+}

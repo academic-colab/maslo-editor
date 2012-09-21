@@ -146,14 +146,21 @@ $(document).ready(function() {
                 $('#rename').find('#projectName').focus();
 
                 func = function(e){
+                        var name = $("#projectName").val();
+
                         // If the original project name is the same after they click OK just treat it like a cancel
-                        if(projectName == $("#projectName").val()) {
+                        if(projectName == name) {
                                 $('#rename').hide();
 				return false;
                         }
 
-			var newdir = air.File.applicationStorageDirectory.resolvePath(
-				$("#projectName").val());
+                        // Make sure the name is valid
+                        if(!is_valid_name(name)) {
+                            $('#rename').focus();
+                            return false;
+                        }
+
+			var newdir = air.File.applicationStorageDirectory.resolvePath(name);
 			if(newdir.exists) {
 				alert("Cannot rename to an already existing project.");
 				return false;
@@ -161,18 +168,15 @@ $(document).ready(function() {
        
                         // Take care of the back end data storage
 			newdir.createDirectory();
-			var olddir = air.File.applicationStorageDirectory.resolvePath(
-				projectName);
+			var olddir = air.File.applicationStorageDirectory.resolvePath(projectName);
 			olddir.moveTo(newdir, true);
 
                         // Update the display and link to use the new name
-			var newHref = 'proj.html?name='+ encodeURIComponent($("#projectName").val());
+			var newHref = 'proj.html?name='+ encodeURIComponent(name);
 			td.attr('href', newHref);
-			td.attr('name', $("#projectName").val());
-			td.attr('title', $("#projectName").val());
-			var pName = $("#projectName").val();
-			if (pName.length > 60)
-				pName = pName.substr(0,59) + "...";
+			td.attr('name', name);
+			td.attr('title', name);
+			var pName = shorten_long_names(name);
 			td.html(pName);
 			$('#rename').hide();
 			return false;
@@ -211,32 +215,25 @@ $(document).ready(function() {
 		$('button.ok').attr('disabled', $(this).val() == '');
 	});
 	$('.action .ok').click(function() {
-                if(/^\s*$/.test($(".action input").val())) {
-                    if($(".action input").val()) {
-                        alert("You cannot name your project with all whitespace.");
-                    }
-                    else {
-                        alert("You must supply a name.");
-                    }
+                var name = $('.action input').val();
+
+                if(!is_valid_name(name)) {
                     $('.action input').focus();
                     return false;
                 }
 
-		var newdir = air.File.applicationStorageDirectory.resolvePath(
-			$('.action input').val());
+		var newdir = air.File.applicationStorageDirectory.resolvePath(name);
                 if (newdir.exists){
                         alert("That name is already used by an existing project.  Delete that one first if you want to overwrite it.");
                         $('.action input').focus();
                         return false;
                 }
 		newdir.createDirectory();
-		var f = new air.File(
-			[air.File.applicationStorageDirectory.nativePath,
-			 $('.action input').val(), 'manifest'].join(air.File.separator));
+		var f = new air.File([air.File.applicationStorageDirectory.nativePath, name, 'manifest'].join(air.File.separator));
 		var fs = new air.FileStream();
 		fs.open(f, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
-		window.location = 'proj.html?name=' + encodeURIComponent($('.action input').val());
+		window.location = 'proj.html?name=' + encodeURIComponent(name);
 	});
 	$('img.remove').click(function(e) {
 		var elt = $(this).parent().parent();

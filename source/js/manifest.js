@@ -254,40 +254,31 @@ Manifest.prototype.addContent = function(content) {
 
                 // This is the function that saves state once they click OK
                 var func = function(e){
-                        // Don't let the user supply a blank name or all whitespace.
-                        // if they do that then there will be no link to click on!
-                        if(/^\s*$/.test($("#contentName").val())) {
-                            if($("#contentName").val()) {
-                                alert("You cannot name your content with all whitespace.");
-                            }
-                            else {
-                                alert("You must supply a name.");
-                            }
-                            $('#rename').hide();
-                            return false;
-                        }
- 
-                        // Update the data structures and save it back to disk
-                        tr.data('content').title = $("#contentName").val();
+                    var name = $("#contentName").val();
+                    
+                    if(!is_valid_name(name)) {
+                        $('#rename input').focus();
+                        return false;
+                    }
+                    
+                    // Update the data structures and save it back to disk
+                    tr.data('content').title = name;
+                    
+                    if(tr.data('content').status == "Published") {
+                        tr.data('content').updateStatus(false);
+                        tr.find('.contentStatus').text(tr.data('content').status);
+                        gManifest.updateStatus(false);
+                    }
 
-                        if(tr.data('content').status == "Published") {
-                            tr.data('content').updateStatus(false);
-                            tr.find('.contentStatus').text(tr.data('content').status);
-                            gManifest.updateStatus(false);
-                        }
-
-                        gManifest.save();
-
-                        // Update the display with the new name
-			td.attr('name', $("#contentName").val());
-			td.attr('title', $("#contentName").val());
-			var pName = $("#contentName").val();
-			if (pName.length > 60)
-				pName = pName.substr(0,59) + "...";
-			td.html(pName);
-			$('#rename').hide();
-
-			return false;
+                    gManifest.save();
+                    
+                    // Update the display with the new name
+                    td.attr('name', name);
+                    td.attr('title', name);
+                    var pName = shorten_long_names(name);
+                    td.html(pName);
+                    $('#rename').hide();
+                    return false;
 		};
 
                 // Assign the handler to the button
@@ -460,10 +451,7 @@ Manifest.prototype.addContent = function(content) {
 						c.updateStatus(false);						
 						tr.find('.contentStatus').text(c.status);
 						manifest.updateStatus(false);
-						var cTitle = c.title;
-						if (cTitle.length > 60){
-							cTitle = cTitle.substr(0,59) + "...";
-						}
+						var cTitle = shorten_long_names(c.title);
 						tr.find('a').text(cTitle);
 						tr.data('content', c);
 						manifest.save();
