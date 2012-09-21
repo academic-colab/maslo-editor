@@ -223,8 +223,8 @@ Manifest.prototype.addContent = function(content) {
 	this.tbl.find('tbody').append(tr);
 	var cTitle = content.title;
 	var aTitle = "";
-	if(cTitle.length > 60) {
-            cTitle = shorten_long_names(cTitle, 60);
+	if(cTitle.length > 50) {
+            cTitle = shorten_long_name(cTitle, 50);
             aTitle = 'title=" - '+content.title+'"';
 	}
 
@@ -275,7 +275,7 @@ Manifest.prototype.addContent = function(content) {
                     // Update the display with the new name
                     td.attr('name', name);
                     td.attr('title', name);
-                    td.html(shorten_long_names(name, 60));
+                    td.html(shorten_long_name(name, 50));
                     $('#rename').hide();
                     return false;
 		};
@@ -450,7 +450,7 @@ Manifest.prototype.addContent = function(content) {
 						c.updateStatus(false);						
 						tr.find('.contentStatus').text(c.status);
 						manifest.updateStatus(false);
-						var cTitle = shorten_long_names(c.title, 60);
+						var cTitle = shorten_long_name(c.title, 50);
 						tr.find('a').text(cTitle);
 						tr.data('content', c);
 						manifest.save();

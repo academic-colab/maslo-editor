@@ -101,8 +101,8 @@ $(document).ready(function() {
 			var fname = files[f].name;
                         var fname_quoted = fname.replace(/"/g, "&quot;"); // quote to fix browser highlighting --> " 
 			var title = '';
-			if (fname.length > 60){
-				fname = fname.substr(0,59) + "...";
+			if (fname.length > 50){
+                                fname = shorten_long_name(fname, 50);
 				title =  ' title=" - ' + fname_quoted + '"';
 			}
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '" ' + 
@@ -175,7 +175,7 @@ $(document).ready(function() {
 			td.attr('href', newHref);
 			td.attr('name', name);
 			td.attr('title', name);
-			td.html(shorten_long_names(name, 60));
+			td.html(shorten_long_name(name, 50));
 			$('#rename').hide();
 			return false;
 		};

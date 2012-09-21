@@ -38,7 +38,7 @@ function is_valid_name(name) {
     return true;
 }
 
-function shorten_long_names(name, length) {
+function shorten_long_name(name, length) {
     if (name.length > length) {
         return name.substr(0,length-1) + "...";
     }

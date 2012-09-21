@@ -133,8 +133,8 @@ var gManifest;
 $(document).ready(function() {
 	// set project name in breadcrumb
 	var pName = gPageParams.name.toString();
-	if (pName.length > 60) {
-		pName = pName.substr(0,59) + "...";
+	if (pName.length > 50) {
+                pName = shorten_long_name(pName, 50);
 		$('#proj').attr("title", " - "+gPageParams.name.toString());
 	}
 	$('#proj').text(pName);
