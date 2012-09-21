@@ -223,9 +223,9 @@ Manifest.prototype.addContent = function(content) {
 	this.tbl.find('tbody').append(tr);
 	var cTitle = content.title;
 	var aTitle = "";
-	if (cTitle.length > 60 ) {
-		cTitle = cTitle.substr(0,59) + "...";
-		aTitle = 'title=" - '+content.title+'"';
+	if(cTitle.length > 60) {
+            cTitle = shorten_long_names(cTitle, 60);
+            aTitle = 'title=" - '+content.title+'"';
 	}
 
         // The order number (the order which the fields are displayed in) and the icon
@@ -243,7 +243,7 @@ Manifest.prototype.addContent = function(content) {
         button.click(function(e){
 		var tr = $(this).parent().parent().parent().parent();
 		var td = $(this).parent().parent().parent().find("a:first");
-		var contentName = td.text();
+		var contentName = td.attr('name');
 		$("#contentName").val(contentName);
 
 		var width = tr.find("td:eq(2)").width()+10;
@@ -275,8 +275,7 @@ Manifest.prototype.addContent = function(content) {
                     // Update the display with the new name
                     td.attr('name', name);
                     td.attr('title', name);
-                    var pName = shorten_long_names(name);
-                    td.html(pName);
+                    td.html(shorten_long_names(name, 60));
                     $('#rename').hide();
                     return false;
 		};
@@ -300,7 +299,7 @@ Manifest.prototype.addContent = function(content) {
 	});
 
         // Add the title, including the (sometimes visible) rename button
-        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="'+cTitle+'">' + cTitle + '</a><div class="renameDiv"></div></div></td>');
+        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="' + content.title + '">' + cTitle + '</a><div class="renameDiv"></div></div></td>');
         tmp_td.find('div').find('div.renameDiv').append(button);
         tr.append(tmp_td);
         tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
@@ -451,7 +450,7 @@ Manifest.prototype.addContent = function(content) {
 						c.updateStatus(false);						
 						tr.find('.contentStatus').text(c.status);
 						manifest.updateStatus(false);
-						var cTitle = shorten_long_names(c.title);
+						var cTitle = shorten_long_names(c.title, 60);
 						tr.find('a').text(cTitle);
 						tr.data('content', c);
 						manifest.save();

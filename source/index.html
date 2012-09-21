@@ -99,17 +99,16 @@ $(document).ready(function() {
 			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
 			var tr = $('<tr />');
 			var fname = files[f].name;
-                        var fname_quoted = fname.replace(/"/g, "&quot;");
+                        var fname_quoted = fname.replace(/"/g, "&quot;"); // quote to fix browser highlighting --> " 
 			var title = '';
 			if (fname.length > 60){
 				fname = fname.substr(0,59) + "...";
 				title =  ' title=" - ' + fname_quoted + '"';
 			}
-			tr.append($('<td><div class="wrapper"><a href="proj.html?name='
-				+ encodeURIComponent(files[f].name) + '" name="'
-				+ fname_quoted + '" '+ title +'>' + fname + '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
-			tr.append($('<td>'
-				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
+			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '" ' + 
+                                    'name="'	+ fname_quoted + '" ' + title +'>' + fname + 
+                                    '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
+			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
 			d.setTime(recursiveModified(files[f].nativePath));
 			tr.append($('<td name="'+ d.getTime() +'">'  + $.cuteTime({}, d.toUTCString()) + '</td>'));
@@ -137,7 +136,7 @@ $(document).ready(function() {
 	$('.renameDiv button').click(function(e){
 		var td = $(this).parent().parent().parent().find("a:first");
 		var tr = $(this).parent().parent().parent().parent();
-		var projectName = td.text();
+		var projectName = td.attr('name');
 		$("#projectName").val(projectName);		
 		var width = tr.find("td:first").width()+10;
 		var height = tr.height()-10;
@@ -172,12 +171,11 @@ $(document).ready(function() {
 			olddir.moveTo(newdir, true);
 
                         // Update the display and link to use the new name
-			var newHref = 'proj.html?name='+ encodeURIComponent(name);
+			var newHref = 'proj.html?name=' + encodeURIComponent(name);
 			td.attr('href', newHref);
 			td.attr('name', name);
 			td.attr('title', name);
-			var pName = shorten_long_names(name);
-			td.html(pName);
+			td.html(shorten_long_names(name, 60));
 			$('#rename').hide();
 			return false;
 		};
