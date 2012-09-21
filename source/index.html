@@ -25,7 +25,7 @@
 		</table>
 
 		<div class="action">
-			<a class="alt nice small radius blue button" href="#">+ Add New Project</a>
+			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
 			<div class="alt">
 				<input type="text" length="10" />
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
@@ -106,7 +106,7 @@ $(document).ready(function() {
 				title =  ' title=" - ' + fname_quoted + '"';
 			}
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '" ' + 
-                                    'name="'	+ fname_quoted + '" ' + title +'>' + fname + 
+                                    'name="' + fname_quoted + '" ' + title +'>' + fname + 
                                     '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
 			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
@@ -199,17 +199,24 @@ $(document).ready(function() {
 	});
 	
 	
-
 	$('.action a.alt, .action .cancel').click(function() {
 		// both the Add Project link and the creation form have the class
 		// "alt" meaning alternate, and they switch
 		$('.action .alt').toggle();
+
+                if($('.action #add').is(':hidden')) {
+                    $('.action input').focus();
+                }
+
 		return false;
 	});
 	$('.action input').keyup(function(e) {
 		if(e.which == 13) { // enter key
 			$('.action .ok').click();
 		}
+                else if(e.which == 27) { // escape key
+                        $('.action .cancel').click();
+                }
 		$('button.ok').attr('disabled', $(this).val() == '');
 	});
 	$('.action .ok').click(function() {
