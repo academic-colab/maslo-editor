@@ -133,31 +133,12 @@ var gManifest;
 $(document).ready(function() {
 	// set project name in breadcrumb
 	var pName = gPageParams.name.toString();
-	if (pName.length > 60) {
-		pName = pName.substr(0,59) + "...";
-		$('#proj').attr("title", " - "+gPageParams.name.toString());
-	}
-	$('#proj').text(pName);
-	$('#proj').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-		
+	$('#proj').text(shorten_long_name(pName, 50));
+        apply_tooltip($('#proj'), pName, 50);
 	
 	// load manifest, render table of contents
 	gManifest = new Manifest(gPageParams.path, gPageParams.name);
 	gManifest.render($('#toc'));
-	
-	$('a.title').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
 	
 	$('form.quiz input[type="text"]').watermark('Name of Quiz');
 	$('form.quiz input[type="text"]').keyup(function() {

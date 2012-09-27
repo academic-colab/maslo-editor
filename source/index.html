@@ -14,7 +14,7 @@
 		<table class="sortable">
 			<thead>
 				<tr>
-					<th class="big"><span style="cursor: pointer;">Titles</span></th>
+					<th class="big title"><span style="cursor: pointer;">Titles</span></th>
 					<th class="big"><span style="cursor: pointer;">Size</span></th>
 					<th class="big"><span style="cursor: pointer;">Last Modified</span></th>
 					<th class="big"><span style="cursor: pointer;">Status</span></th>
@@ -25,7 +25,7 @@
 		</table>
 
 		<div class="action">
-			<a class="alt nice small radius blue button" href="#">+ Add New Project</a>
+			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
 			<div class="alt">
 				<input type="text" length="10" />
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
@@ -99,16 +99,13 @@ $(document).ready(function() {
 			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
 			var tr = $('<tr />');
 			var fname = files[f].name;
-			var title = '';
-			if (fname.length > 60){
-				fname = fname.substr(0,59) + "...";
-				title =  ' title=" - '+files[f].name+'"';
-			}
-			tr.append($('<td><div class="wrapper"><a href="proj.html?name='
-				+ encodeURIComponent(files[f].name) + '" name="'
-				+ files[f].name+ '" '+ title +'>' + fname + '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
-			tr.append($('<td>'
-				+ bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
+			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '">' + 
+                                    shorten_long_name(fname, 50) + 
+                                    '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
+                        tr.find('a:first').attr('name', fname);
+			apply_tooltip(tr.find('a:first'), fname, 50);
+
+			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
 			d.setTime(recursiveModified(files[f].nativePath));
 			tr.append($('<td name="'+ d.getTime() +'">'  + $.cuteTime({}, d.toUTCString()) + '</td>'));
@@ -121,37 +118,37 @@ $(document).ready(function() {
 	}
 	uploadPrefs();
 	$('.action input').watermark('Name of Project');
-	$('.wrapper a').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-	
 	
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 
 	$('.renameDiv button').click(function(e){
-		var td = $(this).parent().parent().parent().find("a:first");
+		var anchor = $(this).parent().parent().parent().find("a:first");
 		var tr = $(this).parent().parent().parent().parent();
-		var projectName = td.text();
+		var projectName = anchor.attr('name');
 		$("#projectName").val(projectName);		
 		var width = tr.find("td:first").width()+10;
 		var height = tr.height()-10;
 		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width, 'height':height}).show();
 		$('#rename').find('input').css({'width':'60%'});
+                $('#rename').find('#projectName').focus();
 
                 func = function(e){
+                        var name = $("#projectName").val();
+
                         // If the original project name is the same after they click OK just treat it like a cancel
-                        if(projectName == $("#projectName").val()) {
+                        if(projectName == name) {
                                 $('#rename').hide();
 				return false;
                         }
 
-			var newdir = air.File.applicationStorageDirectory.resolvePath(
-				$("#projectName").val());
+                        // Make sure the name is valid
+                        if(!is_valid_name(name)) {
+                            $('#rename').focus();
+                            return false;
+                        }
+
+			var newdir = air.File.applicationStorageDirectory.resolvePath(name);
 			if(newdir.exists) {
 				alert("Cannot rename to an already existing project.");
 				return false;
@@ -159,19 +156,15 @@ $(document).ready(function() {
        
                         // Take care of the back end data storage
 			newdir.createDirectory();
-			var olddir = air.File.applicationStorageDirectory.resolvePath(
-				projectName);
+			var olddir = air.File.applicationStorageDirectory.resolvePath(projectName);
 			olddir.moveTo(newdir, true);
 
                         // Update the display and link to use the new name
-			var newHref = 'proj.html?name='+ encodeURIComponent($("#projectName").val());
-			td.attr('href', newHref);
-			td.attr('name', $("#projectName").val());
-			td.attr('title', $("#projectName").val());
-			var pName = $("#projectName").val();
-			if (pName.length > 60)
-				pName = pName.substr(0,59) + "...";
-			td.html(pName);
+			var newHref = 'proj.html?name=' + encodeURIComponent(name);
+			anchor.attr('href', newHref);
+			anchor.attr('name', name);
+                        apply_tooltip(anchor, name, 50);
+			anchor.html(shorten_long_name(name, 50));
 			$('#rename').hide();
 			return false;
 		};
@@ -185,41 +178,56 @@ $(document).ready(function() {
                 $('#projectName').unbind('keyup');
                 $('#projectName').keyup(function(e) {
                         if(e.keyCode == '13') {
-                            func(e);
+                            return func(e);
                         }
+                        else if(e.keyCode == '27') {
+                            $('#rename').hide();
+                            return false;
+                        }   
                     });
 	});
 	
 	
-
 	$('.action a.alt, .action .cancel').click(function() {
 		// both the Add Project link and the creation form have the class
 		// "alt" meaning alternate, and they switch
 		$('.action .alt').toggle();
+
+                if($('.action #add').is(':hidden')) {
+                    $('.action input').focus();
+                }
+
 		return false;
 	});
 	$('.action input').keyup(function(e) {
 		if(e.which == 13) { // enter key
 			$('.action .ok').click();
 		}
+                else if(e.which == 27) { // escape key
+                        $('.action .cancel').click();
+                }
 		$('button.ok').attr('disabled', $(this).val() == '');
 	});
 	$('.action .ok').click(function() {
-		var newdir = air.File.applicationStorageDirectory.resolvePath(
-			$('.action input').val());
+                var name = $('.action input').val();
+
+                if(!is_valid_name(name)) {
+                    $('.action input').focus();
+                    return false;
+                }
+
+		var newdir = air.File.applicationStorageDirectory.resolvePath(name);
                 if (newdir.exists){
                         alert("That name is already used by an existing project.  Delete that one first if you want to overwrite it.");
                         $('.action input').focus();
                         return false;
                 }
 		newdir.createDirectory();
-		var f = new air.File(
-			[air.File.applicationStorageDirectory.nativePath,
-			 $('.action input').val(), 'manifest'].join(air.File.separator));
+		var f = new air.File([air.File.applicationStorageDirectory.nativePath, name, 'manifest'].join(air.File.separator));
 		var fs = new air.FileStream();
 		fs.open(f, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
-		window.location = 'proj.html?name=' + encodeURIComponent($('.action input').val());
+		window.location = 'proj.html?name=' + encodeURIComponent(name);
 	});
 	$('img.remove').click(function(e) {
 		var elt = $(this).parent().parent();

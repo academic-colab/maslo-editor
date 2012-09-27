@@ -37,7 +37,7 @@ function Manifest(path, name, argObj) {
 				<tr>                             \
 				    <th class="order">Order</th> \
 					<th>Type</th>                \
-					<th class="big">Title</th>   ';
+					<th class="big title">Title</th>   ';
 				if (this.obj == null)
 					tableString += '<th class="big">Status</th>';
 				tableString += '<th>Remove</th>              \
@@ -221,12 +221,6 @@ Manifest.prototype.addContent = function(content) {
 	this.tbl.show();
 	var tr = $('<tr class="fixheight" />');
 	this.tbl.find('tbody').append(tr);
-	var cTitle = content.title;
-	var aTitle = "";
-	if (cTitle.length > 60 ) {
-		cTitle = cTitle.substr(0,59) + "...";
-		aTitle = 'title=" - '+content.title+'"';
-	}
 
         // The order number (the order which the fields are displayed in) and the icon
 	var rowid = "row" + this.ordernum; 
@@ -242,51 +236,42 @@ Manifest.prototype.addContent = function(content) {
         button = $('<button type="button" class="nice mini radius blue button">Rename</button>');
         button.click(function(e){
 		var tr = $(this).parent().parent().parent().parent();
-		var td = $(this).parent().parent().parent().find("a:first");
-		var contentName = td.text();
+		var anchor = $(this).parent().parent().parent().find("a:first");
+		var contentName = anchor.attr('name');
 		$("#contentName").val(contentName);
 
 		var width = tr.find("td:eq(2)").width()+10;
 		var height = tr.height()-10;
 		$('#rename').css({'top':tr.position().top+10,'left':tr.find("td:eq(2)").position().left+3, 'width':width, 'height':height}).show();
 		$('#rename').find('input').css({'width':'60%'});
-                
+                $('#rename').find('#contentName').focus();
+
                 // This is the function that saves state once they click OK
                 var func = function(e){
-                        // Don't let the user supply a blank name or all whitespace.
-                        // if they do that then there will be no link to click on!
-                        if(/^\s*$/.test($("#contentName").val())) {
-                            if($("#contentName").val()) {
-                                alert("You cannot name your content with all whitespace.");
-                            }
-                            else {
-                                alert("You must supply a name.");
-                            }
-                            $('#rename').hide();
-                            return false;
-                        }
- 
-                        // Update the data structures and save it back to disk
-                        tr.data('content').title = $("#contentName").val();
+                    var name = $("#contentName").val();
+                    
+                    if(!is_valid_name(name)) {
+                        $('#rename input').focus();
+                        return false;
+                    }
+                    
+                    // Update the data structures and save it back to disk
+                    tr.data('content').title = name;
+                    
+                    if(tr.data('content').status == "Published") {
+                        tr.data('content').updateStatus(false);
+                        tr.find('.contentStatus').text(tr.data('content').status);
+                        gManifest.updateStatus(false);
+                    }
 
-                        if(tr.data('content').status == "Published") {
-                            tr.data('content').updateStatus(false);
-                            tr.find('.contentStatus').text(tr.data('content').status);
-                            gManifest.updateStatus(false);
-                        }
-
-                        gManifest.save();
-
-                        // Update the display with the new name
-			td.attr('name', $("#contentName").val());
-			td.attr('title', $("#contentName").val());
-			var pName = $("#contentName").val();
-			if (pName.length > 60)
-				pName = pName.substr(0,59) + "...";
-			td.html(pName);
-			$('#rename').hide();
-
-			return false;
+                    gManifest.save();
+                    
+                    // Update the display with the new name
+                    anchor.attr('name', name);
+                    apply_tooltip(anchor, name, 50);
+                    anchor.html(shorten_long_name(name, 50));
+                    $('#rename').hide();
+                    return false;
 		};
 
                 // Assign the handler to the button
@@ -298,14 +283,19 @@ Manifest.prototype.addContent = function(content) {
                 $('#contentName').unbind('keyup');
                 $('#contentName').keyup(function(e) {
                         if(e.keyCode == '13') {
-                            func(e);
+                            return func(e);
+                        }
+                        else if(e.keyCode == '27') { // escape key
+                            $('#rename').hide();
+                            return false;                            
                         }
                     });
 	});
 
         // Add the title, including the (sometimes visible) rename button
-        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" '+aTitle+' name="'+cTitle+'">' + cTitle + '</a><div class="renameDiv"></div></div></td>');
+        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" name="' + content.title + '">' + shorten_long_name(content.title, 50) + '</a><div class="renameDiv"></div></div></td>');
         tmp_td.find('div').find('div.renameDiv').append(button);
+        apply_tooltip(tmp_td.find('a:first'), content.title, 50);
         tr.append(tmp_td);
         tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
         tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
@@ -455,10 +445,7 @@ Manifest.prototype.addContent = function(content) {
 						c.updateStatus(false);						
 						tr.find('.contentStatus').text(c.status);
 						manifest.updateStatus(false);
-						var cTitle = c.title;
-						if (cTitle.length > 60){
-							cTitle = cTitle.substr(0,59) + "...";
-						}
+						var cTitle = shorten_long_name(c.title, 50);
 						tr.find('a').text(cTitle);
 						tr.data('content', c);
 						manifest.save();

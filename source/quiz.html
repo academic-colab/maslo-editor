@@ -14,6 +14,7 @@
 			<span class="current"></span>
 		</h3>
 		<div class="extra">
+		  <a href="#" onclick="configureUpload(true);return false;">Settings</a>&nbsp;&nbsp;
 			<a href="#" onclick="help(); return false;">Help</a>
 			<img src="icons/maslo_icon_logo.png" />
 		</div>
@@ -26,6 +27,13 @@
 		<button class="nice small radius blue button" id="back">Back</button>
 		<div class="clear"></div>
 	</div>
+
+	<div id="rename">
+	  <input type="text" id="contentName" width="50%" />
+	  <button type="button" class="ok nice mini radius blue button" disabled="disabled">OK</button>
+	  <button type="button" class="cancel nice mini radius white button" onClick="$('#rename').hide();">Cancel</button>
+        </div>
+
 
 <script type="text/javascript" src="AIRAliases.js"></script>
 <script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
@@ -41,6 +49,7 @@
 <script type="text/javascript" src="js/manifest.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/upload.js"/>
 <script type="text/javascript">
 
 var gManifest, gPageParams, gPath, gProj, gName;
@@ -55,31 +64,12 @@ $(document).ready(function() {
 
 	$('a.back').attr('href', 'proj.html?name=' + encodeURIComponent(gProj));
 	var pName = gProj.toString();
-	if (pName.length > 40) {
-		pName = pName.substr(0,39) + "...";
-		$('a.back').attr("title", " - "+gProj.toString());
-	}
-	$('a.back').text(pName);
+	$('a.back').text(shorten_long_name(pName, 30));
+        apply_tooltip($('a.back'), pName, 30);
+
 	var qName = gName.toString();
-	if (qName.length > 40) {
-		qName = qName.substr(0,39) + "...";
-		$('span.current').attr("title", " - "+gName.toString());
-	}
-	$('span.current').text(qName);
-	$('span.current').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-	$('a.back').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});	
+	$('span.current').text(shorten_long_name(qName, 30));
+        apply_tooltip($('span.current'), qName, 30);
 	
 	$('#back').click(function() {
 		window.location = 'proj.html?name=' + encodeURIComponent(gProj);
@@ -88,6 +78,8 @@ $(document).ready(function() {
 	gManifest = new Manifest(gPath);
 	gManifest.render($('#toc'));
 
+	uploadPrefs();
+
 	$('.action a.alt').click(function() {
 		var content = new Question(gPath, 'Unwritten Question');
 		gManifest.addContent(content);
@@ -95,19 +87,11 @@ $(document).ready(function() {
 		bottomBar($('#contentTable').height() - 34, $(window).height());
 		return false;
 	});
-	
-	$('a.title').tooltip({ 
-	    positionLeft:true,
-	    delay: 0, 
-	    showURL: false, 
-	    showBody: " - ", 
-	    fade: 250 
-	});
-	 bottomBar($('#contentTable').height() - 34, $(window).height());
- 	 $(window).resize(function() {
+
+	bottomBar($('#contentTable').height() - 34, $(window).height());
+ 	$(window).resize(function() {
  		bottomBar($('#contentTable').height() - 34, $(window).height());
  	});	
-
 });
 
 </script>
