@@ -507,26 +507,36 @@ Manifest.prototype.zip = function() {
 	var writer = new window.runtime.com.coltware.airxzip.ZipFileWriter();
 	writer.open(zipFile);
 	var currentFolder = new air.File(this.path);
-	writer.addDirectory(this.projectName);
+	var utfProjectName = urlencode(""+this.projectName)
+	writer.addDirectory(utfProjectName);
 	
 	function addData(prefix, dirFile){
 		var files = dirFile.getDirectoryListing();
 		for (var i = 0; i < files.length; i++){
+			var ultiPrefix = "";
+			var nPrefix = [];
+			for (var j = 0; j < prefix.length; j++){
+				ultiPrefix += urlencode(prefix[j]) + air.File.separator;
+				nPrefix.push(prefix[j]);
+			}
+			nPrefix.push(files[i].name);
 			if (files[i].isDirectory) {
                 if (files[i].name !="." && files[i].name !="..") {
-					var nDir = new air.File(files[i].nativePath);
-					var nPrefix = prefix+air.File.separator+files[i].name;
-					writer.addDirectory(nPrefix);
+					var nDir = new air.File(files[i].nativePath);					
+					var encPrefix = ultiPrefix + files[i].name;	
+					writer.addDirectory(encPrefix);
 					addData(nPrefix, nDir);
 				}
 			} else {
-				var nFile = new air.File(files[i].nativePath);
-				writer.addFile(nFile,prefix+air.File.separator+files[i].name);
+				var nFile = new air.File(files[i].nativePath);				
+				var utfFileName = ultiPrefix + files[i].name;
+				writer.addFile(nFile,utfFileName);
 			}
 		}
 		return false;	
 	};
 	
-	var res = addData(this.projectName, currentFolder);
+	var res = addData([this.projectName], currentFolder);
 	writer.close();
+	
 };
