@@ -34,11 +34,19 @@
 			<div class="clear"></div>
 		</div>
 		
-		<div id="rename">
-			<input type="text" id="projectName" width="50%" />
-			<button type="button" class="ok nice mini radius blue button" disabled="disabled">OK</button>
-			<button type="button" class="cancel nice mini radius white button" onClick="$('#rename').hide();">Cancel</button>
-		</div>
+	</div>
+
+	<div id="dialog-rename" style="display: none" title="Content Pack Settings">
+          <p style='font-weight:bold;'>Project Name:</p>
+	  <p><input type="text" id="projectName" width="50%" />
+          </p>
+          <p style='font-weight:bold;'>Reporting Settings:</p>
+          <p>Would you like to use Tin Can to gather reporting statistics for this content pack?
+            <p>
+            <input type="radio" name="none">No reporting<br/>
+            <input type="radio" name="quiz-only">Quizzes only<br/>
+            <input type="radio" name="all-content">All content
+          </p>
 	</div>
 	
 	<div id="dialog-confirm" style="display: none" title="Delete Content">
@@ -101,7 +109,7 @@ $(document).ready(function() {
 			var fname = files[f].name;
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '">' + 
                                     shorten_long_name(fname, 50) + 
-                                    '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Rename</button></div></div></td>'));
+                                    '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Settings</button></div></div></td>'));
                         tr.find('a:first').attr('name', fname);
 			apply_tooltip(tr.find('a:first'), fname, 50);
 
@@ -122,70 +130,73 @@ $(document).ready(function() {
 
 // -------------------------- REGISTER LINK CLICKS -------------------------
 
-	$('.renameDiv button').click(function(e){
-		var anchor = $(this).parent().parent().parent().find("a:first");
-		var tr = $(this).parent().parent().parent().parent();
-		var projectName = anchor.attr('name');
-		$("#projectName").val(projectName);		
-		var width = tr.find("td:first").width()+10;
-		var height = tr.height()-10;
-		$('#rename').css({'top':tr.position().top+5,'left':tr.position().left+3, 'width':width, 'height':height}).show();
-		$('#rename').find('input').css({'width':'60%'});
-                $('#rename').find('#projectName').focus();
+        $('.renameDiv button').click(function(e){
+                var anchor = $(this).parent().parent().parent().find("a:first");
+                var tr = $(this).parent().parent().parent().parent();
+                var projectName = anchor.attr('name');
+                $("#projectName").val(projectName);             
 
-                func = function(e){
+                // TODO - lookup value of reporting setting and mark appropriate radio button
+
+                save_project_name_func = function(e) {
                         var name = $("#projectName").val();
 
                         // If the original project name is the same after they click OK just treat it like a cancel
                         if(projectName == name) {
-                                $('#rename').hide();
-				return false;
+                            return true;
                         }
 
                         // Make sure the name is valid
                         if(!is_valid_name(name)) {
-                            $('#rename').focus();
+                            $('#projectName').focus();
                             return false;
                         }
 
-			var newdir = air.File.applicationStorageDirectory.resolvePath(name);
-			if(newdir.exists) {
-				alert("Cannot rename to an already existing project.");
-				return false;
-			}
+                        var newdir = air.File.applicationStorageDirectory.resolvePath(name);
+                        if(newdir.exists) {
+                            alert("Cannot rename to an already existing project.");
+                            $('#projectName').focus();
+                            return false;
+                        }
        
                         // Take care of the back end data storage
-			newdir.createDirectory();
-			var olddir = air.File.applicationStorageDirectory.resolvePath(projectName);
-			olddir.moveTo(newdir, true);
+                        newdir.createDirectory();
+                        var olddir = air.File.applicationStorageDirectory.resolvePath(projectName);
+                        olddir.moveTo(newdir, true);
 
                         // Update the display and link to use the new name
-			var newHref = 'proj.html?name=' + encodeURIComponent(name);
-			anchor.attr('href', newHref);
-			anchor.attr('name', name);
+                        var newHref = 'proj.html?name=' + encodeURIComponent(name);
+                        anchor.attr('href', newHref);
+                        anchor.attr('name', name);
                         apply_tooltip(anchor, name, 50);
-			anchor.html(shorten_long_name(name, 50));
-			$('#rename').hide();
-			return false;
-		};
+                        anchor.html(shorten_long_name(name, 50));
+                        return true;
+                };
 
-                // Assign the handler to the OK button
-		$('#rename button.ok').attr('disabled', $("#projectName").val() == '');
-		$('#rename button.ok').unbind('click');
-		$('#rename button.ok').click(func);
+                save_reporting_setting_func = function(e) {
+                    alert("Saving reporting settings not yet implemented");
+                    return true;
+                }
 
-                // Assign the handler when the user presses Enter in the box
-                $('#projectName').unbind('keyup');
-                $('#projectName').keyup(function(e) {
-                        if(e.keyCode == '13') {
-                            return func(e);
+                func = function(e) {
+                    return save_project_name_func(e) && save_reporting_setting_func(e);
+                };
+
+                $( "#dialog-rename" ).dialog({
+                        width:450,
+                        modal: true,
+                        buttons: {
+                                "Save": function() {
+                                    if(func()) {
+                                        $(this).dialog( "close" );
+                                    }
+                                },
+                                Cancel: function() {
+                                        $(this).dialog( "close" );
+                                }
                         }
-                        else if(e.keyCode == '27') {
-                            $('#rename').hide();
-                            return false;
-                        }   
-                    });
-	});
+                });
+        });
 	
 	
 	$('.action a.alt, .action .cancel').click(function() {

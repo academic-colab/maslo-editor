@@ -233,25 +233,19 @@ Manifest.prototype.addContent = function(content) {
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
 
         // This is the function that allows renaming of content within a project
-        button = $('<button type="button" class="nice mini radius blue button">Rename</button>');
+        button = $('<button type="button" class="nice mini radius blue button">Settings</button>');
         button.click(function(e){
 		var tr = $(this).parent().parent().parent().parent();
 		var anchor = $(this).parent().parent().parent().find("a:first");
 		var contentName = anchor.attr('name');
 		$("#contentName").val(contentName);
 
-		var width = tr.find("td:eq(2)").width()+10;
-		var height = tr.height()-10;
-		$('#rename').css({'top':tr.position().top+10,'left':tr.find("td:eq(2)").position().left+3, 'width':width, 'height':height}).show();
-		$('#rename').find('input').css({'width':'60%'});
-                $('#rename').find('#contentName').focus();
-
                 // This is the function that saves state once they click OK
                 var func = function(e){
                     var name = $("#contentName").val();
                     
                     if(!is_valid_name(name)) {
-                        $('#rename input').focus();
+                        $('#contentName').focus();
                         return false;
                     }
                     
@@ -270,26 +264,23 @@ Manifest.prototype.addContent = function(content) {
                     anchor.attr('name', name);
                     apply_tooltip(anchor, name, 50);
                     anchor.html(shorten_long_name(name, 50));
-                    $('#rename').hide();
-                    return false;
+                    return true;
 		};
 
-                // Assign the handler to the button
-		$('#rename button.ok').attr('disabled', $("#contentName").val() == '');
-		$('#rename button.ok').unbind('click');
-                $('#rename button.ok').click(func);
-
-                // Assign the handler when the user presses Enter in the box
-                $('#contentName').unbind('keyup');
-                $('#contentName').keyup(function(e) {
-                        if(e.keyCode == '13') {
-                            return func(e);
+                $( "#dialog-rename" ).dialog({
+                        width:450,
+                        modal: true,
+                        buttons: {
+                                "Save": function() {
+                                    if(func()) {
+                                        $(this).dialog( "close" );
+                                    }
+                                },
+                                Cancel: function() {
+                                        $(this).dialog( "close" );
+                                }
                         }
-                        else if(e.keyCode == '27') { // escape key
-                            $('#rename').hide();
-                            return false;                            
-                        }
-                    });
+                });
 	});
 
         // Add the title, including the (sometimes visible) rename button
