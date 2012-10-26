@@ -43,9 +43,9 @@
           <p style='font-weight:bold;'>Reporting Settings:</p>
           <p>Would you like to use Tin Can to gather reporting statistics for this content pack?
             <p>
-            <input type="radio" name="none">No reporting<br/>
-            <input type="radio" name="quiz-only">Quizzes only<br/>
-            <input type="radio" name="all-content">All content
+            <input type="radio" name="tincan" id="tincan_no-reporting" value="no-reporting">No reporting<br/>
+            <input type="radio" name="tincan" id="tincan_quiz-only" value="quiz-only">Quizzes only<br/>
+            <input type="radio" name="tincan" id="tincan_all-content" value="all-content">All content
           </p>
 	</div>
 	
@@ -89,6 +89,8 @@
 <script type="text/javascript" src="js/upload.js"></script>
 <script type="text/javascript" src="js/sorttable.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/manifest.js"></script>
+<script type="text/javascript" src="js/content.js"/>
 <script type="text/javascript" src="AIRAliases.js"></script>
 
 <script type="text/javascript">
@@ -102,9 +104,10 @@ $(document).ready(function() {
 	var files = directory.getDirectoryListing();  
 	for (var f in files) {
 		if (files[f].isDirectory) {
-			var versionPath = files[f].nativePath + air.File.separator + 'version'
-			var version = new FileCache(versionPath);
-			var versionData = version.val ? JSON.parse(version.val) : {"version":"0", "status":"Unpublished"};
+                        var manifest = new Manifest(files[f].nativePath);
+                        var status = manifest.get_metadata("status");
+                        var mod_time = manifest.get_metadata("update_time");
+
 			var tr = $('<tr />');
 			var fname = files[f].name;
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '">' + 
@@ -115,9 +118,9 @@ $(document).ready(function() {
 
 			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
 			var d = new Date();
-			d.setTime(recursiveModified(files[f].nativePath));
+			d.setTime(mod_time);
 			tr.append($('<td name="'+ d.getTime() +'">'  + $.cuteTime({}, d.toUTCString()) + '</td>'));
-			tr.append($('<td>'+versionData["status"]+'</td>'));
+			tr.append($('<td>' + status + '</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
 			tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
@@ -136,7 +139,11 @@ $(document).ready(function() {
                 var projectName = anchor.attr('name');
                 $("#projectName").val(projectName);             
 
-                // TODO - lookup value of reporting setting and mark appropriate radio button
+                // Set the radio input to check
+                var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + projectName;
+                manifest = new Manifest(path, projectName);
+                var tincan = manifest.get_metadata('tincan');
+                $('#tincan_' + tincan).attr('checked', 'checked');
 
                 save_project_name_func = function(e) {
                         var name = $("#projectName").val();
@@ -174,7 +181,14 @@ $(document).ready(function() {
                 };
 
                 save_reporting_setting_func = function(e) {
-                    alert("Saving reporting settings not yet implemented");
+                    var name = anchor.attr('name');
+                    var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + name;
+                    manifest = new Manifest(path, name);
+
+                    var value = $('input:radio[name=tincan]:checked').val();
+                    manifest.set_metadata('tincan', value);
+                    manifest.save_metadata();  // todo - should this call updateStatus?
+                    
                     return true;
                 }
 

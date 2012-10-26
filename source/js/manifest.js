@@ -18,19 +18,20 @@ function Manifest(path, name, argObj) {
 	var data = null;
 	this.ordernum = 0;
 	this.tmpOrder = new Array();
-	this.versionData = null;
 	if (this.obj != null) {
 		data = this.obj.attachments;
 		this.type = "quiz";
 	}
+
+	this.metadata = {};
 	if (data == null) {
 		var f = new FileCache(path + air.File.separator + 'manifest');
 		data = f.val ? JSON.parse(f.val) : [];
 		this.file = f;
-		var vFile = new FileCache(path + air.File.separator + 'version');
-		this.versionData = vFile.val ? JSON.parse(vFile.val) : {"version":"0", "status":"Unpublished"};
-	} 
-	//this.tbl = $('\
+
+                this.load_metadata();
+	}
+
 	var tableString = '\
 		<table id="contentTable">                \
 			<thead>                              \
@@ -145,36 +146,42 @@ Manifest.prototype.items = function() {
  * Updates the status of the project.
  * @param hitPublish Whether the project was just published
  */
-Manifest.prototype.updateStatus = function(hitPublish){
+Manifest.prototype.updateStatus = function(hitPublish) {
+    var status = this.get_metadata("status");
+    var epoch_time = new Date().getTime();
     if (this.obj == null) {
 	var versionModified = false;
-	if (this.versionData["status"] == "Published" && !hitPublish) {
-		this.versionData["status"] = "Modified";	
-		versionModified = true;
-	} else if (this.versionData["status"] == "Modified" || this.versionData["status"] == "Unpublished") {
-		if (hitPublish){
-			this.versionData["version"] = ""+(parseInt(this.versionData["version"])+1);
-			this.versionData["status"] = "Published";
-			versionModified = true;
-			var items = this.items();
-			for (var i = 0; i < items.length; i++){
-				var content = items[i];
-				if (content.type == "quiz"){
-					qManifest = new Manifest(content.path);
-					qManifest.updateStatus(true);
-					qManifest.save();
-				}
-				content.updateStatus(true);				
-			}
-		}
+	if(status == "Published" && !hitPublish) {
+            this.set_metadata("status", "Modified");
+            versionModified = true;
 	}
-	if (versionModified){
-		if (this.obj != null) {
-			this.versionData.version = "0";
-		}
-		var f = new FileCache(this.path + air.File.separator + 'version');
-		f.val = JSON.stringify(this.versionData);
-		f.flush();
+        else if(status == "Modified" || status == "Unpublished") {
+            if (hitPublish) {
+                var new_version = "" + (parseInt(this.get_metadata("version"))+1);
+                this.set_metadata("version", new_version);
+                this.set_metadata("status", "Published");
+                this.set_metadata("published", "" + epoch_time);
+                versionModified = true;
+                var items = this.items();
+                for (var i = 0; i < items.length; i++){
+                    var content = items[i];
+                    if (content.type == "quiz") {
+                        qManifest = new Manifest(content.path);
+                        qManifest.updateStatus(true);
+                        qManifest.save();
+                    }
+                    content.updateStatus(true);
+                }
+            }
+	}
+
+	if(versionModified) {
+            if (this.obj != null) {  // can this code ever execute?
+                this.set_metadata("version", "0");
+            }
+
+            this.set_metadata("update_time", "" + epoch_time);
+            this.save_metadata();
 	}
     }
 }
@@ -474,6 +481,61 @@ Manifest.prototype.addContent = function(content) {
 	});
 	this.save();
 };
+
+// --------------------------------------------
+//   Metadata functions
+// --------------------------------------------
+
+// Metadata defaults - to be used the first time or if metadata is somehow missing.
+Manifest.prototype.get_metadata_defaults = function() {
+    defaults = {
+        "version": "0",
+        "status":  "Unpublished",
+        "tincan":  "none",
+        // Add further defaults here
+    };
+    return defaults;
+}
+
+// If supplied a key, return that key's value.
+// If no key is given return the whole hash.
+Manifest.prototype.get_metadata = function(key) {
+    if(key != null) {
+        return this.metadata[key];
+    }
+    return this.metadata;
+};
+
+// Set the specified key, val pair
+Manifest.prototype.set_metadata = function(key, val) {
+    this.metadata[key] = val;
+};
+
+// We store the metadata as a file on disk that is just stringified JSON.
+// This function returns the path at which we write the file.
+Manifest.prototype.get_metadata_path = function() {
+    var vFile = new FileCache(this.path + air.File.separator + 'version');
+    return vFile;
+}
+
+// Persist to disk
+Manifest.prototype.save_metadata = function() {
+    var f = this.get_metadata_path();
+    f.val = JSON.stringify(this.get_metadata());
+    f.flush();
+};
+
+// Load from disk
+Manifest.prototype.load_metadata = function() {
+    var vFile = this.get_metadata_path();
+    this.metadata = vFile.val ? JSON.parse(vFile.val) : this.get_metadata_defaults();
+};
+
+// --------------------------------------------
+//   End of metadata functions
+// --------------------------------------------
+
+
 
 /**
  * Creates a zip file of the manifest

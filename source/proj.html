@@ -199,6 +199,9 @@ $(document).ready(function() {
 	
 	
 	$("#publish").click(function(e) {
+                // Although it's not actually a big deal to publish an empty project (as a placeholder perhaps)
+                // there is a bug when doing so that causes the display to add an extra unnecessary line.
+                // So if that is fixed this could potentially be removed.
                 if(!($('.proj').find('tr:first').data('content'))) {
                         alert('There is no content in this project to publish.  Add content by clicking the "+ Add Content" button');
                         return false;

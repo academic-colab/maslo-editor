@@ -516,7 +516,7 @@ function Quiz(projectBase, title, idOrPath, ext) {
 	this.type = 'quiz';
 	var quiz = new Manifest(this.path);
 	var questions = quiz.data();
-	this.status = quiz.versionData.status;
+	this.status = quiz.get_metadata("status");
 	
 	for (var i = 0; i < questions.length; i++){
 		if (questions[i].status != this.status){
