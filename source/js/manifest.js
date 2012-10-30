@@ -489,9 +489,10 @@ Manifest.prototype.addContent = function(content) {
 // Metadata defaults - to be used the first time or if metadata is somehow missing.
 Manifest.prototype.get_metadata_defaults = function() {
     defaults = {
-        "version": "0",
-        "status":  "Unpublished",
-        "tincan":  "none",
+        "version":     "0",
+        "status":      "Unpublished",
+        "tincan":      "none",
+        "update_time": new Date().getTime(),  // Set the update time to right now
         // Add further defaults here
     };
     return defaults;
