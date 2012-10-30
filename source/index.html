@@ -252,16 +252,24 @@ $(document).ready(function() {
                 }
 
 		var newdir = air.File.applicationStorageDirectory.resolvePath(name);
-                if (newdir.exists){
-                        alert("That name is already used by an existing project.  Delete that one first if you want to overwrite it.");
+                if(newdir.exists) {
+                        alert("That name is already used by an existing project.  You must delete that one first if you want to use that name.");
                         $('.action input').focus();
                         return false;
                 }
 		newdir.createDirectory();
+
+                // Create an empty manifest file
 		var f = new air.File([air.File.applicationStorageDirectory.nativePath, name, 'manifest'].join(air.File.separator));
 		var fs = new air.FileStream();
 		fs.open(f, air.FileMode.WRITE);
 		fs.writeMultiByte('', "utf-8");
+
+                // Create default metadata file
+                manifest = new Manifest(newdir.nativePath, name);
+                manifest.save_metadata();
+
+                // Redirect to begin editing the project
 		window.location = 'proj.html?name=' + encodeURIComponent(name);
 	});
 	$('img.remove').click(function(e) {
