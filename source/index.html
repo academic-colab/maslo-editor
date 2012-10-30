@@ -102,8 +102,11 @@ $(document).ready(function() {
  	 */
 	var directory = air.File.applicationStorageDirectory; 
 	var files = directory.getDirectoryListing();  
+
+        num_rows = 0;
 	for (var f in files) {
 		if (files[f].isDirectory) {
+                        num_rows++;
                         var manifest = new Manifest(files[f].nativePath);
                         var status = manifest.get_metadata("status");
                         var mod_time = manifest.get_metadata("update_time");
@@ -127,6 +130,13 @@ $(document).ready(function() {
 			$('#contentBody').append(tr);
 		}
 	}
+
+        if(num_rows == 0) {
+            var tr = $('<tr id="fillRow"/>');
+            $('#contentBody').append(tr);
+            tr.append($('<td colspan="5" class="fill">Click "' + $("#add").text() + '" below to add your first project.</td>'));
+        }
+
 	uploadPrefs();
 	$('.action input').watermark('Name of Project');
 	

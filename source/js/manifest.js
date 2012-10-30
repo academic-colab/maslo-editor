@@ -53,31 +53,35 @@ function Manifest(path, name, argObj) {
 			<p>This content will be permanently deleted and cannot be          \
 			recovered. Are you sure?</p>                                       \
 		</div>');
-	this.edit = $(
-		'<div id="dialog-content" style="display: none" title="Edit Content"></div>');
-		
-	for(var i in data) {
-		if (this.obj == null) {
-			var content = Content.FromMetadata(path, data[i]);			
-			if (content.status == "Modified" || content.status == "Unpublished"){				
-				this.updateStatus(false);
-			}
-			this.addContent(content);
-		} else {
-			this.addContent(data[i]);
-		}
-	}
+	this.edit = $('<div id="dialog-content" style="display: none" title="Edit Content"></div>');
+
+        // When we don't have any rows to display we'll add a message to point the user in the right direction
 	if (data.length == 0) {
-		this.tbl.show();
-		var tr = $('<tr id="fillRow"/>');
-		this.tbl.find('tbody').append(tr);
-		tr.append($('<td colspan="5" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
+            this.tbl.show();
+            var tr = $('<tr id="fillRow"/>');
+            this.tbl.find('tbody').append(tr);
+            tr.append($('<td colspan="5" class="fill">Click "' + $("#addButton").text() + '" to start editing.</td>'));
 	}
+        else {
+            // Add one row to the table for each item in data
+            for(var i in data) {
+                if (this.obj == null) {
+                    var content = Content.FromMetadata(path, data[i]);
+                    if (content.status == "Modified" || content.status == "Unpublished") {
+                        this.updateStatus(false);
+                    }
+                    this.addContent(content);
+                }
+                else {
+                    this.addContent(data[i]);
+                }
+            }
+        }
 }
 
 
 /**
- * Sets up the dragable table rows
+ * Sets up the draggable table rows
  * updateIndexes() makes sure the input fields get updated on drop
  */
 var fixHelper = function(e, ui) {
