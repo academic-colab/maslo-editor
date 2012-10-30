@@ -278,7 +278,7 @@ Manifest.prototype.addContent = function(content) {
                     return true;
 		};
 
-                $( "#dialog-rename" ).dialog({
+                $( "#dialog-settings" ).dialog({
                         width:450,
                         modal: true,
                         buttons: {
@@ -495,7 +495,7 @@ Manifest.prototype.get_metadata_defaults = function() {
     defaults = {
         "version":     "0",
         "status":      "Unpublished",
-        "tincan":      "none",
+        "tincan":      "no-reporting",
         "update_time": new Date().getTime(),  // Set the update time to right now
         // Add further defaults here
     };

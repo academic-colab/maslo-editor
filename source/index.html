@@ -36,7 +36,7 @@
 		
 	</div>
 
-	<div id="dialog-rename" style="display: none" title="Content Pack Settings">
+	<div id="dialog-settings" style="display: none" title="Content Pack Settings">
           <p style='font-weight:bold;'>Project Name:</p>
 	  <p><input type="text" id="projectName" width="50%" />
           </p>
@@ -206,7 +206,7 @@ $(document).ready(function() {
                     return save_project_name_func(e) && save_reporting_setting_func(e);
                 };
 
-                $( "#dialog-rename" ).dialog({
+                $( "#dialog-settings" ).dialog({
                         width:450,
                         modal: true,
                         buttons: {
