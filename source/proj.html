@@ -166,7 +166,7 @@ $(document).ready(function() {
 	$('#upload').click(function() {
 		chooseFile(function(e) {
 			var content = Content.FromImport(gPageParams.path, 'Untitled', e.target.url);
-			gManifest.addContent(content);
+			gManifest.addContent(content, true);
 			// the upload button is inside #dialog-add
 			bottomBar($('#contentTable').height() - 34, $(window).height());
 			$('#dialog-add').dialog("close");
@@ -175,7 +175,7 @@ $(document).ready(function() {
 
 	$('#btnCreate').click(function() {
 		var content = new Text(gPageParams.path, 'Untitled Document');
-		gManifest.addContent(content);
+		gManifest.addContent(content, true);
 		content.save();
 		// the create text button is inside #dialog-add
 		$('#dialog-add').dialog("close");
@@ -188,7 +188,7 @@ $(document).ready(function() {
 	$('form.quiz').submit(function(event) {
 		var content = new Quiz(gPageParams.path,
 			$('form.quiz input[name="title"]').val());
-		gManifest.addContent(content);
+		gManifest.addContent(content, true);
 
 		// add hidden form variables to orient the quiz screen
 		$(this).find('input[name="id"]').val(content.id);
@@ -243,7 +243,7 @@ $(document).ready(function() {
 				name = name.replace("." + ext, "");	
  			var content = Content.FromImport(gPageParams.path, name, files[i].nativePath);
  			if (content != null && content.type != "content") {
- 				gManifest.addContent(content);
+ 				gManifest.addContent(content, true);
 				bottomBar($('#contentTable').height() - 34, $(window).height());
  			} else {
  				bad = true;	

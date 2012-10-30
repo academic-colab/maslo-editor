@@ -70,10 +70,10 @@ function Manifest(path, name, argObj) {
                     if (content.status == "Modified" || content.status == "Unpublished") {
                         this.updateStatus(false);
                     }
-                    this.addContent(content);
+                    this.addContent(content, false);
                 }
                 else {
-                    this.addContent(data[i]);
+                    this.addContent(data[i], false);
                 }
             }
         }
@@ -150,7 +150,7 @@ Manifest.prototype.items = function() {
  * Updates the status of the project.
  * @param hitPublish Whether the project was just published
  */
-Manifest.prototype.updateStatus = function(hitPublish) {
+Manifest.prototype.updateStatus = function(hitPublish, forceUpdate) {
     var status = this.get_metadata("status");
     var epoch_time = new Date().getTime();
     if (this.obj == null) {
@@ -178,15 +178,11 @@ Manifest.prototype.updateStatus = function(hitPublish) {
                 }
             }
 	}
-
-	if(versionModified) {
-            if (this.obj != null) {  // can this code ever execute?
-                this.set_metadata("version", "0");
-            }
-
-            this.set_metadata("update_time", "" + epoch_time);
-            this.save_metadata();
-	}
+    }
+	
+    if(versionModified || forceUpdate) {
+        this.set_metadata("update_time", "" + epoch_time);
+        this.save_metadata();
     }
 }
 
@@ -220,8 +216,12 @@ Manifest.prototype.save = function() {
  * and dialogs are declared as the content is added. 
  * @param content The content that is to be added to the manifest
  */
-Manifest.prototype.addContent = function(content) {
+Manifest.prototype.addContent = function(content, is_new) {
 	this.ordernum++;
+
+        if(is_new) {
+            this.updateStatus(false, true);
+        }
 
 	var quiz = this.obj;
 	var on = this.ordernum;
@@ -350,7 +350,7 @@ Manifest.prototype.addContent = function(content) {
 				}
 				manifest.ordernum = 0;
 				for(var p = 1; p < orderArray.length; p++)  {
-					manifest.addContent(orderArray[p]);
+                                    manifest.addContent(orderArray[p], false);
 				}	
 				manifest.tmpOrder = [];
 			}

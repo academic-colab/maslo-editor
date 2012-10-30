@@ -192,7 +192,7 @@ $(document).ready(function() {
 
                 save_reporting_setting_func = function(e) {
                     var name = anchor.attr('name');
-                    var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + name;
+                    var path = getAppPath() + name;
                     manifest = new Manifest(path, name);
 
                     var value = $('input:radio[name=tincan]:checked').val();
