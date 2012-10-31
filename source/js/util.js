@@ -75,3 +75,13 @@ function apply_tooltip(element, tip, length) {
 	    fade: 250 
 	});
 }
+
+/* 
+  Calls jQuery cuteTime function to create a well formatted timestamp.
+    time - An epoch timestamp
+ */
+function cute_time(time) {
+    var d = new Date();
+    d.setTime(time);
+    return $.cuteTime({}, d.toUTCString());
+}

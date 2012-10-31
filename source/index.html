@@ -110,6 +110,7 @@ $(document).ready(function() {
                         var manifest = new Manifest(files[f].nativePath);
                         var status = manifest.get_metadata("status");
                         var mod_time = manifest.get_metadata("update_time");
+                        var cute_mod_time = cute_time(mod_time);
 
 			var tr = $('<tr />');
 			var fname = files[f].name;
@@ -120,9 +121,7 @@ $(document).ready(function() {
 			apply_tooltip(tr.find('a:first'), fname, 50);
 
 			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
-			var d = new Date();
-			d.setTime(mod_time);
-			tr.append($('<td name="'+ d.getTime() +'">'  + $.cuteTime({}, d.toUTCString()) + '</td>'));
+			tr.append($('<td name="'+ mod_time +'">'  + cute_mod_time + '</td>'));
 			tr.append($('<td>' + status + '</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
@@ -197,12 +196,24 @@ $(document).ready(function() {
 
                     var value = $('input:radio[name=tincan]:checked').val();
                     manifest.set_metadata('tincan', value);
-                    manifest.save_metadata();  // todo - should this call updateStatus?
-                    
+
+                    // Note that we are always going to change the status to modified and write out the
+                    // metadata even if the user did not change anything.  It might not be ideal but I think
+                    // this won't happen that often so it is ok.
+                    manifest.updateStatus(false, true);
+
+                    // After updating the metadata we need to update the "Last Modified" and "Status" columns
+                    tr.find('td:nth-child(3)').text(cute_time(manifest.get_metadata('update_time')));
+                    tr.find('td:nth-child(4)').text(manifest.get_metadata('status'));
                     return true;
                 }
 
                 func = function(e) {
+                    // An intentional side effect of how this is written is that if the validity checking
+                    // for the name does not succeed we will not save the reporting info (which writes the
+                    // metadata to disk).  If we ever add more settings make sure to preserve this behavior,
+                    // possibly by having explicit validity checking functions before running any commands
+                    // that cause filesystem changes (e.g. renaming the directory or writing the metadata).
                     return save_project_name_func(e) && save_reporting_setting_func(e);
                 };
 
