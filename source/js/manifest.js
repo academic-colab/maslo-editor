@@ -262,14 +262,16 @@ Manifest.prototype.addContent = function(content, is_new) {
                     
                     // Update the data structures and save it back to disk
                     tr.data('content').title = name;
-                    
-                    if(tr.data('content').status == "Published") {
-                        tr.data('content').updateStatus(false);
-                        tr.find('.contentStatus').text(tr.data('content').status);
-                        gManifest.updateStatus(false);
-                    }
+                    tr.data('content').updateStatus(false, true);
+
+                    // TODO - for quizzes we also need to update the parent's parent's manifest (e.g. the pack)
+                    // because gManifest is the manifest for the quiz
+                    gManifest.updateStatus(false, true);
 
                     gManifest.save();
+
+                    // Update the display
+                    tr.find('.contentStatus').text(tr.data('content').status);
                     
                     // Update the display with the new name
                     anchor.attr('name', name);
