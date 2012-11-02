@@ -75,7 +75,8 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + encodeURIComponent(gProj);
 	});
 
-	gManifest = new Manifest(gPath);
+        parent_manifest = new Manifest([air.File.applicationStorageDirectory.nativePath, gProj].join(air.File.separator));
+	gManifest = new Manifest(gPath, undefined, undefined, parent_manifest);
 	gManifest.render($('#toc'));
 
 	uploadPrefs();

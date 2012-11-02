@@ -8,16 +8,16 @@
  * @param name Name of the project
  * @param argObj Wheter the manifest is a quiz or project
  */
-function Manifest(path, name, argObj) {
-	/*this.parent = null
-	if (parPath != null)
-		this.parent = new Manifest(parPath);*/
-	this.projectName = name;
+function Manifest(path, name, argObj, parent_manifest) {
 	this.path = path;
+	this.projectName = name;
 	this.obj = argObj;
-	var data = null;
+        this.parent_manifest = parent_manifest;
+
 	this.ordernum = 0;
 	this.tmpOrder = new Array();
+
+	var data = null;
 	if (this.obj != null) {
 		data = this.obj.attachments;
 		this.type = "quiz";
@@ -223,6 +223,7 @@ Manifest.prototype.addContent = function(content, is_new) {
             this.updateStatus(false, true);
         }
 
+        var this_manifest = this;  // for use in button click function below
 	var quiz = this.obj;
 	var on = this.ordernum;
 	var tempoArray = this.tmpOrder;
@@ -259,16 +260,16 @@ Manifest.prototype.addContent = function(content, is_new) {
                         $('#contentName').focus();
                         return false;
                     }
-                    
+
                     // Update the data structures and save it back to disk
                     tr.data('content').title = name;
                     tr.data('content').updateStatus(false, true);
+                    this_manifest.updateStatus(false, true);
+                    this_manifest.save();
 
-                    // TODO - for quizzes we also need to update the parent's parent's manifest (e.g. the pack)
-                    // because gManifest is the manifest for the quiz
-                    gManifest.updateStatus(false, true);
-
-                    gManifest.save();
+                    if(this_manifest.parent_manifest) {
+                        this_manifest.parent_manifest.updateStatus(false, true);
+                    }
 
                     // Update the display
                     tr.find('.contentStatus').text(tr.data('content').status);
