@@ -46,13 +46,13 @@ function is_valid_name(name) {
 /* 
   Given a string, if it is longer than the specified 'length' shorten it and tack on '...'.
 */
-function shorten_long_name(name, length, encode) {
+function shorten_long_name(name, length, escape) {
     new_name = name;
     if (name.length > length) {
         new_name = name.substr(0,length-1) + "...";
     }
 
-    if(encode) {
+    if(escape) {
         new_name = new_name.replace(/</g, '&lt;');
         new_name = new_name.replace(/>/g, '&gt;');
         // Add any further replacements here if other characters are problematic
@@ -72,7 +72,10 @@ function apply_tooltip(element, tip, length) {
         if(tip.length < length) {
             return false;
         }
-        element.attr("title", " - " + tip);
+
+        new_tip = tip.replace(/</g, '&lt;');
+        new_tip = new_tip.replace(/>/g, '&gt;');
+        element.attr("title", " - " + new_tip);
     }
 
     element.tooltip({ 
