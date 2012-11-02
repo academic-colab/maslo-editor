@@ -277,7 +277,7 @@ Manifest.prototype.addContent = function(content, is_new) {
                     // Update the display with the new name
                     anchor.attr('name', name);
                     apply_tooltip(anchor, name, 50);
-                    anchor.html(shorten_long_name(name, 50));
+                    anchor.text(shorten_long_name(name, 50));
                     return true;
 		};
 
@@ -298,7 +298,7 @@ Manifest.prototype.addContent = function(content, is_new) {
 	});
 
         // Add the title, including the (sometimes visible) rename button
-        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" name="' + content.title + '">' + shorten_long_name(content.title, 50) + '</a><div class="renameDiv"></div></div></td>');
+        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" name="' + content.title + '">' + shorten_long_name(content.title, 50, true) + '</a><div class="renameDiv"></div></div></td>');
         tmp_td.find('div').find('div.renameDiv').append(button);
         apply_tooltip(tmp_td.find('a:first'), content.title, 50);
         tr.append(tmp_td);

@@ -115,7 +115,7 @@ $(document).ready(function() {
 			var tr = $('<tr />');
 			var fname = files[f].name;
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '">' + 
-                                    shorten_long_name(fname, 50) + 
+                                    shorten_long_name(fname, 50, true) + 
                                     '</a><div class="renameDiv"><button type="button" class="nice mini radius blue button" >Settings</button></div></div></td>'));
                         tr.find('a:first').attr('name', fname);
 			apply_tooltip(tr.find('a:first'), fname, 50);
@@ -185,7 +185,7 @@ $(document).ready(function() {
                         anchor.attr('href', newHref);
                         anchor.attr('name', name);
                         apply_tooltip(anchor, name, 50);
-                        anchor.html(shorten_long_name(name, 50));
+                        anchor.text(shorten_long_name(name, 50));
                         return true;
                 };
 

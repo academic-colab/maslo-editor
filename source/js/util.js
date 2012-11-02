@@ -46,11 +46,19 @@ function is_valid_name(name) {
 /* 
   Given a string, if it is longer than the specified 'length' shorten it and tack on '...'.
 */
-function shorten_long_name(name, length) {
+function shorten_long_name(name, length, encode) {
+    new_name = name;
     if (name.length > length) {
-        return name.substr(0,length-1) + "...";
+        new_name = name.substr(0,length-1) + "...";
     }
-    return name;
+
+    if(encode) {
+        new_name = new_name.replace(/</g, '&lt;');
+        new_name = new_name.replace(/>/g, '&gt;');
+        // Add any further replacements here if other characters are problematic
+    }
+
+    return new_name;
 }
 
 /*
