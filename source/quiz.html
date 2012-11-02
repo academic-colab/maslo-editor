@@ -57,8 +57,8 @@ var gManifest, gPageParams, gPath, gProj, gName;
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {
 	gPageParams = queryParameters(document.location.search);
-	gProj       = urldecode(gPageParams.proj.toString());
-	gName       = urldecode(gPageParams.title.toString());
+	gProj       = gPageParams.proj.toString();
+	gName       = gPageParams.title.toString();
 	gPath       = [air.File.applicationStorageDirectory.nativePath,
 	               gProj, gPageParams.id].join(air.File.separator);
 
