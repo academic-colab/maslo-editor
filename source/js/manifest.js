@@ -534,9 +534,25 @@ Manifest.prototype.save_metadata = function() {
 };
 
 // Load from disk
+// Also, update metadata if necessary
 Manifest.prototype.load_metadata = function() {
     var vFile = this.get_metadata_path();
-    this.metadata = vFile.val ? JSON.parse(vFile.val) : this.get_metadata_defaults();
+    var defaults = this.get_metadata_defaults();
+    
+    if(!vFile.val) {
+        this.metadata = defaults;
+    }
+    else {
+        this.metadata = JSON.parse(vFile.val);
+    
+        // Old MASLO packs will be missing some important metadata.  We want to make upgrading
+        // seamless so we will look for that here and apply default values in case any are missing.
+        for(var i in defaults) {
+            if(!(i in this.metadata)) {
+                this.metadata[i] = defaults[i];
+            }
+        } 
+    }
 };
 
 // --------------------------------------------
