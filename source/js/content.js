@@ -534,7 +534,7 @@ Quiz.prototype.constructor = Quiz;
  */
 Quiz.prototype.render = function(div) {
 	window.location = 'quiz.html?' + $.param(
-		{id:this.id, proj:this._project, title:this.title}, true);		
+		{id:this.id, proj:urlencode(this._project), title:urlencode(this.title)}, true);		
 	return false;
 }
  
