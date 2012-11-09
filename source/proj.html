@@ -192,8 +192,10 @@ $(document).ready(function() {
 
 		// add hidden form variables to orient the quiz screen
 		$(this).find('input[name="id"]').val(content.id);
-		$(this).find('input[name="proj"]').val(gPageParams.name);
-
+		$(this).find('input[name="proj"]').val(urlencode(gPageParams.name));
+		var qTitle = $(this).find('input[name="title"]').val();
+		$(this).find('input[name="title"]').val(urlencode(qTitle));
+		
 		return true;
 	});
 	
