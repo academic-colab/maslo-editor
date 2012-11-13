@@ -70,9 +70,10 @@ function shorten_long_name(name, length, escape) {
 function apply_tooltip(element, tip, length) {
     if(tip) {
         if(tip.length < length) {
+			if ('object' === typeof $(element).data('tooltip'))
+				element.tooltip({ disabled: true });
             return false;
         }
-
         new_tip = tip.replace(/</g, '&lt;');
         new_tip = new_tip.replace(/>/g, '&gt;');
         element.attr("title", " - " + new_tip);
