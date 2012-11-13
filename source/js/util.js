@@ -70,8 +70,10 @@ function shorten_long_name(name, length, escape) {
 function apply_tooltip(element, tip, length) {
     if(tip) {
         if(tip.length < length) {
-			if ('object' === typeof $(element).data('tooltip'))
-				element.tooltip({ disabled: true });
+            // If the object already has a tip and the new tip is less than the tip length
+            // remove the existing tip.
+            if ('object' === typeof $(element).data('tooltip'))
+                element.tooltip({ disabled: true });
             return false;
         }
         new_tip = tip.replace(/</g, '&lt;');
