@@ -62,8 +62,10 @@ function shorten_long_name(name, length) {
 function apply_tooltip(element, tip, length) {
     if(tip) {
         if(tip.length < length) {
+			if ('object' === typeof $(element).data('tooltip'))
+				element.tooltip({ disabled: true });
             return false;
-        }
+        } 
         element.attr("title", " - " + tip);
     }
 
