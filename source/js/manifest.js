@@ -545,6 +545,12 @@ Manifest.prototype.load_metadata = function() {
     else {
         this.metadata = JSON.parse(vFile.val);
     
+        // If the "update_time" is missing we want to try to populate it smartly.
+        // We'll do what we used to do - check the file system for the most recently changed file.
+        if(!("update_time" in this.metadata)) {
+            this.metadata["update_time"] = recursiveModified(this.path);
+        }
+
         // Old MASLO packs will be missing some important metadata.  We want to make upgrading
         // seamless so we will look for that here and apply default values in case any are missing.
         for(var i in defaults) {
