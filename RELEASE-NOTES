@@ -1,3 +1,21 @@
+MASLO v? (?)
+--------
+
+Visual/behavioral changes:
+- (INCOMPLETE description) Added support for Tincan
+- Added information to the "Help" screen about how to backup your MASLO
+  projects.
+
+Bug Fixes:
+- <None yet>
+
+Technical Notes:
+- The underlying metadata file (named 'version') now contains more information
+  including the time of last update, time of last publish, and tincan reporting
+  options.  The metadata file should be correctly "upgraded" to the new format
+  when importing any old projects.
+
+
 MASLO v0.4 (November 30, 2012)
 --------
 
