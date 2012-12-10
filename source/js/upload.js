@@ -29,6 +29,15 @@ function postMessage(msg, fun){
 function uploadProgress(data){
 }
 
+function showLoading(){
+	$("#loadingDiv").dialog({
+		autoOpen: true,
+		modal: true,
+		width: 650,
+		position: 'center'
+	});
+}
+
 /**
  * The dialog displaying upload complete
  * @param event
@@ -90,10 +99,13 @@ function fileUploader(urlRequest, serial, totalNum){
 		var file = new air.File(fPath);
 		file.deleteFile();
 		if (serial == totalNum-1){
+			$("#progress").html("100");
 			completeHandler(event);
+			$("#loadingDiv").dialog("close");
 			return false;
 		}		
-		
+		var perc = Math.round((100.0/totalNum) * serial+1);
+		$("#progress").html(perc);
 		fileUploader(urlRequest, serial+1, totalNum);
 	}
 		
@@ -168,6 +180,7 @@ function doUpload(numFiles,dirName,sessionId){
 	            var loader = air.URLLoader(event.target);
 	            air.trace("completeHandler: " + loader.data);
 				if (loader.data == "OK.") {
+					showLoading();
 					fileUploader(urlRequest, 0, numFiles);
 				} else {
 					removeUser();
@@ -480,14 +493,6 @@ function verifyUserCred(sessionId){
 	return false;
 }
 
-function showLoading(){
-	$("#loadingDiv").dialog({
-		autoOpen: true,
-		modal: true,
-		width: 650,
-		position: 'center'
-	});
-}
 
 function initUser(){
 	var data = getUser();
