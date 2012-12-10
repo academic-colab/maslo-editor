@@ -22,8 +22,11 @@ function help() {
 	<h5>Converting video files</h5><br/>\
 	If you have a non .mp4 video file that you want to include in a content pack you will need to convert the file to .mp4 before adding it to MASLO. File types other than .mp4 cannot be guaranteed to play on both iOS and Android devices. The VLC media player offers one freely accessible way to convert files to .mp4, but there are other options available.\
 	<br/><br/>\
-	Recommendations for video file size</h5><br/>\
+	<h5>Recommendations for video file size</h5><br/>\
 	Video files can rapidly expand the size of a content pack. In general larger files will eat up a users monthly data allowance if downloaded over a 3G connection, and if a pack exceeds 20MB, users will not be able to download it over 3G. Additionally, many videos are not shot with viewing on small screens in mind. For these reasons, it is advisable to minimize the use of video when possible and to use shorter, smaller videos to ensure that learners will be able to access content packs.\
+	<br/><br/>\
+	<h5>Backing up your projects</h5><br/>                   \
+        To backup your projects make sure the following directory is being backed up: " + getAppPath() + " \
 	<br/><br/>\
 	<h5>Creating Math Content</h5><br/>\
 	The current version of MASLO does not support the use of MathML to create math content. Although iOS and Android will render MathML, Adobe AIR does not. Developers are looking into a workaround for implementing MathML in the authoring tool. In the meantime, mathematical expressions can be included in a content pack by rendering them as image files.";

@@ -28,11 +28,11 @@
 		<div class="clear"></div>
 	</div>
 
-	<div id="rename">
-	  <input type="text" id="contentName" width="50%" />
-	  <button type="button" class="ok nice mini radius blue button" disabled="disabled">OK</button>
-	  <button type="button" class="cancel nice mini radius white button" onClick="$('#rename').hide();">Cancel</button>
-        </div>
+	<div id="dialog-settings" style="display: none" title="Content Settings">
+          <p style='font-weight:bold;'>Question Name:</p>
+	  <p><input type="text" id="contentName" width="50%" />
+          </p>
+	</div>
 
 
 <script type="text/javascript" src="AIRAliases.js"></script>
@@ -75,7 +75,8 @@ $(document).ready(function() {
 		window.location = 'proj.html?name=' + encodeURIComponent(gProj);
 	});
 
-	gManifest = new Manifest(gPath);
+        parent_manifest = new Manifest([air.File.applicationStorageDirectory.nativePath, gProj].join(air.File.separator));
+	gManifest = new Manifest(gPath, undefined, undefined, parent_manifest);
 	gManifest.render($('#toc'));
 
 	uploadPrefs();

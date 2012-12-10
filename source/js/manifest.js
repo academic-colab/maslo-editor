@@ -8,29 +8,30 @@
  * @param name Name of the project
  * @param argObj Wheter the manifest is a quiz or project
  */
-function Manifest(path, name, argObj) {
-	/*this.parent = null
-	if (parPath != null)
-		this.parent = new Manifest(parPath);*/
-	this.projectName = name;
+function Manifest(path, name, argObj, parent_manifest) {
 	this.path = path;
+	this.projectName = name;
 	this.obj = argObj;
-	var data = null;
+        this.parent_manifest = parent_manifest;
+
 	this.ordernum = 0;
 	this.tmpOrder = new Array();
-	this.versionData = null;
+
+	var data = null;
 	if (this.obj != null) {
 		data = this.obj.attachments;
 		this.type = "quiz";
 	}
+
+	this.metadata = {};
 	if (data == null) {
 		var f = new FileCache(path + air.File.separator + 'manifest');
 		data = f.val ? JSON.parse(f.val) : [];
 		this.file = f;
-		var vFile = new FileCache(path + air.File.separator + 'version');
-		this.versionData = vFile.val ? JSON.parse(vFile.val) : {"version":"0", "status":"Unpublished"};
-	} 
-	//this.tbl = $('\
+
+                this.load_metadata();
+	}
+
 	var tableString = '\
 		<table id="contentTable">                \
 			<thead>                              \
@@ -52,31 +53,35 @@ function Manifest(path, name, argObj) {
 			<p>This content will be permanently deleted and cannot be          \
 			recovered. Are you sure?</p>                                       \
 		</div>');
-	this.edit = $(
-		'<div id="dialog-content" style="display: none" title="Edit Content"></div>');
-		
-	for(var i in data) {
-		if (this.obj == null) {
-			var content = Content.FromMetadata(path, data[i]);			
-			if (content.status == "Modified" || content.status == "Unpublished"){				
-				this.updateStatus(false);
-			}
-			this.addContent(content);
-		} else {
-			this.addContent(data[i]);
-		}
-	}
+	this.edit = $('<div id="dialog-content" style="display: none" title="Edit Content"></div>');
+
+        // When we don't have any rows to display we'll add a message to point the user in the right direction
 	if (data.length == 0) {
-		this.tbl.show();
-		var tr = $('<tr id="fillRow"/>');
-		this.tbl.find('tbody').append(tr);
-		tr.append($('<td colspan="5" class="fill">Click "'+$("#addButton").html()+'" to start editing.</td>'));
+            this.tbl.show();
+            var tr = $('<tr id="fillRow"/>');
+            this.tbl.find('tbody').append(tr);
+            tr.append($('<td colspan="5" class="fill">Click "' + $("#addButton").text() + '" to start editing.</td>'));
 	}
+        else {
+            // Add one row to the table for each item in data
+            for(var i in data) {
+                if (this.obj == null) {
+                    var content = Content.FromMetadata(path, data[i]);
+                    if (content.status == "Modified" || content.status == "Unpublished") {
+                        this.updateStatus(false);
+                    }
+                    this.addContent(content, false);
+                }
+                else {
+                    this.addContent(data[i], false);
+                }
+            }
+        }
 }
 
 
 /**
- * Sets up the dragable table rows
+ * Sets up the draggable table rows
  * updateIndexes() makes sure the input fields get updated on drop
  */
 var fixHelper = function(e, ui) {
@@ -145,37 +150,39 @@ Manifest.prototype.items = function() {
  * Updates the status of the project.
  * @param hitPublish Whether the project was just published
  */
-Manifest.prototype.updateStatus = function(hitPublish){
+Manifest.prototype.updateStatus = function(hitPublish, forceUpdate) {
+    var status = this.get_metadata("status");
+    var epoch_time = new Date().getTime();
     if (this.obj == null) {
 	var versionModified = false;
-	if (this.versionData["status"] == "Published" && !hitPublish) {
-		this.versionData["status"] = "Modified";	
-		versionModified = true;
-	} else if (this.versionData["status"] == "Modified" || this.versionData["status"] == "Unpublished") {
-		if (hitPublish){
-			this.versionData["version"] = ""+(parseInt(this.versionData["version"])+1);
-			this.versionData["status"] = "Published";
-			versionModified = true;
-			var items = this.items();
-			for (var i = 0; i < items.length; i++){
-				var content = items[i];
-				if (content.type == "quiz"){
-					qManifest = new Manifest(content.path);
-					qManifest.updateStatus(true);
-					qManifest.save();
-				}
-				content.updateStatus(true);				
-			}
-		}
+	if(status == "Published" && !hitPublish) {
+            this.set_metadata("status", "Modified");
+            versionModified = true;
 	}
-	if (versionModified){
-		if (this.obj != null) {
-			this.versionData.version = "0";
-		}
-		var f = new FileCache(this.path + air.File.separator + 'version');
-		f.val = JSON.stringify(this.versionData);
-		f.flush();
+        else if(status == "Modified" || status == "Unpublished") {
+            if (hitPublish) {
+                var new_version = "" + (parseInt(this.get_metadata("version"))+1);
+                this.set_metadata("version", new_version);
+                this.set_metadata("status", "Published");
+                this.set_metadata("published", "" + epoch_time);
+                versionModified = true;
+                var items = this.items();
+                for (var i = 0; i < items.length; i++){
+                    var content = items[i];
+                    if (content.type == "quiz") {
+                        qManifest = new Manifest(content.path);
+                        qManifest.updateStatus(true);
+                        qManifest.save();
+                    }
+                    content.updateStatus(true);
+                }
+            }
 	}
+    }
+	
+    if(versionModified || forceUpdate) {
+        this.set_metadata("update_time", "" + epoch_time);
+        this.save_metadata();
     }
 }
 
@@ -209,9 +216,14 @@ Manifest.prototype.save = function() {
  * and dialogs are declared as the content is added. 
  * @param content The content that is to be added to the manifest
  */
-Manifest.prototype.addContent = function(content) {
+Manifest.prototype.addContent = function(content, is_new) {
 	this.ordernum++;
 
+        if(is_new) {
+            this.updateStatus(false, true);
+        }
+
+        var this_manifest = this;  // for use in button click function below
 	var quiz = this.obj;
 	var on = this.ordernum;
 	var tempoArray = this.tmpOrder;
@@ -233,67 +245,60 @@ Manifest.prototype.addContent = function(content) {
 	tr.append($('<td class="icon"><img src="' + content.icon + '"/></td>'));
 
         // This is the function that allows renaming of content within a project
-        button = $('<button type="button" class="nice mini radius blue button">Rename</button>');
+        button = $('<button type="button" class="nice mini radius blue button">Settings</button>');
         button.click(function(e){
 		var tr = $(this).parent().parent().parent().parent();
 		var anchor = $(this).parent().parent().parent().find("a:first");
 		var contentName = anchor.attr('name');
 		$("#contentName").val(contentName);
 
-		var width = tr.find("td:eq(2)").width()+10;
-		var height = tr.height()-10;
-		$('#rename').css({'top':tr.position().top+10,'left':tr.find("td:eq(2)").position().left+3, 'width':width, 'height':height}).show();
-		$('#rename').find('input').css({'width':'60%'});
-                $('#rename').find('#contentName').focus();
-
                 // This is the function that saves state once they click OK
                 var func = function(e){
                     var name = $("#contentName").val();
                     
                     if(!is_valid_name(name)) {
-                        $('#rename input').focus();
+                        $('#contentName').focus();
                         return false;
                     }
-                    
+
                     // Update the data structures and save it back to disk
                     tr.data('content').title = name;
-                    
-                    if(tr.data('content').status == "Published") {
-                        tr.data('content').updateStatus(false);
-                        tr.find('.contentStatus').text(tr.data('content').status);
-                        gManifest.updateStatus(false);
+                    tr.data('content').updateStatus(false, true);
+                    this_manifest.updateStatus(false, true);
+                    this_manifest.save();
+
+                    if(this_manifest.parent_manifest) {
+                        this_manifest.parent_manifest.updateStatus(false, true);
                     }
 
-                    gManifest.save();
+                    // Update the display
+                    tr.find('.contentStatus').text(tr.data('content').status);
                     
                     // Update the display with the new name
                     anchor.attr('name', name);
                     apply_tooltip(anchor, name, 50);
-                    anchor.html(shorten_long_name(name, 50));
-                    $('#rename').hide();
-                    return false;
+                    anchor.text(shorten_long_name(name, 50));
+                    return true;
 		};
 
-                // Assign the handler to the button
-		$('#rename button.ok').attr('disabled', $("#contentName").val() == '');
-		$('#rename button.ok').unbind('click');
-                $('#rename button.ok').click(func);
-
-                // Assign the handler when the user presses Enter in the box
-                $('#contentName').unbind('keyup');
-                $('#contentName').keyup(function(e) {
-                        if(e.keyCode == '13') {
-                            return func(e);
+                $( "#dialog-settings" ).dialog({
+                        width:450,
+                        modal: true,
+                        buttons: {
+                                "Save": function() {
+                                    if(func()) {
+                                        $(this).dialog( "close" );
+                                    }
+                                },
+                                Cancel: function() {
+                                        $(this).dialog( "close" );
+                                }
                         }
-                        else if(e.keyCode == '27') { // escape key
-                            $('#rename').hide();
-                            return false;                            
-                        }
-                    });
+                });
 	});
 
         // Add the title, including the (sometimes visible) rename button
-        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" name="' + content.title + '">' + shorten_long_name(content.title, 50) + '</a><div class="renameDiv"></div></div></td>');
+        tmp_td = $('<td><div class="wrapper"><a class="title" href="#" name="' + content.title + '">' + shorten_long_name(content.title, 50, true) + '</a><div class="renameDiv"></div></div></td>');
         tmp_td.find('div').find('div.renameDiv').append(button);
         apply_tooltip(tmp_td.find('a:first'), content.title, 50);
         tr.append(tmp_td);
@@ -348,7 +353,7 @@ Manifest.prototype.addContent = function(content) {
 				}
 				manifest.ordernum = 0;
 				for(var p = 1; p < orderArray.length; p++)  {
-					manifest.addContent(orderArray[p]);
+                                    manifest.addContent(orderArray[p], false);
 				}	
 				manifest.tmpOrder = [];
 			}
@@ -483,6 +488,84 @@ Manifest.prototype.addContent = function(content) {
 	});
 	this.save();
 };
+
+// --------------------------------------------
+//   Metadata functions
+// --------------------------------------------
+
+// Metadata defaults - to be used the first time or if metadata is somehow missing.
+Manifest.prototype.get_metadata_defaults = function() {
+    defaults = {
+        "version":     "0",
+        "status":      "Unpublished",
+        "tincan":      "no-reporting",
+        "update_time": new Date().getTime(),  // Set the update time to right now
+        // Add further defaults here
+    };
+    return defaults;
+}
+
+// If supplied a key, return that key's value.
+// If no key is given return the whole hash.
+Manifest.prototype.get_metadata = function(key) {
+    if(key != null) {
+        return this.metadata[key];
+    }
+    return this.metadata;
+};
+
+// Set the specified key, val pair
+Manifest.prototype.set_metadata = function(key, val) {
+    this.metadata[key] = val;
+};
+
+// We store the metadata as a file on disk that is just stringified JSON.
+// This function returns the path at which we write the file.
+Manifest.prototype.get_metadata_path = function() {
+    var vFile = new FileCache(this.path + air.File.separator + 'version');
+    return vFile;
+}
+
+// Persist to disk
+Manifest.prototype.save_metadata = function() {
+    var f = this.get_metadata_path();
+    f.val = JSON.stringify(this.get_metadata());
+    f.flush();
+};
+
+// Load from disk
+// Also, update metadata if necessary
+Manifest.prototype.load_metadata = function() {
+    var vFile = this.get_metadata_path();
+    var defaults = this.get_metadata_defaults();
+    
+    if(!vFile.val) {
+        this.metadata = defaults;
+    }
+    else {
+        this.metadata = JSON.parse(vFile.val);
+    
+        // If the "update_time" is missing we want to try to populate it smartly.
+        // We'll do what we used to do - check the file system for the most recently changed file.
+        if(!("update_time" in this.metadata)) {
+            this.metadata["update_time"] = recursiveModified(this.path);
+        }
+
+        // Old MASLO packs will be missing some important metadata.  We want to make upgrading
+        // seamless so we will look for that here and apply default values in case any are missing.
+        for(var i in defaults) {
+            if(!(i in this.metadata)) {
+                this.metadata[i] = defaults[i];
+            }
+        } 
+    }
+};
+
+// --------------------------------------------
+//   End of metadata functions
+// --------------------------------------------
+
+
 
 /**
  * Creates a zip file of the manifest

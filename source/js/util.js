@@ -46,11 +46,19 @@ function is_valid_name(name) {
 /* 
   Given a string, if it is longer than the specified 'length' shorten it and tack on '...'.
 */
-function shorten_long_name(name, length) {
+function shorten_long_name(name, length, escape) {
+    new_name = name;
     if (name.length > length) {
-        return name.substr(0,length-1) + "...";
+        new_name = name.substr(0,length-1) + "...";
     }
-    return name;
+
+    if(escape) {
+        new_name = new_name.replace(/</g, '&lt;');
+        new_name = new_name.replace(/>/g, '&gt;');
+        // Add any further replacements here if other characters are problematic
+    }
+
+    return new_name;
 }
 
 /*
@@ -62,11 +70,15 @@ function shorten_long_name(name, length) {
 function apply_tooltip(element, tip, length) {
     if(tip) {
         if(tip.length < length) {
-			if ('object' === typeof $(element).data('tooltip'))
-				element.tooltip({ disabled: true });
+            // If the object already has a tip and the new tip is less than the tip length
+            // remove the existing tip.
+            if ('object' === typeof $(element).data('tooltip'))
+                element.tooltip({ disabled: true });
             return false;
-        } 
-        element.attr("title", " - " + tip);
+        }
+        new_tip = tip.replace(/</g, '&lt;');
+        new_tip = new_tip.replace(/>/g, '&gt;');
+        element.attr("title", " - " + new_tip);
     }
 
     element.tooltip({ 
@@ -76,4 +88,14 @@ function apply_tooltip(element, tip, length) {
 	    showBody: " - ", 
 	    fade: 250 
 	});
+}
+
+/* 
+  Calls jQuery cuteTime function to create a well formatted timestamp.
+    time - An epoch timestamp
+ */
+function cute_time(time) {
+    var d = new Date();
+    d.setTime(time);
+    return $.cuteTime({}, d.toUTCString());
 }
