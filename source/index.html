@@ -40,6 +40,14 @@
           <p style='font-weight:bold;'>Project Name:</p>
 	  <p><input type="text" id="projectName" width="50%" />
           </p>
+
+		<p style='font-weight:bold;'>Category:</p>
+		 <p>
+		 	<select id="categorySelect">
+		 		<option value="">---Please Select---</option>
+		 	</select>
+		 </p>
+
           <p style='font-weight:bold;'>Reporting Settings:</p>
           <p>Would you like to use Tin Can to gather reporting statistics for this content pack?
             <p>
@@ -102,16 +110,33 @@ $(document).ready(function() {
  	 */
 	var directory = air.File.applicationStorageDirectory; 
 	var files = directory.getDirectoryListing();  
-
-        num_rows = 0;
+	var catFile = new FileCache(air.File.applicationStorageDirectory.nativePath + air.File.separator + "categories");
+	var categories = catFile.val ? JSON.parse(catFile.val) : [];
+	var categoriesFlat = [];
+	var printCats = function(map, spacer) {
+		categoriesFlat.push(map["name"]);
+		var option = "<option value='"+map["name"]+"'>"+spacer+" "+map["name"]+"</option>";
+		for (item in map["subs"]){
+			var nSpacer = spacer + "-";
+			option += printCats(map["subs"][item], nSpacer);
+		}
+		return option;
+	}
+	if ("categories" in categories) {
+		var options = "";
+		for (var c in categories["categories"]) {
+			options += printCats(categories["categories"][c],"");
+		}
+		$("#categorySelect").append(options);
+	}
+    num_rows = 0;
 	for (var f in files) {
 		if (files[f].isDirectory) {
-                        num_rows++;
-                        var manifest = new Manifest(files[f].nativePath);
-                        var status = manifest.get_metadata("status");
-                        var mod_time = manifest.get_metadata("update_time");
-                        var cute_mod_time = cute_time(mod_time);
-
+			num_rows++;
+			var manifest = new Manifest(files[f].nativePath);
+			var status = manifest.get_metadata("status");
+			var mod_time = manifest.get_metadata("update_time");
+			var cute_mod_time = cute_time(mod_time);			
 			var tr = $('<tr />');
 			var fname = files[f].name;
 			tr.append($('<td><div class="wrapper"><a href="proj.html?name='	+ encodeURIComponent(files[f].name) + '">' + 
@@ -152,6 +177,23 @@ $(document).ready(function() {
                 var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + projectName;
                 manifest = new Manifest(path, projectName);
                 var tincan = manifest.get_metadata('tincan');
+				var category = manifest.get_metadata("category");			
+				if (category != null) {
+					$("#categorySelect").val(category);
+					if ($("#categorySelect").val() != category){
+						if (categoriesFlat.length > 0){
+							manifest.set_metadata('category', "");
+							manifest.updateStatus(false, true);
+							$("#categorySelect").val("");
+						} else {
+							$("#categorySelect").append("<option value='"+category+"'>"+category+"</option>")
+							$("#categorySelect").val(category);
+							$('#categorySelect').prop('disabled',true);
+						}
+					} 
+				} else {
+					$("#categorySelect").val("");
+				}
                 $('#tincan_' + tincan).attr('checked', 'checked');
 
                 save_project_name_func = function(e) {
@@ -196,8 +238,21 @@ $(document).ready(function() {
 
                     var value = $('input:radio[name=tincan]:checked').val();
                     manifest.set_metadata('tincan', value);
+                    
+                    return true;
+                };
+				
+				save_category_setting_func = function(e) {
+					var name = anchor.attr('name');
+					var path = getAppPath() + name;
+					manifest = new Manifest(path, name);
 
-                    // Note that we are always going to change the status to modified and write out the
+					var value = $('#categorySelect').val();
+					if (value == manifest.get_metadata('category'))
+						return true;
+						
+					manifest.set_metadata('category', value);
+					// Note that we are always going to change the status to modified and write out the
                     // metadata even if the user did not change anything.  It might not be ideal but I think
                     // this won't happen that often so it is ok.
                     manifest.updateStatus(false, true);
@@ -205,8 +260,10 @@ $(document).ready(function() {
                     // After updating the metadata we need to update the "Last Modified" and "Status" columns
                     tr.find('td:nth-child(3)').text(cute_time(manifest.get_metadata('update_time')));
                     tr.find('td:nth-child(4)').text(manifest.get_metadata('status'));
-                    return true;
-                }
+
+					return true;
+					
+				};
 
                 func = function(e) {
                     // An intentional side effect of how this is written is that if the validity checking
@@ -214,7 +271,7 @@ $(document).ready(function() {
                     // metadata to disk).  If we ever add more settings make sure to preserve this behavior,
                     // possibly by having explicit validity checking functions before running any commands
                     // that cause filesystem changes (e.g. renaming the directory or writing the metadata).
-                    return save_project_name_func(e) && save_reporting_setting_func(e);
+                    return save_project_name_func(e) && (save_category_setting_func(e) || save_reporting_setting_func(e));
                 };
 
                 $( "#dialog-settings" ).dialog({
