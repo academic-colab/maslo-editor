@@ -181,10 +181,16 @@ $(document).ready(function() {
 				if (category != null) {
 					$("#categorySelect").val(category);
 					if ($("#categorySelect").val() != category){
-						manifest.set_metadata('category', "");
-						manifest.updateStatus(false, true);
-						$("#categorySelect").val("");
-					}
+						if (categoriesFlat.length > 0){
+							manifest.set_metadata('category', "");
+							manifest.updateStatus(false, true);
+							$("#categorySelect").val("");
+						} else {
+							$("#categorySelect").append("<option value='"+category+"'>"+category+"</option>")
+							$("#categorySelect").val(category);
+							$('#categorySelect').prop('disabled',true);
+						}
+					} 
 				} else {
 					$("#categorySelect").val("");
 				}
