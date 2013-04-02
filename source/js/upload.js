@@ -385,6 +385,27 @@ function splitZipFile(path){
 	return i;
 }
 
+function updateCategories(url){
+	$.ajax({
+           async: false,
+           global: false,
+           url: url,
+           dataType: "text",
+           success: function (data) {
+				var basePath = air.File.applicationStorageDirectory.nativePath + air.File.separator;
+				basePath += "categories"
+				var f = new FileCache(basePath);
+				f.val = data;
+				f.flush();
+				return false;
+           },
+           error:function (xhr, ajaxOptions, thrownError){
+           return false;
+           }
+           
+           });
+}
+
 function removeUser() { 
 	var fc = new FileCache(getAppPath()+"login");
 	fc.deleteData();
@@ -414,7 +435,7 @@ function addUser(userName, userPW){
 	return false;
 }
 
-function verifyUserCred(sessionId){
+function verifyUserCred(sessionId, funOnSuccess){
 	var f = new FileCache(getAppPath() + air.File.separator + 'uploadSettings.config');
 	if (!f.val){
 		var  msg = "Your upload server settings are not configured yet. \nYou will work offline now\
@@ -441,7 +462,7 @@ function verifyUserCred(sessionId){
 		var completeHandlerHandshake = function(event) {
 					timedOut = false;
 		            var loader = air.URLLoader(event.target);
-					return verifyUserCred(loader.data);
+					return verifyUserCred(loader.data, funOnSuccess);
 		}
 		var errorHandshake = function(event){
 			if (timedOut){
@@ -478,6 +499,9 @@ function verifyUserCred(sessionId){
 		            air.trace("completeHandler: " + loader.data);
 					$("#loadingDiv").dialog("close");
 					if (loader.data == "OK.") {
+						if (funOnSuccess != null){
+							funOnSuccess(jsonData.serverURL+"/category.php");
+						}
 						document.location.href="index.html";
 					} else {
 						removeUser();
@@ -506,7 +530,7 @@ function initUser(){
                 showLoading();
                 addUser(userName, userPW);
 		
-                verifyUserCred();
+                verifyUserCred(null, updateCategories);
                 $('#user-pass').dialog("close");
             }
         };
