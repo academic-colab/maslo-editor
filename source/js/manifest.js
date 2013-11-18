@@ -28,8 +28,7 @@ function Manifest(path, name, argObj, parent_manifest) {
 		var f = new FileCache(path + air.File.separator + 'manifest');
 		data = f.val ? JSON.parse(f.val) : [];
 		this.file = f;
-
-                this.load_metadata();
+		this.load_metadata();
 	}
 
 	var tableString = '\
