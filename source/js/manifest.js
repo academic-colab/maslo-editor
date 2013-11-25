@@ -28,8 +28,7 @@ function Manifest(path, name, argObj, parent_manifest) {
 		var f = new FileCache(path + air.File.separator + 'manifest');
 		data = f.val ? JSON.parse(f.val) : [];
 		this.file = f;
-
-                this.load_metadata();
+		this.load_metadata();
 	}
 
 	var tableString = '\
@@ -397,7 +396,7 @@ Manifest.prototype.addContent = function(content, is_new) {
 				autoOpen: true,
 				modal: true,
 				width: 550,
-				height:600,
+				height:500,
 				position: 'top',
 				beforeClose: function(event) {
 					var result = true;
@@ -468,7 +467,9 @@ Manifest.prototype.addContent = function(content, is_new) {
 					if(CKEDITOR.instances.editor1) 
 						CKEDITOR.instances.editor1.destroy(true);
 					CKEDITOR.replace( 'editor1', {
-						toolbar: myToolbar
+						toolbar: myToolbar,
+						width: 513,
+						height: 290
 					});
 				}
 				else {

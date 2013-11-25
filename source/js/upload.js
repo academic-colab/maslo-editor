@@ -43,6 +43,21 @@ function showLoading(){
  * @param event
  */
 function completeHandler(event){
+	if (event.data.substr(0,9) != "COMPLETE."){
+		$("#info-div").html(event.data+"<p/>");
+		$('#info-div').dialog({
+			autoOpen: true,
+			modal: true,
+			width: 450,
+			position: 'top',
+			buttons: {
+				"OK": function() {
+					$(this).dialog("close");
+				}
+			}
+		  });
+		return false;
+	}
 	uploadManifest.updateStatus(true);
 	uploadManifest.save();
 	$("#contentTable").find(".contentStatus").text("Published");
