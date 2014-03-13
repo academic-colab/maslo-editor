@@ -99,3 +99,28 @@ function cute_time(time) {
     d.setTime(time);
     return $.cuteTime({}, d.toUTCString());
 }
+
+/**
+ * Creates a dialog message
+ * @param msg The text
+ * @param fun
+ */
+function postMessage(msg, fun){
+	$("#info-div").html(msg);
+	$('#info-div').dialog({
+		autoOpen: true,
+		modal: true,
+		width: 450,
+		position: 'center',
+		buttons: {
+			"OK": function() {		
+				$(this).dialog("close");
+			}
+		},
+		close: function(){
+			if (fun != null){
+				fun();
+			}
+		}
+	  });	
+}
