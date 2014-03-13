@@ -52,6 +52,8 @@
 
 // -------------------------- SET UP PAGE -------------------------
 $(document).ready(function() {	
+	// clean up upload zips
+	clearZipsFromAppDir();
 	uploadPrefs();
 	removeUser();
 	initUser();

@@ -35,6 +35,22 @@ function replaceMediaFile(action, type) {
     						   new air.FileFilter("text", "*.txt;*.html;*.htm");
 	file.browseForOpen("Please select a file...", [fltr]);
 }
+
+/*
+ * Clean up leftover zip files from upload process. In theory they should never be left, but
+ * in practice we've seen one case where it happened. Just clean up on startup! 
+ */
+function clearZipsFromAppDir(){
+	var contents = air.File.applicationStorageDirectory.getDirectoryListing();  
+	var c = "contents.zip";
+	for (var i = 0; i < contents.length; i++)  { 
+		if (!(contents[i].isDirectory) && contents[i].name.length >= c.length) {
+			var c2 = contents[i].name.substr(0,c.length);
+			if (c2 == c)
+				contents[i].deleteFile(); 
+		}
+	}
+}
     
 /**
  * 
