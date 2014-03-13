@@ -26,6 +26,10 @@
 
 		<div class="action">
 			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
+			<div style="padding-left:50px;float:right;">
+				<a class="nice small radius blue button" href="#" id="import">Import</a>
+				<a class="nice small radius blue button" href="#" id="export">Export</a>
+			</div>
 			<div class="alt">
 				<input type="text" length="10" />
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
@@ -33,7 +37,7 @@
 			</div>
 			<div class="clear"></div>
 		</div>
-		
+				
 	</div>
 
 	<div id="dialog-settings" style="display: none" title="Content Pack Settings">
@@ -62,7 +66,7 @@
 		will be permanently deleted and cannot be recovered.
 		Are you sure?</p>
 	</div>
-	<div id="info-div"></div>
+	<div id="info-div" style="display: none" title="Info"></div>
 	<div id="user-pass" style="display: none" title="Maslo Authoring Tool Sign In">
 		<form id="userPass" action="#">
 		<table>
@@ -91,6 +95,7 @@
 <script type="text/javascript" src="js/jquery.watermark.min.js"></script>
 <script type="text/javascript" src="js/jquery.cuteTime.min.js"></script>
 <script type="text/javascript" src="js/jquery.tooltip.min.js"></script>
+<script type="application/x-shockwave-flash" src="flash/coltware_airxzip.swf" />
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/filecache.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
@@ -356,6 +361,15 @@ $(document).ready(function() {
 				Cancel: function() {
 					$( this ).dialog( "close" );
 				}
+			}
+		});
+	});
+	$("#import").click(function(ev){
+		chooseImportFile(function(e) {
+			var result = importZip(e.target.url);
+			if (result) {
+				var af = function(){window.htmlLoader.reload();};
+				postMessage("Content pack '"+result+"' was imported successfully.", af);
 			}
 		});
 	});

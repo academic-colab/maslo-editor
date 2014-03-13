@@ -3,28 +3,6 @@
 var uploadManifest = null;
 var currentUrl = null;
 
-/**
- * Creates a dialog message
- * @param msg The text
- * @param fun
- */
-function postMessage(msg, fun){
-	$("#info-div").html(msg);
-	$('#info-div').dialog({
-		autoOpen: true,
-		modal: true,
-		width: 450,
-		position: 'center',
-		buttons: {
-			"OK": function() {
-				if (fun != null) {
-					fun();
-				}
-				$(this).dialog("close");
-			}
-		}
-	  });	
-}
 
 function uploadProgress(data){
 }
