@@ -26,15 +26,17 @@
 
 		<div class="action">
 			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
-			<div style="padding-left:50px;float:right;">
+			<!--<div style="padding-left:50px;float:right;">
 				<a class="nice small radius blue button" href="#" id="import">Import</a>
 				<a class="nice small radius blue button" href="#" id="export">Export</a>
-			</div>
+			</div>-->
 			<div class="alt">
 				<input type="text" length="10" />
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
 				<button type="button" class="cancel nice small radius white button">Cancel</button>
 			</div>
+			<button type="button" class="nice small radius blue button" id="import">Import</button>
+			<button type="button" class="nice small radius blue button" id="export">Export</button>
 			<div class="clear"></div>
 		</div>
 				
@@ -313,7 +315,8 @@ $(document).ready(function() {
 		// both the Add Project link and the creation form have the class
 		// "alt" meaning alternate, and they switch
 		$('.action .alt').toggle();
-
+		$("#import").toggle();
+		$("#export").toggle();
                 if($('.action #add').is(':hidden')) {
                     $('.action input').focus();
                 }
