@@ -28,9 +28,15 @@ function chooseFile(action) {
 function chooseImportFile(action) {
 	file = new window.runtime.flash.filesystem.File();
 	file.addEventListener(air.Event.SELECT, action);
-	fltr_zip = new air.FileFilter("zip", "*.zip");
+	fltr_zip = new air.FileFilter("maslo", "*.maslo");
 	file.browseForOpen("Please select a file...",
 					   [fltr_zip]);
+}
+
+function chooseExportFile(action) {
+	file = new window.runtime.flash.filesystem.File();
+	file.addEventListener(air.Event.SELECT, action);
+	file.browseForSave("Save export file to...");
 }
 
 /*
@@ -104,21 +110,64 @@ function bytes2human(n) {
 	return Math.round((n / Math.pow(1024, exp))*10)/10 + pre;
 }
 
+function exportZip(projectName, fileName){
+	var zipFile = new air.File(fileName);
+	var writer = new window.runtime.com.coltware.airxzip.ZipFileWriter();
+	writer.open(zipFile);
+	var currentFolder = air.File.applicationStorageDirectory.resolvePath(projectName)
+	var utfProjectName = urlencode(""+projectName)
+	writer.addDirectory(utfProjectName);
+	
+	function addData(prefix, dirFile){
+		var files = dirFile.getDirectoryListing();
+		for (var i = 0; i < files.length; i++){
+			var ultiPrefix = "";
+			var nPrefix = [];
+			for (var j = 0; j < prefix.length; j++){
+				ultiPrefix += urlencode(prefix[j]) + air.File.separator;
+				nPrefix.push(prefix[j]);
+			}
+			nPrefix.push(files[i].name);
+			if (files[i].isDirectory) {
+                if (files[i].name !="." && files[i].name !="..") {
+					var nDir = new air.File(files[i].nativePath);					
+					var encPrefix = ultiPrefix + files[i].name;	
+					writer.addDirectory(encPrefix);
+					addData(nPrefix, nDir);
+				}
+			} else {
+				var nFile = new air.File(files[i].nativePath);				
+				var utfFileName = ultiPrefix + files[i].name;
+				writer.addFile(nFile,utfFileName);
+			}
+		}
+		return false;	
+	};
+	
+	var res = addData([projectName], currentFolder);
+	writer.close();
+}
+
 function importZip(fileName) {
 	var reader = new window.runtime.com.coltware.airxzip.ZipFileReader();
 	var zipFile = new air.File(fileName);
 	reader.open(zipFile);
 	var entries = reader.getEntries();
 	var projectName = false;
+	var projectDecode = false;
 	var foundManifest = false;
 	for (var i = 0 ; i < entries.length ; i++){
 		var entry = entries[i];
 		if (entry.isDirectory()){
-			if (!projectName)
+			var fName = entry.getFilename();
+			if (!projectName) {
 				projectName = entry.getFilename();
-			var newdir = air.File.applicationStorageDirectory.resolvePath(entry.getFilename());
+				projectDecode = urldecode(projectName);
+			}
+			fName = fName.replace(projectName, projectDecode);
+			var newdir = air.File.applicationStorageDirectory.resolvePath(fName);
 			if(newdir.exists) {
-				postMessage("That name ("+entry.getFilename()+") is already used by an existing project.  You must delete or rename that one first if you want to use that name.");
+				postMessage("That name ("+fName+") is already used by an existing project.  You must delete or rename that one first if you want to use that name.");
 				return false;
 			}	
 			newdir.createDirectory();
@@ -127,13 +176,15 @@ function importZip(fileName) {
 				postMessage("The zip file you are trying to import does not seem to contain a valid MASLO project. Nothing imported.");
 				return false;
 			}
-			var f = new air.File(getAppPath()+entry.getFilename());
+			var fName = entry.getFilename();
+			fName = fName.replace(projectName, projectDecode);
+			var f = new air.File(getAppPath()+fName);
 			var fs = new air.FileStream();
 			fs.open(f, air.FileMode.WRITE);
 			var data = reader.unzip(entry);
 			fs.writeBytes(data);
 			fs.close();
-			if (entry.getFilename().substr(projectName.length) == "manifest")
+			if (fName.substr(projectDecode.length) == "manifest")
 				foundManifest = true;
 		}
 	}
@@ -150,7 +201,7 @@ function importZip(fileName) {
 	var projectDir = air.File.applicationStorageDirectory.resolvePath("__MACOSX");
 	if (projectDir.exists)
 		projectDir.deleteDirectory(true);
-	return projectName;
+	return projectDecode;
 }
 
 
