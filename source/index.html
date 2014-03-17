@@ -66,7 +66,19 @@
 		will be permanently deleted and cannot be recovered.
 		Are you sure?</p>
 	</div>
+	<div id="dialog-confirm-ow" style="display: none" title="Overwrite file">
+		<p>The file "<span id="exist-file"></span>" already exists. Do you want to overwrite?
+		</p>
+	</div>
 	<div id="info-div" style="display: none" title="Info"></div>
+	<div id="project-select" style="display: none" title="Select project to export...">
+		<form id="projectSelect" action="#">
+		Please select a project to export: <br/>
+		<p/>
+		<select id="projectField">
+		</select>
+		</form>		
+	</div>
 	<div id="user-pass" style="display: none" title="Maslo Authoring Tool Sign In">
 		<form id="userPass" action="#">
 		<table>
@@ -96,6 +108,7 @@
 <script type="text/javascript" src="js/jquery.cuteTime.min.js"></script>
 <script type="text/javascript" src="js/jquery.tooltip.min.js"></script>
 <script type="application/x-shockwave-flash" src="flash/coltware_airxzip.swf" />
+<script type="text/javascript" src="js/urldecode.js"/>
 <script type="text/javascript" src="js/files.js"></script>
 <script type="text/javascript" src="js/filecache.js"></script>
 <script type="text/javascript" src="js/help.js"></script>
@@ -157,6 +170,7 @@ $(document).ready(function() {
 			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
 			tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
 			$('#contentBody').append(tr);
+			$("#projectField").append("<option value='"+fname+"'>"+fname+"</option>");
 		}
 	}
 
@@ -326,7 +340,7 @@ $(document).ready(function() {
 
 		var newdir = air.File.applicationStorageDirectory.resolvePath(name);
                 if(newdir.exists) {
-                        alert("That name is already used by an existing project.  You must delete that one first if you want to use that name.");
+                        postMessage("That name is already used by an existing project.  You must delete that one first if you want to use that name.");
                         $('.action input').focus();
                         return false;
                 }
@@ -372,6 +386,49 @@ $(document).ready(function() {
 				postMessage("Content pack '"+result+"' was imported successfully.", af);
 			}
 		});
+	});
+	$("#export").click(function(ev){
+		$( "#project-select" ).dialog({
+			height:240,
+			modal: true,
+			buttons: {
+				"Export": function() {
+					$( this ).dialog( "close" );
+					chooseExportFile(function(e) {
+						var pname = $( "#projectField option:selected" ).text();
+						var fname = e.target.url;
+						if (fname.substr(fname.length-6) != ".maslo")
+							fname = fname + ".maslo";	
+						var checkF = new air.File(fname);
+						if (checkF.exists){
+							$("#exist-file").text(fname);
+							$( "#dialog-confirm-ow" ).dialog({
+								height:270,
+								width:350,
+								modal: true,
+								buttons: {
+									"Yes": function() {
+										$( this ).dialog( "close" );
+										exportZip(pname, fname);
+									},
+									No: function() {
+										$( this ).dialog( "close" );
+									}
+								}
+							});
+							
+						} else {												
+							exportZip(pname, fname);						
+						}
+						return true;
+					});
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+
 	});
 	bottomBar($('#contentBody').height(), $(window).height());
 	$(window).resize(function() {
