@@ -376,6 +376,63 @@ Text.prototype.save = function() {
 	this.docFile.flush();
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Creates a new online object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ */
+function Online(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
+	this.docFile = new FileCache(this.path);
+	this.icon = 'icons/html.png';
+	this.type = 'online';
+	this.docFile.val = "";
+}
+Online.prototype = new Content();
+Online.prototype.constructor = Online;
+
+/**
+ * Renders the text edit window
+ * @param div The content div
+ * @return div Updated content div
+ */
+Online.prototype.render = function(div) {
+	Content.prototype.render.call(this, div);
+	this._textInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
+	this._textInput.val(this.docFile.val);
+	this._textInput.addClass('description');
+	div.append(this._textInput);	
+	return div;
+} 
+
+/**
+ * Renders the preview window for text
+ * @param div The content div
+ * @return div Updated content div
+ */
+Online.prototype.preview = function(div) {
+	Content.prototype.preview.call(this, div);
+	var p = $('<p>');
+	p.html(this.docFile.val);
+	div.append(p);
+	return div;
+}
+
+/**
+ * Saves this text by retrieving the editor content
+ */
+Online.prototype.save = function() {
+	Content.prototype.save.call(this);
+	if(this._textInput) {
+		this.docFile.val = CKEDITOR.instances.editor1.getData();
+	}
+	this.docFile.flush();
+};
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -1029,7 +1086,8 @@ Content.FromMetadata = function(projectBase, md) {
 Content.TypeConstructor = function(type) {
 	return {
 		"image": Image, "text": Text, "audio": Audio,
-	    "video": Video, "quiz": Quiz, "question": Question
+		"video": Video, "quiz": Quiz, "question": Question,
+		"online": Online
 	}[type] || Content;
 };
 

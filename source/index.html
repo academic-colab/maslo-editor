@@ -16,8 +16,9 @@
 				<tr>
 					<th class="big title"><span style="cursor: pointer;">Titles</span></th>
 					<th class="big"><span style="cursor: pointer;">Size</span></th>
-					<th class="big"><span style="cursor: pointer;">Last Modified</span></th>
+					<th class="big"><span style="cursor: pointer;">Last Modified</span></th>					
 					<th class="big"><span style="cursor: pointer;">Status</span></th>
+					<th>Offline Mode</th>
 					<th>Remove</th>
 				</tr>
 			</thead>
@@ -26,12 +27,9 @@
 
 		<div class="action">
 			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
-			<!--<div style="padding-left:50px;float:right;">
-				<a class="nice small radius blue button" href="#" id="import">Import</a>
-				<a class="nice small radius blue button" href="#" id="export">Export</a>
-			</div>-->
 			<div class="alt">
 				<input type="text" length="10" />
+				<input type="checkbox" id="check-online"/> Online mode
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
 				<button type="button" class="cancel nice small radius white button">Cancel</button>
 			</div>
@@ -46,6 +44,9 @@
           <p style='font-weight:bold;'>Project Name:</p>
 	  <p><input type="text" id="projectName" width="50%" />
           </p>
+		<p style='font-weight:bold;'>Online mode:
+		<input type="checkbox" id="wantOnline"/></p>
+		<p/>
 		<p style='font-weight:bold;'>Category:</p>
 		 <p>
 		 	<select id="categorySelect">
@@ -166,8 +167,12 @@ $(document).ready(function() {
 			apply_tooltip(tr.find('a:first'), fname, 50);
 
 			tr.append($('<td>' + bytes2human(recursiveSize(files[f].nativePath)) + '</td>'));
-			tr.append($('<td name="'+ mod_time +'">'  + cute_mod_time + '</td>'));
+			tr.append($('<td name="'+ mod_time +'">'  + cute_mod_time + '</td>'));			
 			tr.append($('<td>' + status + '</td>'));
+			if (manifest.get_metadata("offline") == "false")
+				tr.append($('<td class="icon"><img src="icons/uncheck.png" alt="Online mode" /></td>'));
+			else 
+				tr.append($('<td class="icon"><img src="icons/check.png" alt="Offline mode" /></td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
 			tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
@@ -178,7 +183,7 @@ $(document).ready(function() {
         if(num_rows == 0) {
             var tr = $('<tr id="fillRow"/>');
             $('#contentBody').append(tr);
-            tr.append($('<td colspan="5" class="fill">Click "' + $("#add").text() + '" below to add your first project.</td>'));
+            tr.append($('<td colspan="6" class="fill">Click "' + $("#add").text() + '" below to add your first project.</td>'));
         }
 
 	uploadPrefs();
@@ -192,12 +197,15 @@ $(document).ready(function() {
                 var tr = $(this).parent().parent().parent().parent();
                 var projectName = anchor.attr('name');
                 $("#projectName").val(projectName);             
-
+				
                 // Set the radio input to check
                 var path = air.File.applicationStorageDirectory.nativePath + air.File.separator + projectName;
                 manifest = new Manifest(path, projectName);
                 var tincan = manifest.get_metadata('tincan');
-				var category = manifest.get_metadata("category");			
+				var category = manifest.get_metadata("category");
+				var offline = manifest.get_metadata("offline");
+				if (offline == "false")
+					$('#wantOnline').attr('checked','checked');
 				if (category != null) {
 					$("#categorySelect").val(category);
 					if ($("#categorySelect").val() != category){
@@ -266,9 +274,16 @@ $(document).ready(function() {
 					var name = anchor.attr('name');
 					var path = getAppPath() + name;
 					manifest = new Manifest(path, name);
-
+					var oldOffline = manifest.get_metadata("offline");
+					if ($("#wantOnline").is(':checked')) {
+						manifest.set_metadata("offline", "false");
+						tr.find('td:nth-child(5)').html('<img src="icons/uncheck.png" alt="Online mode" />');
+					} else {
+						manifest.set_metadata("offline", "true");
+						tr.find('td:nth-child(5)').html('<img src="icons/check.png" alt="Offline mode" />');
+					}
 					var value = $('#categorySelect').val();
-					if (value == manifest.get_metadata('category'))
+					if (value == manifest.get_metadata('category') && oldOffline == manifest.get_metadata('offline'))
 						return true;
 						
 					manifest.set_metadata('category', value);
@@ -284,6 +299,7 @@ $(document).ready(function() {
 					return true;
 					
 				};
+
 
                 func = function(e) {
                     // An intentional side effect of how this is written is that if the validity checking
@@ -317,9 +333,9 @@ $(document).ready(function() {
 		$('.action .alt').toggle();
 		$("#import").toggle();
 		$("#export").toggle();
-                if($('.action #add').is(':hidden')) {
-                    $('.action input').focus();
-                }
+		if($('.action #add').is(':hidden')) {
+			$('.action input').focus();
+		}
 
 		return false;
 	});
@@ -356,6 +372,9 @@ $(document).ready(function() {
 		fs.close();
 		// Create default metadata file
 		manifest = new Manifest(newdir.nativePath, name);
+		if($("#check-online").is(':checked'))
+			manifest.set_metadata("offline", "false");
+
 		manifest.save_metadata();
 		
 		// Redirect to begin editing the project

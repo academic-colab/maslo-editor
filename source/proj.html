@@ -64,7 +64,7 @@
 
 <div id="dialog-add" style="display: none" title="Add Content">
 	<table id="contentTable">
-		<tbody>
+		<tbody id="contentTableBody">
 			<tr>
 				<td><input type="file" id="upload" style="display: none" />
 					<!-- this button sends any click to the hidden
@@ -145,6 +145,16 @@ $(document).ready(function() {
 	// load manifest, render table of contents
 	gManifest = new Manifest(gPageParams.path, gPageParams.name);
 	gManifest.render($('#toc'));
+	if (gManifest.get_metadata("offline") == "false"){
+		var trow = '<tr>\
+			<td><button class="alt nice small radius blue button" id="btnOnline" type="button">Create Online\ Content</button></td>\
+			<td>\
+				<img src="icons/html.png" height="16" width="16"/>\
+				Write new, copy paste, include links, embed videos\
+			</td>\
+		</tr>';
+		$("#contentTableBody").append(trow);
+	}
 	
 	$('form.quiz input[type="text"]').watermark('Name of Quiz');
 	$('form.quiz input[type="text"]').keyup(function() {
@@ -181,6 +191,14 @@ $(document).ready(function() {
 
 	$('#btnCreate').click(function() {
 		var content = new Text(gPageParams.path, 'Untitled Document');
+		gManifest.addContent(content, true);
+		content.save();
+		// the create text button is inside #dialog-add
+		$('#dialog-add').dialog("close");
+	});
+	
+	$('#btnOnline').click(function() {
+		var content = new Online(gPageParams.path, 'Untitled Online Resource');
 		gManifest.addContent(content, true);
 		content.save();
 		// the create text button is inside #dialog-add
