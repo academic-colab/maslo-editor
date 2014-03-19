@@ -463,11 +463,38 @@ Manifest.prototype.addContent = function(content, is_new) {
 								   'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
 							 	   { name: 'clipboard', items : [ 'Undo','Redo'] },
 							 	   { name: 'basicstyles', items: ['RemoveFormat'] }];
+				var onlineToolbar = [
+				['Source'],
+						[ 'Bold','Italic','Underline' ],
+
+							['Cut','Copy','Paste','PasteText','PasteFromWord'],
+
+							['Image','Youtube','Link','Unlink','Anchor'],
+
+
+							'/',
+
+							['Format'],
+						
+
+							['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
+
+							['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+							
+							['Undo','Redo'],
+							
+							['RemoveFormat']
+
+				];
+				var usedToolbar = myToolbar;
+				if (c.type == "online")
+					usedToolbar = onlineToolbar;
+					
 				if(c.type != "question") {
 					if(CKEDITOR.instances.editor1) 
 						CKEDITOR.instances.editor1.destroy(true);
 					CKEDITOR.replace( 'editor1', {
-						toolbar: myToolbar,
+						toolbar: usedToolbar,
 						width: 513,
 						height: 290
 					});
