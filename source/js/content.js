@@ -195,6 +195,50 @@ Content.prototype.replaceMedia = function(replacement) {
     }
 };
 
+/**
+ * Replaces the embedded online content associatied with the content element
+ * Keeps track of the original file as well as the new one
+ * in case the user decides to 'discard' the changes
+ * @param replacement The path to the replacement file
+ */
+Content.prototype.replaceLink = function(replacement) {
+    var vidLink = replacement;
+	this.embedFile = new FileCache(this.path);
+	if (vidLink.toLowerCase().indexOf("youtube.com") > -1) {
+		var splitUrl = function(name, href) {
+			  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+			  var regexS = "[\\?&]"+name+"=([^&#]*)";
+			  var regex = new RegExp( regexS );
+			  var results = regex.exec( href );
+			  if( results == null )
+			    return "";
+			  else
+			    return decodeURIComponent(results[1].replace(/\+/g, " "));
+		};
+		var vid = splitUrl("v",vidLink);
+		if (vid != "") {
+			var embed = '<iframe width="80%" height="50%" src="http://www.youtube.com/embed/'+vid+'" frameborder="0" allowfullscreen></iframe>';
+			this.embedFile.val = embed;
+		}
+	} else if ( vidLink.toLowerCase().indexOf("youtu.be") > -1) {
+		var vid = vidLink.replace("www.", "").replace("http://youtu.be",  "");
+		var embed = '<iframe width="80%" height="50%" src="http://www.youtube.com/embed/'+vid+'" frameborder="0" allowfullscreen></iframe>';
+		this.embedFile.val = embed;
+	} else if (vidLink.toLowerCase().indexOf("vimeo") > -1) {
+		var vid = vidLink.replace("www.", "").replace("http://vimeo.com/",  "");
+		var embed = '<iframe src="http://player.vimeo.com/video/'+vid+'" width="80%" height="50%" frameborder="0" allowfullscreen></iframe>';		
+		this.embedFile.val = embed;
+	} else {
+		postMessage("Entered URL is not supported.");
+		return false;
+	}
+
+    if(this.type == "videoOnlineObject") {
+    	$('#vidWrapper').empty();
+    	$('#vidWrapper').html(this.embedFile.val); 
+    }
+};
+
 Content.prototype.unrender = function() { 
 	// technically this is not true, but if we get to 
 	// this function, then we sure don't want to save the
@@ -322,6 +366,109 @@ Image.prototype.save = function() {
 
 
 /**
+ * Creates a new online object
+ * 
+ * @param projectBase The file path to the project
+ * @param title The title of the content to be created
+ * @param idOrPath An unique id or path to file
+ * @param ext The extension of the file
+ */
+function VideoOnlineObject(projectBase, title, idOrPath) {
+	Content.call(this, projectBase, title, idOrPath);
+	this.icon = 'icons/youtube.png';
+	this.type = 'videoOnlineObject'; // used in saving/loading object
+	this.embedFile = new FileCache(this.path);
+	this.embedFile.val = "";
+	this.descFile.val = "";
+    
+}
+VideoOnlineObject.prototype = new Content();
+VideoOnlineObject.prototype.constructor = VideoOnlineObject;
+
+/**
+ * Renders the image edit content window
+ * @param div The content div
+ * @return div Updated content div
+ */
+VideoOnlineObject.prototype.render = function(div) {
+	Content.prototype.render.call(this, div);
+    var wrapperDiv = $('<div id="vidWrapper"></div>');
+	this.embedFile = new FileCache(this.path);
+	wrapperDiv.html(this.embedFile.val);
+	div.append(wrapperDiv);
+    
+    var self = this;  
+    var imageBtn = $('<button>Link different video</button>');
+    imageBtn.click(function() {
+		$('#edit-video-link').dialog({
+			autoOpen: true,
+			modal: true,
+			width: 450,
+			position: 'center',
+			buttons: {
+				"Ok": function() { 
+					var link = $("#video-link-field").val();
+					Content.prototype.replaceLink.call(self, link);
+					$(this).dialog("close"); 
+				},
+				"Cancel": function(){
+					$(this).dialog("close"); 
+				} 
+			}
+		});
+        return false;
+    });
+    div.append(imageBtn);
+      
+	this._descInput = $('<textarea id="editor1" rows="3" cols="50"></textarea>');
+	this._descInput.val(this.descFile.val);
+	this._descInput.addClass('description');
+	div.append(this._descInput);	
+	return div;
+};
+
+/**
+ * Renders the preview window for images
+ * @param div The content div
+ * @return div Updated content div
+ */
+VideoOnlineObject.prototype.preview = function(div) {
+	Content.prototype.preview.call(this, div);
+	var wrapperDiv = $('<div id="vidWrapper"></div>');
+	this.embedFile = new FileCache(this.path);
+	wrapperDiv.html(this.embedFile.val);
+	div.append(wrapperDiv);
+	var p = $('<p/>');
+	var descContent = this.descFile.val;
+	if (descContent.trim() == "")
+		descContent = descContent.trim();
+	p.html(descContent);
+	div.append(p);
+	return div;
+}
+
+/**
+ * Saves this image by updating its description file
+ */
+VideoOnlineObject.prototype.save = function() {
+	Content.prototype.save.call(this);
+	if(this._descInput) {
+		var newData = CKEDITOR.instances.editor1.getData().replace(/\<br\>/g, "");
+		newData = newData.replace(/&nbsp;/g, "");
+		if (newData.trim() == "")
+			this.descFile.val = newData;
+		else 
+			this.descFile.val = CKEDITOR.instances.editor1.getData();
+	}
+	this.descFile.flush();	
+	this.embedFile.flush();
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+/**
  * Creates a new text object
  * 
  * @param projectBase The file path to the project
@@ -436,6 +583,7 @@ Online.prototype.save = function() {
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
+
 
 /**
  * Creates a new audio object
@@ -1087,7 +1235,7 @@ Content.TypeConstructor = function(type) {
 	return {
 		"image": Image, "text": Text, "audio": Audio,
 		"video": Video, "quiz": Quiz, "question": Question,
-		"online": Online
+		"online": Online, "videoOnlineObject": VideoOnlineObject
 	}[type] || Content;
 };
 

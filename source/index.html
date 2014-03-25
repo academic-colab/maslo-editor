@@ -18,7 +18,7 @@
 					<th class="big"><span style="cursor: pointer;">Size</span></th>
 					<th class="big"><span style="cursor: pointer;">Last Modified</span></th>					
 					<th class="big"><span style="cursor: pointer;">Status</span></th>
-					<th>Offline Mode</th>
+					<th>Requires Network</th>
 					<th>Remove</th>
 				</tr>
 			</thead>
@@ -29,12 +29,14 @@
 			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
 			<div class="alt">
 				<input type="text" length="10" />
-				<input type="checkbox" id="check-online"/> Online mode
+				<input type="checkbox" id="check-online"/> Online mode <a href="#" title="What is this?" class="st"><img src="icons/help.png" width="15" height="15"/></a>
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
-				<button type="button" class="cancel nice small radius white button">Cancel</button>
+				<button type="button" class="cancel nice small radius white button">Cancel</button>				
 			</div>
+
 			<button type="button" class="nice small radius blue button" id="import">Import</button>
 			<button type="button" class="nice small radius blue button" id="export">Export</button>
+
 			<div class="clear"></div>
 		</div>
 				
@@ -69,6 +71,9 @@
 		will be permanently deleted and cannot be recovered.
 		Are you sure?</p>
 	</div>
+	<div id="generic-confirm" style="display: none" title="Do you want to proceed?">		
+	</div>
+	
 	<div id="dialog-confirm-ow" style="display: none" title="Overwrite file">
 		<p>The file "<span id="exist-file"></span>" already exists. Do you want to overwrite?
 		</p>
@@ -129,6 +134,11 @@ $(document).ready(function() {
 	/**
  	 * Populate the list of projects. 
  	 */
+	$(".st").tooltip();
+	$(".st").click(function(){
+		postMessage("By selecting 'Online Mode' you indicate that your MASLO content package will require internet connectivity.");
+		return false;
+	});
 	var directory = air.File.applicationStorageDirectory; 
 	var files = directory.getDirectoryListing();  
 	var catFile = new FileCache(air.File.applicationStorageDirectory.nativePath + air.File.separator + "categories");
@@ -170,9 +180,9 @@ $(document).ready(function() {
 			tr.append($('<td name="'+ mod_time +'">'  + cute_mod_time + '</td>'));			
 			tr.append($('<td>' + status + '</td>'));
 			if (manifest.get_metadata("offline") == "false")
-				tr.append($('<td class="icon"><img src="icons/uncheck.png" alt="Online mode" /></td>'));
+				tr.append($('<td class="icon"><img src="icons/wifi.png" width="25" alt="Online mode" /></td>'));
 			else 
-				tr.append($('<td class="icon"><img src="icons/check.png" alt="Offline mode" /></td>'));
+				tr.append($('<td class="icon">&nbsp;</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
 			tr.mouseover(function(e){$(this).find('div.renameDiv').show();return false;});
 			tr.mouseout(function(e){$(this).find('div.renameDiv').hide();return false;});
@@ -184,6 +194,7 @@ $(document).ready(function() {
             var tr = $('<tr id="fillRow"/>');
             $('#contentBody').append(tr);
             tr.append($('<td colspan="6" class="fill">Click "' + $("#add").text() + '" below to add your first project.</td>'));
+			$("#export").hide();
         }
 
 	uploadPrefs();
@@ -277,10 +288,11 @@ $(document).ready(function() {
 					var oldOffline = manifest.get_metadata("offline");
 					if ($("#wantOnline").is(':checked')) {
 						manifest.set_metadata("offline", "false");
-						tr.find('td:nth-child(5)').html('<img src="icons/uncheck.png" alt="Online mode" />');
+						tr.find('td:nth-child(5)').html('<img src="icons/wifi.png" width="25" alt="Online mode" />');
 					} else {
+						
 						manifest.set_metadata("offline", "true");
-						tr.find('td:nth-child(5)').html('<img src="icons/check.png" alt="Offline mode" />');
+						tr.find('td:nth-child(5)').html('');
 					}
 					var value = $('#categorySelect').val();
 					if (value == manifest.get_metadata('category') && oldOffline == manifest.get_metadata('offline'))
@@ -400,13 +412,27 @@ $(document).ready(function() {
 		});
 	});
 	$("#import").click(function(ev){
-		chooseImportFile(function(e) {
-			var result = importZip(e.target.url);
-			if (result) {
-				var af = function(){window.htmlLoader.reload();};
-				postMessage("Content pack '"+result+"' was imported successfully.", af);
-			}
-		});
+		$( "#generic-confirm" ).html("This functionality imports full MASLO content packs obtained by exporting from the MASLO authoring tool. Those import files typically have the extension *.maslo. Do you want to proceed?");
+		$( "#generic-confirm" ).dialog({
+                width:450,
+                modal: true,
+                buttons: {
+                        "Ok": function() {
+							$(this).dialog( "close" );
+                            chooseImportFile(function(e) {
+								var result = importZip(e.target.url);
+								if (result) {
+									var af = function(){window.htmlLoader.reload();};
+									postMessage("Content pack '"+result+"' was imported successfully.", af);
+								}
+							});
+                        },
+                        Cancel: function() {
+                                $(this).dialog( "close" );
+                        }
+                }
+        });
+
 	});
 	$("#export").click(function(ev){
 		$("#projectField").empty();

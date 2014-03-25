@@ -463,29 +463,14 @@ Manifest.prototype.addContent = function(content, is_new) {
 								   'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
 							 	   { name: 'clipboard', items : [ 'Undo','Redo'] },
 							 	   { name: 'basicstyles', items: ['RemoveFormat'] }];
-				var onlineToolbar = [
-				['Source'],
-						[ 'Bold','Italic','Underline' ],
-
-							['Cut','Copy','Paste','PasteText','PasteFromWord'],
-
-							['Image','Youtube','Link','Unlink','Anchor'],
-
-
-							'/',
-
-							['Format'],
-						
-
-							['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
-
-							['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-							
-							['Undo','Redo'],
-							
-							['RemoveFormat']
-
-				];
+				var onlineToolbar = 				[ { name: 'basicstyles', items : [ 'Bold','Italic','Underline' ] },
+												  { name: 'paragraph', items : [ 'NumberedList','BulletedList','-', 
+												   'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
+											 	   { name: 'clipboard', items : [ 'Undo','Redo'] },
+													['Link','Unlink'],
+											 	   { name: 'basicstyles', items: ['RemoveFormat'] }];
+				
+				
 				var usedToolbar = myToolbar;
 				if (c.type == "online")
 					usedToolbar = onlineToolbar;
