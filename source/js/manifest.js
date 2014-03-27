@@ -463,11 +463,23 @@ Manifest.prototype.addContent = function(content, is_new) {
 								   'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
 							 	   { name: 'clipboard', items : [ 'Undo','Redo'] },
 							 	   { name: 'basicstyles', items: ['RemoveFormat'] }];
+				var onlineToolbar = 				[ { name: 'basicstyles', items : [ 'Bold','Italic','Underline' ] },
+												  { name: 'paragraph', items : [ 'NumberedList','BulletedList','-', 
+												   'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock' ] },
+											 	   { name: 'clipboard', items : [ 'Undo','Redo'] },
+													['Link','Unlink'],
+											 	   { name: 'basicstyles', items: ['RemoveFormat'] }];
+				
+				
+				var usedToolbar = myToolbar;
+				if (c.type == "online")
+					usedToolbar = onlineToolbar;
+					
 				if(c.type != "question") {
 					if(CKEDITOR.instances.editor1) 
 						CKEDITOR.instances.editor1.destroy(true);
 					CKEDITOR.replace( 'editor1', {
-						toolbar: myToolbar,
+						toolbar: usedToolbar,
 						width: 513,
 						height: 290
 					});
@@ -499,6 +511,7 @@ Manifest.prototype.get_metadata_defaults = function() {
     defaults = {
         "version":     "0",
         "status":      "Unpublished",
+		"offline":     "true",
         "tincan":      "no-reporting",
         "update_time": new Date().getTime(),  // Set the update time to right now
         // Add further defaults here
