@@ -29,7 +29,7 @@
 			<a class="alt nice small radius blue button" href="#" id="add">+ Add New Project</a>
 			<div class="alt">
 				<input type="text" length="10" />
-				<input type="checkbox" id="check-online"/> Online mode <a href="#" title="What is this?" class="st"><img src="icons/help.png" width="15" height="15"/></a>
+				<input type="checkbox" id="check-online"/> Online mode <a href="#" class="st"><img src="icons/help.png" width="15" height="15"/></a>
 				<button type="button" class="ok nice small radius blue button" disabled="disabled">OK</button>
 				<button type="button" class="cancel nice small radius white button">Cancel</button>				
 			</div>
@@ -46,8 +46,7 @@
           <p style='font-weight:bold;'>Project Name:</p>
 	  <p><input type="text" id="projectName" width="50%" />
           </p>
-
-		<p style='font-weight:bold;'>Online mode:
+		<p style='font-weight:bold;'>Online mode <a href="#" class="st"><img src="icons/help.png" width="15" height="15"/></a>:
 		<input type="checkbox" id="wantOnline"/></p>
 		<p/>
 		<p style='font-weight:bold;'>Category:</p>
@@ -133,10 +132,10 @@
 $(document).ready(function() {
 	/**
  	 * Populate the list of projects. 
- 	 */
-	$(".st").tooltip();
+ 	 */	
+	apply_tooltip($(".st"),"What is this?");
 	$(".st").click(function(){
-		postMessage("By selecting 'Online Mode' you indicate that your MASLO content package will require internet connectivity.");
+		postMessage("By selecting 'Online Mode' you will be allowed to embed hyperlinks and videos within your content pack. <p/>However, by doing so, you will require users of your content pack to be online while viewing and possibly incur mobile data costs. <p/>It will no longer be possible to use your content pack offline.");
 		return false;
 	});
 	var directory = air.File.applicationStorageDirectory; 
@@ -180,7 +179,7 @@ $(document).ready(function() {
 			tr.append($('<td name="'+ mod_time +'">'  + cute_mod_time + '</td>'));			
 			tr.append($('<td>' + status + '</td>'));
 			if (manifest.get_metadata("offline") == "false")
-				tr.append($('<td class="icon"><img src="icons/wifi.png" width="25" alt="Online mode" /></td>'));
+				tr.append($('<td class="icon"><a href="#" class="wifiClass"><img src="icons/wifi.png" width="25" alt="Online mode" /></a></td>'));
 			else 
 				tr.append($('<td class="icon">&nbsp;</td>'));
 			tr.append($('<td class="icon"><img class="remove" src="icons/remove.png" alt="Remove Item" /></td>'));
@@ -196,7 +195,16 @@ $(document).ready(function() {
             tr.append($('<td colspan="6" class="fill">Click "' + $("#add").text() + '" below to add your first project.</td>'));
 			$("#export").hide();
         }
-
+	var applyWifi = function(){
+		$(".wifiClass").unbind('click');
+		apply_tooltip($(".wifiClass"), "What's this?");
+		$(".wifiClass").click(function(e){
+			postMessage("The network symbol indicates that this content pack may contain online components, such as links or embedded videos.<p/>As a result, users will need to have network access on their devices in order to properly view this content pack.");
+			return false;
+		});
+	}
+	applyWifi();
+	
 	uploadPrefs();
 	$('.action input').watermark('Name of Project');
 	
@@ -215,8 +223,10 @@ $(document).ready(function() {
                 var tincan = manifest.get_metadata('tincan');
 				var category = manifest.get_metadata("category");
 				var offline = manifest.get_metadata("offline");
-				if (offline == "false")
+				$('#wantOnline').attr('checked',false);
+				if (offline == "false")				
 					$('#wantOnline').attr('checked','checked');
+				
 				if (category != null) {
 					$("#categorySelect").val(category);
 					if ($("#categorySelect").val() != category){
@@ -288,11 +298,32 @@ $(document).ready(function() {
 					var oldOffline = manifest.get_metadata("offline");
 					if ($("#wantOnline").is(':checked')) {
 						manifest.set_metadata("offline", "false");
-						tr.find('td:nth-child(5)').html('<img src="icons/wifi.png" width="25" alt="Online mode" />');
+						tr.find('td:nth-child(5)').html('<a href="#" class="wifiClass"><img src="icons/wifi.png" width="25" alt="Online mode" /></a>');
+						applyWifi();
 					} else {
-						
-						manifest.set_metadata("offline", "true");
-						tr.find('td:nth-child(5)').html('');
+						var onlineList = []
+						var wantToMod = true;
+						if (oldOffline == "false") {
+							var data = JSON.parse(manifest.file.val)
+							for (item in data) {
+								if (data[item].type == "videoOnlineObject" || data[item].type == "online"){
+									wantToMod = false;
+									onlineList.push(data[item].title);
+								}
+							}
+						}
+						if (wantToMod) {
+							manifest.set_metadata("offline", "true");
+							tr.find('td:nth-child(5)').html('');
+						} else {
+							$("#wantOnline").attr('checked', 'checked');
+							var msg = "The content pack '"+name+"' contains online content pieces. <p/>In order to change to offline mode you will need to delete the content requiring connectivity first.<p/>The content pieces requiring connectivity are:<br/>";
+							for (var item in onlineList) {
+								msg += "- <b>"+onlineList[item]+"</b><br/>";								
+							}
+							postMessage(msg);
+							
+						}
 					}
 					var value = $('#categorySelect').val();
 					if (value == manifest.get_metadata('category') && oldOffline == manifest.get_metadata('offline'))
